@@ -3,11 +3,11 @@
   "label": "A · Opus (hesap 1)",
   "role": "plan · inceleme · birleştirme",
   "account": "~/.claude",
-  "updated": "2026-11-14T14:05:47.037Z",
+  "updated": "2026-11-14T14:12:51.034Z",
   "milestone": {
     "name": "M1 · Yerelde çalışan site (CRUD + form + responsive)"
   },
-  "next": "Hakan Bey brief formunu imzalasın; ardından GitHub repo + Render/Neon yayını (README adımları)",
+  "next": "Neon veritabanı adresi gelince seed + test, ardından Render yayını; Hakan Bey brief imzası",
   "parts": [
     {
       "name": "Express + EJS + PostgreSQL iskeleti",
@@ -34,8 +34,8 @@
       "status": "todo"
     },
     {
-      "name": "GitHub push",
-      "status": "todo"
+      "name": "GitHub push (özel repo)",
+      "status": "done"
     },
     {
       "name": "Render + Neon yayını",
@@ -44,8 +44,8 @@
   ],
   "asks": [
     {
-      "q": "GitHub repo herkese açık mı özel mi olsun?",
-      "default": "Herkese açık (yönerge GitHub teslimi istiyor)"
+      "q": "Teslimden önce repo açık mı yapılsın, hoca mı davet edilsin?",
+      "default": "Teslimden önce açık yap"
     }
   ]
 }
