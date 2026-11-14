@@ -26,7 +26,7 @@ function basliktanProje(baslik) {
   const sehir = SEHIRLER.find(s => geri.includes(s)) || null;
   return {
     musteri: musteri.trim(),
-    etkinlik: d.etkinlik || geri || 'Kurumsal etkinlik',
+    etkinlik: d.etkinlik || geri || '', // başlıkta etkinlik adı yoksa boş bırakılır (uydurulmaz)
     sehir,
     yil: d.yil || yil,
     tur: turBul(baslik),

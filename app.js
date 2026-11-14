@@ -10,6 +10,9 @@ const pool = require('./db/pool');
 const app = express();
 const uretim = process.env.NODE_ENV === 'production';
 
+// Canlıda oturum anahtarı zorunlu: yoksa uygulama hiç başlamasın (tahmin edilebilir anahtarla çalışmasın)
+if (uretim && !process.env.SESSION_SECRET) throw new Error('SESSION_SECRET tanımlı değil');
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('trust proxy', 1); // Render gibi sunucular HTTPS'i önden karşılar
@@ -49,6 +52,9 @@ app.use((req, res, next) => {
   res.locals.bildirim = req.session.bildirim || null;
   delete req.session.bildirim;
   res.locals.firma = require('./config/firma');
+  // Ders projesi önizlemesi: arama motorlarına kapalı + sayfada not (Hakan Bey alan adına taşımaya karar verene kadar)
+  res.locals.demo = process.env.SITE_DEMO === 'true';
+  if (res.locals.demo) res.set('X-Robots-Tag', 'noindex, nofollow');
   next();
 });
 

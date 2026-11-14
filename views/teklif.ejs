@@ -39,7 +39,7 @@
     <label>Mesaj<textarea name="mesaj" rows="5" maxlength="2000" placeholder="Stand ölçüsü, yükseklik, ışık/ses asılacak mı…"><%= d.mesaj || '' %></textarea><%- hata('mesaj') %></label>
     <%# Bal küpü: ekranda görünmez, botlar doldurur %>
     <label class="gizli" aria-hidden="true">Web siteniz<input name="web_sitesi" tabindex="-1" autocomplete="off"></label>
-    <label class="onay"><input type="checkbox" name="kvkk" required <%- aria('kvkk') %>> Bilgilerimin yalnız bu teklif için kullanılacağını ve <%= firma.ad %> tarafından saklanacağını okudum, onaylıyorum. *</label><%- hata('kvkk') %>
+    <label class="onay"><input type="checkbox" name="kvkk" required <%- aria('kvkk') %>> Bilgilerimin yalnız bu teklif talebine dönüş yapmak için kullanılacağını ve bu amaçla saklanacağını okudum, onaylıyorum. *</label><%- hata('kvkk') %>
   </fieldset>
 
   <button class="dugme buyuk" type="submit">Teklif talebini gönder</button>

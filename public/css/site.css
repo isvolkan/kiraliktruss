@@ -90,6 +90,8 @@ main, header, footer { position: relative; z-index: 1; }
 .dugmeler.orta { justify-content: center; }
 .ok-link { text-decoration: none; color: var(--soluk); font-weight: 500; }
 .ok-link:hover { color: var(--vurgu); }
+.demo-not { position: relative; z-index: 60; padding: 6px var(--bosluk); background: var(--vurgu); color: var(--vurgu-metin); font-size: 12px; text-align: center; }
+.demo-not a { color: inherit; }
 .bildirim { position: relative; z-index: 2; margin: 12px var(--bosluk) 0; padding: 12px 16px; border-radius: var(--kenar); background: color-mix(in srgb, var(--basari) 18%, var(--yuzey)); border: 1px solid color-mix(in srgb, var(--basari) 50%, transparent); }
 
 /* ---------- Açılış ---------- */
@@ -253,7 +255,7 @@ input[type="file"] { padding: 8px; }
 /* ---------- Ortaya çıkma animasyonları (JS sınıf ekler) ---------- */
 .js .ortaya-cik { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1); }
 .js .ortaya-cik.gorundu { opacity: 1; transform: none; }
-.kelime-kelime .k { display: inline-block; overflow: hidden; vertical-align: bottom; }
+.kelime-kelime .k { display: inline-block; overflow: hidden; vertical-align: bottom; padding-block: .12em; margin-block: -.12em; }
 .kelime-kelime .k > span { display: inline-block; transform: translateY(105%); transition: transform .8s cubic-bezier(.2, .7, .2, 1); transition-delay: calc(var(--i) * 70ms); }
 .kelime-kelime.gorundu .k > span { transform: none; }
 
@@ -291,6 +293,7 @@ input[type="file"] { padding: 8px; }
   .adimlar { grid-template-columns: 1fr; }
   .ust .logo span { display: none; }
   .tema-dugme { padding: 8px 10px; }
+  .demo-ek { display: none; }
   .liste-onizleme { display: none; }
 }
 

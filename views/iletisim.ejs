@@ -12,8 +12,9 @@
     <div><dt class="mono">Adres</dt><dd><%= firma.adres %><br><%= firma.ilce %></dd></div>
   </dl>
   <div class="harita">
-    <iframe title="Kiralık Truss konumu (yaklaşık)" loading="lazy" referrerpolicy="no-referrer"
+    <iframe title="Kiralık Truss konumu (yaklaşık)" loading="lazy"
       src="https://www.openstreetmap.org/export/embed.html?bbox=<%= bbox %>&amp;layer=mapnik&amp;marker=<%= h.lat %>,<%= h.lon %>"></iframe>
+    <p class="mono soluk">Harita yaklaşık konumu gösterir; adres için yukarıdaki bilgiyi esas alın.</p>
     <a class="ok-link mono" href="https://www.openstreetmap.org/?mlat=<%= h.lat %>&amp;mlon=<%= h.lon %>#map=15/<%= h.lat %>/<%= h.lon %>" target="_blank" rel="noopener">Büyük haritada aç →</a>
   </div>
 </section>

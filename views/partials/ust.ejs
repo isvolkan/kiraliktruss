@@ -6,6 +6,7 @@
   <title><%= baslik %> · <%= firma.ad %></title>
   <meta name="description" content="<%= firma.kurulus %>'dan beri İstanbul'da fuar, konser, kongre ve etkinlikler için orijinal alüminyum truss kiralama ve teknik ekip desteği.">
   <meta name="theme-color" content="#0b111d">
+  <% if (demo) { %><meta name="robots" content="noindex, nofollow"><% } %>
   <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,6 +16,7 @@
 </head>
 <body class="<%= typeof govdeSinifi !== 'undefined' ? govdeSinifi : '' %>">
   <a class="atla" href="#icerik">İçeriğe geç</a>
+  <% if (demo) { %><div class="demo-not mono">Önizleme · yeni site taslağı (ders projesi)<span class="demo-ek">. Acil işler için <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></span></div><% } %>
   <div class="kolonlar" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 
   <header class="ust">

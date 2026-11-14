@@ -8,8 +8,8 @@
   if (temaDugme) {
     temaDugme.addEventListener('click', function (e) {
       var kok = document.documentElement;
-      var simdiAcik = kok.dataset.tema === 'acik' ||
-        (!kok.dataset.tema && window.matchMedia('(prefers-color-scheme: light)').matches);
+      // Site varsayılan olarak koyu; açık tema yalnız data-tema="acik" ile gelir
+      var simdiAcik = kok.dataset.tema === 'acik';
       var yeni = simdiAcik ? 'koyu' : 'acik';
       var uygula = function () {
         kok.dataset.tema = yeni;

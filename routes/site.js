@@ -13,8 +13,9 @@ router.get('/', async (req, res) => {
   const [oneCikan, sayilar, fuarlar] = await Promise.all([
     pool.query(`SELECT id, musteri, etkinlik, sehir, yil, tur FROM projeler
                 WHERE one_cikan ORDER BY yil DESC NULLS LAST, id DESC LIMIT 8`),
-    pool.query(`SELECT count(*)::int AS proje, count(DISTINCT sehir)::int AS sehir FROM projeler`),
-    pool.query(`SELECT etkinlik, count(*)::int AS n FROM projeler WHERE tur = 'fuar'
+    pool.query(`SELECT count(*)::int AS proje,
+                       count(DISTINCT etkinlik) FILTER (WHERE tur = 'fuar' AND etkinlik <> '')::int AS fuar FROM projeler`),
+    pool.query(`SELECT etkinlik, count(*)::int AS n FROM projeler WHERE tur = 'fuar' AND etkinlik <> ''
                 GROUP BY etkinlik ORDER BY n DESC LIMIT 14`),
   ]);
   res.render('anasayfa', {
@@ -71,7 +72,7 @@ router.get('/calismalar/:id', async (req, res, next) => {
   const benzer = await pool.query(
     `SELECT id, musteri, etkinlik, sehir, yil, tur FROM projeler WHERE id <> $1 AND (tur = $2 OR sehir = $3)
      ORDER BY yil DESC NULLS LAST LIMIT 4`, [id, rows[0].tur, rows[0].sehir]);
-  res.render('calisma', { baslik: `${rows[0].musteri} — ${rows[0].etkinlik}`, p: rows[0], benzer: benzer.rows });
+  res.render('calisma', { baslik: rows[0].etkinlik ? `${rows[0].musteri} — ${rows[0].etkinlik}` : rows[0].musteri, p: rows[0], benzer: benzer.rows });
 });
 
 // Proje fotoğrafını veritabanından verir

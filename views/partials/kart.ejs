@@ -3,5 +3,5 @@
   <span class="kart-gorsel"><img src="/gorsel/<%= p.id %>" alt="<%= p.musteri %> — <%= p.etkinlik %>" loading="lazy" width="600" height="400"></span>
   <span class="kunye mono">No. <%= String(p.id).padStart(3, '0') %> · <%= p.yil || '—' %><%= p.sehir ? ' · ' + p.sehir : '' %></span>
   <span class="kart-baslik"><%= p.musteri %></span>
-  <span class="kart-alt"><%= p.etkinlik %></span>
+  <% if (p.etkinlik) { %><span class="kart-alt"><%= p.etkinlik %></span><% } %>
 </a>

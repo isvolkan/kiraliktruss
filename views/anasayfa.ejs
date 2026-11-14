@@ -39,7 +39,7 @@
     <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= new Date().getFullYear() - firma.kurulus %>">0</span><span class="mono">yıllık deneyim</span></div>
     <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= firma.stokMetretul %>" data-on="~">0</span><span class="mono">metretül truss stoğu</span></div>
     <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= sayilar.proje %>" data-son="+">0</span><span class="mono">arşivdeki proje</span></div>
-    <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= sayilar.sehir %>">0</span><span class="mono">şehirde proje</span></div>
+    <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= sayilar.fuar %>">0</span><span class="mono">farklı fuar</span></div>
   </div>
   <svg class="kafes" id="kafes" viewBox="0 0 1200 140" preserveAspectRatio="none" aria-hidden="true">
     <path class="kafes-cizgi" pathLength="1" d="M0 20H1200M0 120H1200<% for (let x = 0; x <= 1200; x += 100) { %>M<%= x %> 20V120<% } %><% for (let x = 0; x < 1200; x += 100) { %>M<%= x %> 20L<%= x + 100 %> 120<% } %>"/>
@@ -63,9 +63,9 @@
   <h2 class="kelime-kelime">Nasıl çalışıyoruz</h2>
   <ol class="adimlar">
     <li class="ortaya-cik"><span class="adim-no mono">01</span><h3>Proje bilgisi</h3><p>Tarih, mekân ve stand ölçüsünü formdan ya da telefonla iletirsiniz.</p></li>
-    <li class="ortaya-cik"><span class="adim-no mono">02</span><h3>Çizim ve teklif</h3><p>İhtiyaca göre truss planını çıkarır, proje bazlı fiyat veririz.</p></li>
+    <li class="ortaya-cik"><span class="adim-no mono">02</span><h3>Çözüm ve teklif</h3><p>İhtiyacınıza göre çözümü birlikte belirler, proje bazlı fiyat veririz.</p></li>
     <li class="ortaya-cik"><span class="adim-no mono">03</span><h3>Uygulama</h3><p>Deneyimli teknik ekibimizle projenizi etkinlik gününe hazır ederiz.</p></li>
-    <li class="ortaya-cik"><span class="adim-no mono">04</span><h3>Etkinlik sonrası</h3><p>Sistemler depoya döner, bakımı yapılıp bir sonraki projeye hazırlanır.</p></li>
+    <li class="ortaya-cik"><span class="adim-no mono">04</span><h3>Etkinlik sonrası</h3><p>Sistemlerimiz özenle depolanır; ilk günkü alüminyum parlaklığıyla bir sonraki projeye hazırdır.</p></li>
   </ol>
 </section>
 

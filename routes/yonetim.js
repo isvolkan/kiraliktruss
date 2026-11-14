@@ -13,8 +13,20 @@ const router = express.Router();
 const yukle = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 3 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => cb(null, ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)),
+  fileFilter: (req, file, cb) => {
+    const uygun = ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype);
+    if (!uygun) req.dosyaHatasi = 'Yalnız JPEG, PNG ya da WebP fotoğraf yüklenebilir.';
+    cb(null, uygun);
+  },
 });
+
+// multer hatalarını (ör. dosya 3 MB'tan büyük) 500 sayfası yerine form hatasına çevirir
+function fotografAl(req, res, next) {
+  yukle.single('gorsel')(req, res, (err) => {
+    if (err) req.dosyaHatasi = err.code === 'LIMIT_FILE_SIZE' ? 'Fotoğraf en fazla 3 MB olabilir.' : 'Fotoğraf yüklenemedi.';
+    next();
+  });
+}
 
 const DURUMLAR = { yeni: 'Yeni', arandi: 'Arandı', teklif_verildi: 'Teklif verildi', kapandi: 'Kapandı' };
 
@@ -69,11 +81,12 @@ router.get('/projeler', async (req, res) => {
 router.get('/projeler/yeni', (req, res) =>
   res.render('yonetim/proje-form', { baslik: 'Yeni proje', p: { tur: 'fuar' }, hatalar: {}, yeni: true }));
 
-router.post('/projeler', yukle.single('gorsel'), projeKurallari, async (req, res) => {
+router.post('/projeler', fotografAl, projeKurallari, async (req, res) => {
   const sonuc = validationResult(req);
   const hatalar = {};
   for (const h of sonuc.array()) if (!hatalar[h.path]) hatalar[h.path] = h.msg;
-  if (!req.file) hatalar.gorsel = 'Bir fotoğraf seçin (JPEG, PNG ya da WebP, en fazla 3 MB).';
+  if (req.dosyaHatasi) hatalar.gorsel = req.dosyaHatasi;
+  else if (!req.file) hatalar.gorsel = 'Bir fotoğraf seçin (JPEG, PNG ya da WebP, en fazla 3 MB).';
   if (Object.keys(hatalar).length) {
     return res.status(422).render('yonetim/proje-form', { baslik: 'Yeni proje', p: req.body, hatalar, yeni: true });
   }
@@ -81,7 +94,7 @@ router.post('/projeler', yukle.single('gorsel'), projeKurallari, async (req, res
   const { rows } = await pool.query(
     `INSERT INTO projeler (musteri, etkinlik, sehir, yil, tur, aciklama, one_cikan, gorsel, gorsel_tip)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
-    [v.musteri, v.etkinlik, v.sehir || null, v.yil || null, v.tur, v.aciklama || null,
+    [v.musteri, v.etkinlik || '', v.sehir || null, v.yil || null, v.tur, v.aciklama || null,
      req.body.one_cikan === 'on', req.file.buffer, req.file.mimetype]
   );
   bildir(req, `Proje eklendi (No. ${rows[0].id}).`);
@@ -94,12 +107,13 @@ router.get('/projeler/:id/duzenle', async (req, res, next) => {
   res.render('yonetim/proje-form', { baslik: 'Projeyi düzenle', p: rows[0], hatalar: {}, yeni: false });
 });
 
-router.post('/projeler/:id', yukle.single('gorsel'), projeKurallari, async (req, res, next) => {
+router.post('/projeler/:id', fotografAl, projeKurallari, async (req, res, next) => {
   const id = parseInt(req.params.id, 10) || 0;
   const sonuc = validationResult(req);
-  if (!sonuc.isEmpty()) {
+  if (!sonuc.isEmpty() || req.dosyaHatasi) {
     const hatalar = {};
     for (const h of sonuc.array()) if (!hatalar[h.path]) hatalar[h.path] = h.msg;
+    if (req.dosyaHatasi) hatalar.gorsel = req.dosyaHatasi;
     return res.status(422).render('yonetim/proje-form', { baslik: 'Projeyi düzenle', p: { ...req.body, id }, hatalar, yeni: false });
   }
   const v = matchedData(req);
@@ -108,7 +122,7 @@ router.post('/projeler/:id', yukle.single('gorsel'), projeKurallari, async (req,
     `UPDATE projeler SET musteri = $1, etkinlik = $2, sehir = $3, yil = $4, tur = $5, aciklama = $6, one_cikan = $7,
        gorsel = COALESCE($8, gorsel), gorsel_tip = COALESCE($9, gorsel_tip), guncelleme = now()
      WHERE id = $10`,
-    [v.musteri, v.etkinlik, v.sehir || null, v.yil || null, v.tur, v.aciklama || null, req.body.one_cikan === 'on',
+    [v.musteri, v.etkinlik || '', v.sehir || null, v.yil || null, v.tur, v.aciklama || null, req.body.one_cikan === 'on',
      req.file ? req.file.buffer : null, req.file ? req.file.mimetype : null, id]
   );
   if (!rowCount) return next();

@@ -22,7 +22,7 @@ const teklifKurallari = [
 
 const projeKurallari = [
   body('musteri').trim().isLength({ min: 2, max: 100 }).withMessage('Müşteri adı 2–100 karakter olmalı.'),
-  body('etkinlik').trim().isLength({ min: 2, max: 120 }).withMessage('Etkinlik adı 2–120 karakter olmalı.'),
+  body('etkinlik').optional({ values: 'falsy' }).trim().isLength({ max: 120 }).withMessage('Etkinlik adı en fazla 120 karakter.'),
   body('sehir').optional({ values: 'falsy' }).trim().isLength({ max: 60 }),
   body('yil').optional({ values: 'falsy' }).isInt({ min: 2000, max: 2100 }).withMessage('Yıl 2000–2100 arası olmalı.').toInt(),
   body('tur').isIn(['fuar', 'etkinlik', 'kurumsal']).withMessage('Tür seçin.'),

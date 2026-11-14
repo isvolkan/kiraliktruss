@@ -136,3 +136,45 @@ test('proje CRUD: ekle (fotoğraflı), listele, güncelle, sil', async () => {
   const s = await pool.query('SELECT 1 FROM projeler WHERE id = $1', [id]);
   assert.strictEqual(s.rowCount, 0);
 });
+
+test('yönetim sayfaları ve teşekkür sayfası açılıyor', async () => {
+  const ajan = await girisYap();
+  const { rows } = await pool.query('SELECT id FROM projeler LIMIT 1');
+  for (const yol of ['/yonetim', '/yonetim/projeler', '/yonetim/projeler/yeni', `/yonetim/projeler/${rows[0].id}/duzenle`, '/yonetim/teklifler', '/yonetim/teklifler?durum=yeni']) {
+    const r = await ajan.get(yol);
+    assert.strictEqual(r.status, 200, yol);
+  }
+  const t = await request(app).get('/teklif/tesekkurler');
+  assert.strictEqual(t.status, 200);
+  // Teklif detay sayfası
+  await pool.query(`INSERT INTO teklifler (ad_soyad, telefon, eposta, etkinlik_turu, sehir, tarih, kvkk_onay)
+                    VALUES ($1, '05321234567', 'a@b.com', 'Diğer', 'İzmir', now(), true)`, [ETIKET + ' Detay']);
+  const d = await pool.query('SELECT id FROM teklifler WHERE ad_soyad = $1', [ETIKET + ' Detay']);
+  const r = await ajan.get('/yonetim/teklifler/' + d.rows[0].id);
+  assert.strictEqual(r.status, 200);
+  assert.match(r.text, /İzmir/);
+});
+
+test('fotoğraf yükleme hataları form hatası olarak döner (500 değil)', async () => {
+  const ajan = await girisYap();
+  const buyuk = Buffer.alloc(3 * 1024 * 1024 + 10, 0xff);
+  const r1 = await ajan.post('/yonetim/projeler').field('musteri', ETIKET + ' Buyuk').field('tur', 'fuar')
+    .attach('gorsel', buyuk, { filename: 'buyuk.jpg', contentType: 'image/jpeg' });
+  assert.strictEqual(r1.status, 422);
+  assert.match(r1.text, /en fazla 3 MB/);
+  const { rows } = await pool.query('SELECT id FROM projeler LIMIT 1');
+  const r2 = await ajan.post('/yonetim/projeler/' + rows[0].id).field('musteri', 'X Firma').field('tur', 'fuar')
+    .attach('gorsel', Buffer.from('merhaba'), { filename: 'not.txt', contentType: 'text/plain' });
+  assert.strictEqual(r2.status, 422);
+  assert.match(r2.text, /Yalnız JPEG, PNG ya da WebP/);
+  const g = await pool.query('SELECT musteri FROM projeler WHERE id = $1', [rows[0].id]);
+  assert.notStrictEqual(g.rows[0].musteri, 'X Firma'); // hatalı istek kaydı değiştirmemeli
+});
+
+test('önizleme modunda arama motorlarına kapalı', async () => {
+  const r = await request(app).get('/');
+  if (process.env.SITE_DEMO === 'true') {
+    assert.strictEqual(r.headers['x-robots-tag'], 'noindex, nofollow');
+    assert.match(r.text, /noindex/);
+  }
+});

@@ -5,7 +5,7 @@
 <form class="form kart-form" method="post" action="<%= yeni ? '/yonetim/projeler' : '/yonetim/projeler/' + p.id %>" enctype="multipart/form-data" novalidate>
   <% if (Object.keys(hatalar).length) { %><p class="hata-kutu" role="alert">Lütfen işaretli alanları düzeltin.</p><% } %>
   <label>Müşteri *<input name="musteri" value="<%= p.musteri || '' %>" required maxlength="100"><%- hata('musteri') %></label>
-  <label>Etkinlik / fuar *<input name="etkinlik" value="<%= p.etkinlik || '' %>" required maxlength="120"><%- hata('etkinlik') %></label>
+  <label>Etkinlik / fuar<input name="etkinlik" value="<%= p.etkinlik || '' %>" maxlength="120"><%- hata('etkinlik') %></label>
   <div class="form-satir">
     <label>Şehir<input name="sehir" value="<%= p.sehir || '' %>" maxlength="60"><%- hata('sehir') %></label>
     <label>Yıl<input name="yil" type="number" min="2000" max="2100" value="<%= p.yil || '' %>"><%- hata('yil') %></label>

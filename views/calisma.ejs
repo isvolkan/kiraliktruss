@@ -8,7 +8,7 @@
       <p class="mono soluk">No. <%= String(p.id).padStart(3, '0') %></p>
       <h1><%= p.musteri %></h1>
       <dl class="kunye-liste mono">
-        <div><dt>Etkinlik</dt><dd><%= p.etkinlik %></dd></div>
+        <div><dt>Etkinlik</dt><dd><%= p.etkinlik || '—' %></dd></div>
         <div><dt>Tür</dt><dd><%= turAd[p.tur] %></dd></div>
         <div><dt>Şehir</dt><dd><%= p.sehir || '—' %></dd></div>
         <div><dt>Yıl</dt><dd><%= p.yil || '—' %></dd></div>
