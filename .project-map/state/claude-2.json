@@ -1,0 +1,13 @@
+{
+  "lane": "claude-2",
+  "label": "B (hesap 2)",
+  "role": "uygulama · tasarım · rutin iş",
+  "account": "~/.claude-2",
+  "updated": "2026-11-14T13:52:07.310Z",
+  "milestone": {
+    "name": ""
+  },
+  "next": "",
+  "parts": [],
+  "asks": []
+}

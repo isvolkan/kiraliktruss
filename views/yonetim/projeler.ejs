@@ -1,0 +1,18 @@
+<%- include('_ust') %>
+<div class="bolum-bas"><h1>Projeler (<%= projeler.length %>)</h1><a class="dugme" href="/yonetim/projeler/yeni">+ Yeni proje</a></div>
+<form class="suzgec" method="get" role="search"><label class="suzgec-ara">Ara<input type="search" name="q" value="<%= q %>" placeholder="Firma ya da etkinlik"></label><button class="dugme" type="submit">Ara</button><% if (q) { %><a class="ok-link" href="/yonetim/projeler">Temizle</a><% } %></form>
+<div class="tablo-kap"><table class="tablo">
+  <thead><tr><th></th><th>No.</th><th>Müşteri</th><th>Etkinlik</th><th>Şehir</th><th>Yıl</th><th>Ana sayfa</th><th></th></tr></thead>
+  <tbody><% for (const p of projeler) { %>
+    <tr>
+      <td><img class="kucuk" src="/gorsel/<%= p.id %>" alt="" loading="lazy" width="64" height="44"></td>
+      <td class="mono"><%= p.id %></td><td><%= p.musteri %></td><td><%= p.etkinlik %></td><td><%= p.sehir || '—' %></td><td class="mono"><%= p.yil || '—' %></td>
+      <td><%= p.one_cikan ? '✓' : '' %></td>
+      <td class="islemler">
+        <a class="hap" href="/yonetim/projeler/<%= p.id %>/duzenle">Düzenle</a>
+        <form method="post" action="/yonetim/projeler/<%= p.id %>/sil" data-onay="<%= p.musteri %> projesi silinsin mi? Bu işlem geri alınamaz."><button class="hap tehlike" type="submit">Sil</button></form>
+      </td>
+    </tr>
+  <% } %></tbody>
+</table></div>
+<%- include('_alt') %>

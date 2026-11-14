@@ -1,0 +1,48 @@
+<%- include('partials/ust') %>
+<% const d = deger || {}; const hata = (k) => hatalar[k] ? `<span class="hata" id="h-${k}">${hatalar[k]}</span>` : ''; const aria = (k) => hatalar[k] ? `aria-invalid="true" aria-describedby="h-${k}"` : ''; %>
+
+<section class="sayfa-bas">
+  <p class="mono soluk">Fiyatlandırma proje bazlıdır</p>
+  <h1 class="kelime-kelime">Teklif iste</h1>
+  <p class="soluk dar">Etkinliğinizi kısaca anlatın; bilgileri inceleyip size dönelim. Acil durumda <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>.</p>
+</section>
+
+<form class="form kart-form" method="post" action="/teklif" novalidate>
+  <% if (hatalar.genel) { %><p class="hata-kutu" role="alert"><%= hatalar.genel %></p><% } %>
+  <% if (Object.keys(hatalar).length && !hatalar.genel) { %><p class="hata-kutu" role="alert">Lütfen işaretli alanları düzeltin.</p><% } %>
+
+  <fieldset>
+    <legend class="mono">01 · Siz</legend>
+    <label>Ad soyad *<input name="ad_soyad" value="<%= d.ad_soyad || '' %>" required minlength="3" maxlength="80" autocomplete="name" <%- aria('ad_soyad') %>><%- hata('ad_soyad') %></label>
+    <label>Firma<input name="firma" value="<%= d.firma || '' %>" maxlength="100" autocomplete="organization"><%- hata('firma') %></label>
+    <label>Telefon *<input name="telefon" type="tel" value="<%= d.telefon || '' %>" required autocomplete="tel" placeholder="0532 123 45 67" <%- aria('telefon') %>><%- hata('telefon') %></label>
+    <label>E-posta *<input name="eposta" type="email" value="<%= d.eposta || '' %>" required autocomplete="email" <%- aria('eposta') %>><%- hata('eposta') %></label>
+  </fieldset>
+
+  <fieldset>
+    <legend class="mono">02 · Etkinlik</legend>
+    <label>Etkinlik türü *
+      <select name="etkinlik_turu" required <%- aria('etkinlik_turu') %>>
+        <option value="">Seçin</option>
+        <% for (const t of turler) { %><option<%= d.etkinlik_turu === t ? ' selected' : '' %>><%= t %></option><% } %>
+      </select><%- hata('etkinlik_turu') %>
+    </label>
+    <label>Şehir / mekân *<input name="sehir" value="<%= d.sehir || '' %>" required maxlength="60" placeholder="ör. İstanbul, TÜYAP" <%- aria('sehir') %>><%- hata('sehir') %></label>
+    <label>Başlangıç tarihi *<input name="tarih" type="date" value="<%= d.tarih || '' %>" required <%- aria('tarih') %>><%- hata('tarih') %></label>
+    <label>Kaç gün?<input name="gun_sayisi" type="number" min="1" max="60" value="<%= d.gun_sayisi || 1 %>" <%- aria('gun_sayisi') %>><%- hata('gun_sayisi') %></label>
+    <label>Tahmini metretül <small><a href="/#hesapla">hesapla</a></small><input name="metretul" type="number" min="1" max="5000" value="<%= d.metretul || '' %>" <%- aria('metretul') %>><%- hata('metretul') %></label>
+    <label class="onay"><input type="checkbox" name="kurulum"<%= d.kurulum ? ' checked' : '' %>> Teknik ekip desteği de istiyorum</label>
+  </fieldset>
+
+  <fieldset>
+    <legend class="mono">03 · Ayrıntı</legend>
+    <label>Mesaj<textarea name="mesaj" rows="5" maxlength="2000" placeholder="Stand ölçüsü, yükseklik, ışık/ses asılacak mı…"><%= d.mesaj || '' %></textarea><%- hata('mesaj') %></label>
+    <%# Bal küpü: ekranda görünmez, botlar doldurur %>
+    <label class="gizli" aria-hidden="true">Web siteniz<input name="web_sitesi" tabindex="-1" autocomplete="off"></label>
+    <label class="onay"><input type="checkbox" name="kvkk" required <%- aria('kvkk') %>> Bilgilerimin yalnız bu teklif için kullanılacağını ve <%= firma.ad %> tarafından saklanacağını okudum, onaylıyorum. *</label><%- hata('kvkk') %>
+  </fieldset>
+
+  <button class="dugme buyuk" type="submit">Teklif talebini gönder</button>
+</form>
+
+<%- include('partials/alt') %>

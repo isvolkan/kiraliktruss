@@ -1,0 +1,11 @@
+<%- include('partials/ust') %>
+<section class="sayfa-bas orta yok-sayfa">
+  <svg class="devrik" viewBox="0 0 300 120" aria-hidden="true">
+    <g transform="rotate(-9 150 60)"><path d="M10 40H290M10 90H290<% for (let x = 10; x <= 290; x += 35) { %>M<%= x %> 40V90<% } %><% for (let x = 10; x < 290; x += 35) { %>M<%= x %> 40L<%= x + 35 %> 90<% } %>" fill="none" stroke="currentColor" stroke-width="3"/></g>
+  </svg>
+  <p class="mono soluk">404</p>
+  <h1>Bu truss burada kurulmadı.</h1>
+  <p class="dar">Aradığınız sayfa taşınmış ya da hiç olmamış olabilir.</p>
+  <div class="dugmeler orta"><a class="dugme" href="/">Ana sayfa</a><a class="dugme cizgili" href="/calismalar">Çalışmalar</a></div>
+</section>
+<%- include('partials/alt') %>

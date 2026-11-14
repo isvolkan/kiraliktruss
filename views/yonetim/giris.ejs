@@ -1,0 +1,12 @@
+<%- include('../partials/ust', { govdeSinifi: 'yonetim-govde' }) %>
+<section class="sayfa-bas orta">
+  <p class="mono soluk">Yalnız firma yetkilileri</p>
+  <h1>Yönetim girişi</h1>
+  <form class="form kart-form dar-form" method="post" action="/yonetim/giris">
+    <% if (hata) { %><p class="hata-kutu" role="alert"><%= hata %></p><% } %>
+    <label>E-posta<input type="email" name="eposta" value="<%= eposta %>" required autocomplete="username"></label>
+    <label>Parola<input type="password" name="sifre" required autocomplete="current-password"></label>
+    <button class="dugme" type="submit">Giriş yap</button>
+  </form>
+</section>
+<%- include('../partials/alt') %>

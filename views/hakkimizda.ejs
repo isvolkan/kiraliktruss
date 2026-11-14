@@ -1,0 +1,23 @@
+<%- include('partials/ust') %>
+<section class="sayfa-bas">
+  <p class="mono soluk"><%= firma.kurulus %>'dan beri · <%= firma.ilce %></p>
+  <h1 class="kelime-kelime">Hakkımızda</h1>
+</section>
+<section class="bolum hakkinda">
+  <p class="iri"><%= firma.kurulus %> yılından bu yana truss kiralama hizmeti veriyoruz. Stoklarımızdaki yaklaşık <%= firma.stokMetretul %> metretül orijinal alüminyum truss sistemi ve deneyimli teknik ekibimizle projeleriniz için çözüm üretiyoruz.</p>
+  <div class="hakkinda-iki">
+    <div class="ortaya-cik">
+      <h2 class="mono">Malzeme</h2>
+      <p>Truss sistemlerimiz kesinlikle demir kaynatma değildir. Hepsi Avrupa standartlarında imal edilmiş ve <%= firma.belgeler.join(', ') %> belgelidir. Depolama ve nakliyede deforme olmamış, ilk günkü alüminyum parlaklığındadır.</p>
+    </div>
+    <div class="ortaya-cik">
+      <h2 class="mono">Nerelerde</h2>
+      <p>Her türlü event, fuar, etkinlik, kongre, stand, tanıtım, konser, düğün ve benzeri projede kullanılmak üzere truss sağlıyoruz. Fiyatlandırmamız proje bazlıdır.</p>
+    </div>
+  </div>
+  <div class="belgeler">
+    <% for (const b of firma.belgeler) { %><span class="belge ortaya-cik"><%= b %></span><% } %>
+  </div>
+  <a class="dugme" href="/teklif">Projeniz için teklif isteyin</a>
+</section>
+<%- include('partials/alt') %>

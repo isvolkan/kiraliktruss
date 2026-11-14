@@ -1,0 +1,6 @@
+.pgdata/
+node_modules/
+.env
+*.log
+.project-map/index.html
+.project-map/.last.json
