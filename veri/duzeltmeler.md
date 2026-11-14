@@ -18,3 +18,15 @@ Eski sitedeki başlıklar içeri aktarılırken aşağıdakiler düzeltildi ya d
 - Stoktaki truss çeşitleri ve ölçüleri (sitede henüz ölçü yazılmadı).
 - Teklife dönüş süresi (sitede süre verilmedi).
 - Haritadaki konum yaklaşık; adres teyidiyle düzeltilecek.
+
+## Tahminle doldurulan alanlar (yönetim panelinden düzeltilebilir)
+- **Tür** (fuar / etkinlik / kurumsal) başlıktaki kelimelerden tahmin edildi: "Etkinlik, Teknofest, Toplantı, Yayın, Tatbikat, Caddesi, Roadshow" → etkinlik; "Hospital, Konsolosluğu, Enerji" → kurumsal; gerisi fuar.
+- **Şehir** yalnız başlıkta şu adlar geçiyorsa dolduruldu: İstanbul, Uludağ, Çukurova, Bursa, Çorlu, İzmir, Konya, Adana, Türkmenistan. Diğer projelerde şehir boş.
+- **Etkinlik adı** başlıkta yoksa boş bırakıldı (8 proje).
+
+## Metretül hesaplayıcının formülleri (Hakan Bey onaylasın)
+- Çerçeve: 4 × yükseklik + 2 × (en + boy)
+- Çerçeve + tavan: yukarıdaki + her 3 m'de bir ara kiriş (boy uzunluğunda)
+- Kemer / kapı: 2 × yükseklik + en
+- Kule: yükseklik
+- Sonuç adet ile çarpılıp yukarı yuvarlanır. Sitede "tahmini, kesin ölçü keşiften sonra" yazıyor.
