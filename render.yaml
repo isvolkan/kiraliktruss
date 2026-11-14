@@ -1,0 +1,23 @@
+# Render.com ayarı (Blueprint). Gizli değerler (sync: false) Render panelinden girilir, repoya yazılmaz.
+services:
+  - type: web
+    name: kiraliktruss
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    # Her açılışta tabloları kontrol eder; proje tablosu boşsa eski site verisini yükler, sonra sunucuyu başlatır.
+    startCommand: npm run seed && npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_SSL
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

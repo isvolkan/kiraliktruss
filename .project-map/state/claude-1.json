@@ -3,11 +3,49 @@
   "label": "A · Opus (hesap 1)",
   "role": "plan · inceleme · birleştirme",
   "account": "~/.claude",
-  "updated": "2026-11-14T13:52:07.310Z",
+  "updated": "2026-11-14T14:05:47.037Z",
   "milestone": {
-    "name": ""
+    "name": "M1 · Yerelde çalışan site (CRUD + form + responsive)"
   },
-  "next": "",
-  "parts": [],
-  "asks": []
+  "next": "Hakan Bey brief formunu imzalasın; ardından GitHub repo + Render/Neon yayını (README adımları)",
+  "parts": [
+    {
+      "name": "Express + EJS + PostgreSQL iskeleti",
+      "status": "done"
+    },
+    {
+      "name": "Vitrin sayfaları ve animasyonlar",
+      "status": "done"
+    },
+    {
+      "name": "Teklif formu + doğrulama",
+      "status": "done"
+    },
+    {
+      "name": "Yönetim paneli: projeler + teklifler CRUD",
+      "status": "done"
+    },
+    {
+      "name": "Duman testleri (9)",
+      "status": "done"
+    },
+    {
+      "name": "Brief kanıtı (Hakan Bey imzası)",
+      "status": "todo"
+    },
+    {
+      "name": "GitHub push",
+      "status": "todo"
+    },
+    {
+      "name": "Render + Neon yayını",
+      "status": "todo"
+    }
+  ],
+  "asks": [
+    {
+      "q": "GitHub repo herkese açık mı özel mi olsun?",
+      "default": "Herkese açık (yönerge GitHub teslimi istiyor)"
+    }
+  ]
 }
