@@ -1,0 +1,13 @@
+<%- include('partials/ust', { sayfaCss: ['sayfalar'] }) %>
+<section class="bolum tt">
+  <div class="kap">
+    <span class="mono tt-etiket"><b>500</b> · Sunucu hatası</span>
+    <h1 class="b-xl">Bir şeyler ters gitti.</h1>
+    <p class="giris">Lütfen birazdan tekrar deneyin ya da bizi arayın: <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></p>
+    <div class="tt-dugmeler">
+      <a class="dugme ana" href="<%= kok %>/">Ana sayfa</a>
+      <a class="dugme" href="<%= kok %>/iletisim">İletişim</a>
+    </div>
+  </div>
+</section>
+<%- include('partials/alt') %>

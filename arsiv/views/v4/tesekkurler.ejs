@@ -1,0 +1,16 @@
+<%- include('parca/bas') %>
+
+<section class="sayfa-bas sayfa-bas--ortada cizim-zemin">
+  <div class="kap dar">
+    <svg class="onay-isaret" viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="4" width="56" height="56" fill="none" stroke="currentColor" stroke-width="3"/><path d="M18 33 L28 43 L47 22" fill="none" stroke="currentColor" stroke-width="5"/></svg>
+    <h1>Talebiniz alındı</h1>
+    <p class="sayfa-bas__giris">Teşekkürler. Talebinizi inceleyip size döneceğiz. Etkinliğiniz yakınsa beklemeyin, arayın.</p>
+    <p class="ortada-eylem">
+      <a class="dugme dugme--sinyal dugme--buyuk" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+      <a class="dugme dugme--cizgi dugme--buyuk" href="<%= kok %>/calismalar">Örnek çalışmalara göz at</a>
+    </p>
+    <p><a href="<%= kok %>/">Ana sayfaya dön</a></p>
+  </div>
+</section>
+
+<%- include('parca/son') %>

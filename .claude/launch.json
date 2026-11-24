@@ -4,7 +4,10 @@
     {
       "name": "kiraliktruss",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["--watch", "server.js"],
+      "runtimeArgs": [
+        "--watch",
+        "server.js"
+      ],
       "port": 3000
     }
   ]

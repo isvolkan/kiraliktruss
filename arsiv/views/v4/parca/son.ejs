@@ -1,0 +1,60 @@
+<%# Sayfa sonu: kapanış çağrısı, alt bilgi, telefonda sabit "Ara / Teklif" çubuğu %>
+</main>
+
+<footer class="alt">
+  <div class="truss-bant truss-bant--acik" aria-hidden="true"></div>
+  <div class="kap alt__ic">
+    <div class="alt__marka">
+      <p class="logo logo--acik"><span class="logo__ad">Kiralık<b>Truss</b></span></p>
+      <p>Fuar standı, sahne ve etkinlikler için alüminyum truss kiralama. <%= firma.kurulus %>'dan beri <%= firma.ilce %>.</p>
+      <ul class="belgeler" aria-label="Malzeme belgeleri">
+        <% for (const b of firma.belgeler) { %><li><%= b %></li><% } %>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="alt__baslik">İletişim</h2>
+      <ul class="alt__liste">
+        <li><a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></li>
+        <li><a href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a></li>
+        <li>Faks <%= firma.faks %></li>
+        <li><a href="<%= kok %>/kartvizit.vcf">Rehbere ekle (vCard)</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="alt__baslik">Adres</h2>
+      <address class="alt__adres"><%= firma.adres %><br><%= firma.ilce %></address>
+    </div>
+
+    <div>
+      <h2 class="alt__baslik">Sayfalar</h2>
+      <ul class="alt__liste">
+        <li><a href="<%= kok %>/calismalar">Örnek çalışmalar</a></li>
+        <li><a href="<%= kok %>/hakkimizda">Hakkımızda</a></li>
+        <li><a href="<%= kok %>/iletisim">İletişim</a></li>
+        <li><a href="<%= kok %>/teklif">Teklif iste</a></li>
+        <li><a href="/yonetim">Yönetim girişi</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="kap alt__son">
+    <p class="mono">© <%= new Date().getFullYear() %> <%= firma.ad %></p>
+    <p class="mono">N <%= firma.harita.lat.toFixed(2) %> · E <%= firma.harita.lon.toFixed(2) %></p>
+  </div>
+</footer>
+
+<%# Telefonda her an iki çağrı: ara ve teklif iste (position:fixed, kaydırma işi yok) %>
+<nav class="cagri-cubugu" aria-label="Hızlı iletişim">
+  <a class="cagri-cubugu__ara" href="tel:<%= firma.telefonLink %>">
+    <svg class="ikon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z" fill="currentColor"/></svg>
+    Hemen ara
+  </a>
+  <% if (yol !== '/teklif') { %>
+  <a class="cagri-cubugu__teklif" href="<%= kok %>/teklif">Teklif iste</a>
+  <% } else { %>
+  <a class="cagri-cubugu__teklif" href="mailto:<%= firma.eposta %>">E-posta yaz</a>
+  <% } %>
+</nav>
+</body>
+</html>

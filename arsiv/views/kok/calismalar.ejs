@@ -1,0 +1,73 @@
+<%- include('partials/ust') %>
+<% const qs = (ek) => { const o = { ...filtre, ...ek }; return '?' + Object.entries(o).filter(([k, v]) => v && !(k === 'gorunum' && v === 'izgara') && !(k === 'sayfa' && v === 1)).map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&'); }; %>
+
+<section class="sayfa-bas">
+  <p class="mono soluk">Arşiv · <%= toplam %> proje</p>
+  <h1 class="kelime-kelime">Örnek çalışmalar</h1>
+</section>
+
+<%# Süzgeç (GET formu: JavaScript kapalıyken de çalışır) %>
+<form class="suzgec" method="get" action="/calismalar" role="search">
+  <label class="suzgec-ara">Ara<input type="search" name="q" value="<%= filtre.q %>" placeholder="Firma ya da fuar adı"></label>
+  <label>Tür
+    <select name="tur">
+      <option value="">Hepsi</option>
+      <% for (const [k, ad] of [['fuar', 'Fuar'], ['etkinlik', 'Etkinlik'], ['kurumsal', 'Kurumsal']]) { %>
+        <option value="<%= k %>"<%= filtre.tur === k ? ' selected' : '' %>><%= ad %></option>
+      <% } %>
+    </select>
+  </label>
+  <label>Şehir
+    <select name="sehir"><option value="">Hepsi</option>
+      <% for (const s of sehirler) { %><option<%= filtre.sehir === s ? ' selected' : '' %>><%= s %></option><% } %>
+    </select>
+  </label>
+  <label>Yıl
+    <select name="yil"><option value="">Hepsi</option>
+      <% for (const y of yillar) { %><option<%= String(filtre.yil) === String(y) ? ' selected' : '' %>><%= y %></option><% } %>
+    </select>
+  </label>
+  <input type="hidden" name="gorunum" value="<%= filtre.gorunum %>">
+  <button class="dugme" type="submit">Süz</button>
+  <% if (filtre.q || filtre.tur || filtre.sehir || filtre.yil) { %><a class="ok-link" href="/calismalar">Temizle</a><% } %>
+</form>
+
+<%# Izgara / liste geçişi (Palmer) %>
+<div class="gorunum-sec" role="group" aria-label="Görünüm">
+  <a class="hap<%= filtre.gorunum === 'izgara' ? ' aktif' : '' %>" href="<%= qs({ gorunum: 'izgara', sayfa: sayfa }) || '?' %>">Izgara</a>
+  <a class="hap<%= filtre.gorunum === 'liste' ? ' aktif' : '' %>" href="<%= qs({ gorunum: 'liste', sayfa: sayfa }) %>">Liste</a>
+</div>
+
+<section class="bolum ust-bosluk-yok">
+  <% if (!projeler.length) { %>
+    <p class="bos-mesaj">Bu süzgeçle proje bulunamadı. <a href="/calismalar">Tümünü gör</a></p>
+  <% } else if (filtre.gorunum === 'liste') { %>
+    <%# Liste görünümü: satırın üstüne gelince fotoğraf imleci izler (Codrops: menu image hover) %>
+    <ol class="liste" id="liste">
+      <% for (const p of projeler) { %>
+        <li><a href="/calismalar/<%= p.id %>" data-gorsel="/gorsel/<%= p.id %>">
+          <span class="mono">No. <%= String(p.id).padStart(3, '0') %></span>
+          <span class="liste-ad"><%= p.musteri %></span>
+          <span><%= p.etkinlik %></span>
+          <span class="mono"><%= p.sehir || '—' %></span>
+          <span class="mono"><%= p.yil || '—' %></span>
+        </a></li>
+      <% } %>
+    </ol>
+    <img class="liste-onizleme" id="listeOnizleme" alt="" aria-hidden="true">
+  <% } else { %>
+    <div class="izgara">
+      <% for (const p of projeler) { %><%- include('partials/kart', { p }) %><% } %>
+    </div>
+  <% } %>
+
+  <% if (sayfaSayisi > 1) { %>
+    <nav class="sayfalar mono" aria-label="Sayfalar">
+      <% for (let i = 1; i <= sayfaSayisi; i++) { %>
+        <a href="<%= qs({ sayfa: i }) || '?' %>"<%= i === sayfa ? ' aria-current="page" class="aktif"' : '' %>><%= i %></a>
+      <% } %>
+    </nav>
+  <% } %>
+</section>
+
+<%- include('partials/alt') %>

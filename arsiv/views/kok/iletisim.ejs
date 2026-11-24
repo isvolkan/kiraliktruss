@@ -1,0 +1,21 @@
+<%- include('partials/ust') %>
+<% const h = firma.harita; const bbox = [h.lon - 0.02, h.lat - 0.012, h.lon + 0.02, h.lat + 0.012].join(','); %>
+<section class="sayfa-bas">
+  <p class="mono soluk"><%= firma.ilce %></p>
+  <h1 class="kelime-kelime">İletişim</h1>
+</section>
+<section class="bolum iletisim">
+  <dl class="kunye-liste">
+    <div><dt class="mono">Telefon</dt><dd><a class="iri" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></dd></div>
+    <div><dt class="mono">E-posta</dt><dd><a href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a></dd></div>
+    <div><dt class="mono">Faks</dt><dd><%= firma.faks %></dd></div>
+    <div><dt class="mono">Adres</dt><dd><%= firma.adres %><br><%= firma.ilce %></dd></div>
+  </dl>
+  <div class="harita">
+    <iframe title="Kiralık Truss konumu (yaklaşık)" loading="lazy"
+      src="https://www.openstreetmap.org/export/embed.html?bbox=<%= bbox %>&amp;layer=mapnik&amp;marker=<%= h.lat %>,<%= h.lon %>"></iframe>
+    <p class="mono soluk">Harita yaklaşık konumu gösterir; adres için yukarıdaki bilgiyi esas alın.</p>
+    <a class="ok-link mono" href="https://www.openstreetmap.org/?mlat=<%= h.lat %>&amp;mlon=<%= h.lon %>#map=15/<%= h.lat %>/<%= h.lon %>" target="_blank" rel="noopener">Büyük haritada aç →</a>
+  </div>
+</section>
+<%- include('partials/alt') %>

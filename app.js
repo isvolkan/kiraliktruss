@@ -12,6 +12,13 @@ const uretim = process.env.NODE_ENV === 'production';
 
 // Canlıda oturum anahtarı zorunlu: yoksa uygulama hiç başlamasın (tahmin edilebilir anahtarla çalışmasın)
 if (uretim && !process.env.SESSION_SECRET) throw new Error('SESSION_SECRET tanımlı değil');
+// Geliştirmede anahtar yoksa her açılışta rastgele üretilir (sabit, tahmin edilebilir anahtar olmasın);
+// bedeli: sunucu yeniden başlayınca oturumlar düşer. Kalıcı olsun istiyorsanız .env'e SESSION_SECRET yazın.
+let oturumAnahtari = process.env.SESSION_SECRET;
+if (!oturumAnahtari) {
+  oturumAnahtari = require('crypto').randomBytes(32).toString('hex');
+  console.warn('UYARI: SESSION_SECRET tanımlı değil; geçici rastgele anahtar kullanılıyor (.env dosyasına ekleyin).');
+}
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -26,20 +33,23 @@ app.use(helmet({
       'style-src': ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
       'font-src': ["'self'", 'https://fonts.gstatic.com'],
       'script-src': ["'self'"],
-      'frame-src': ['https://www.openstreetmap.org'],
+      'frame-src': ['https://www.openstreetmap.org', 'https://www.google.com', 'https://maps.google.com'],
       'form-action': ["'self'"],
       'upgrade-insecure-requests': uretim ? [] : null,
     },
   },
 }));
 
+// Geliştirmede dosya değişince sayfayı kendiliğinden yenile (yalnız CANLI_YENILE=1 iken)
+if (!uretim && process.env.CANLI_YENILE === '1') require('./dev/canli-yenile')(app, __dirname);
+
 app.use(express.urlencoded({ extended: false, limit: '100kb' }));
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: uretim ? '7d' : 0 }));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: uretim ? '7d' : 0, redirect: false }));
 
 // Oturum: yönetici girişi için. Oturumlar veritabanında tutulur (sunucu yeniden başlasa da düşmez).
 app.use(session({
   store: new PgSession({ pool, tableName: 'oturumlar', createTableIfMissing: true }),
-  secret: process.env.SESSION_SECRET || 'gelistirme-anahtari',
+  secret: oturumAnahtari,
   resave: false,
   saveUninitialized: false,
   cookie: { httpOnly: true, sameSite: 'lax', secure: uretim, maxAge: 1000 * 60 * 60 * 8 },
@@ -58,16 +68,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', require('./routes/site'));
+// Rotalar. Yönetim önce bağlanır: ziyaretçi router'ı en sonda 404 ve hata sayfasını da çizer (routes/site.js).
 app.use('/yonetim', require('./routes/yonetim'));
-
-// 404
-app.use((req, res) => res.status(404).render('404', { baslik: 'Sayfa bulunamadı' }));
-
-// Beklenmeyen hata
-app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  console.error(err);
-  res.status(500).render('hata', { baslik: 'Bir sorun oluştu' });
-});
+app.use('/', require('./routes/site'));
 
 module.exports = app;

@@ -1,0 +1,116 @@
+<%- include('parca/bas', { aciklama: `${firma.ad} örnek çalışmalar arşivi: ${toplam} proje. Türe, şehre ve yıla göre süzün.` }) %>
+<%
+  // Süzgeçleri koruyarak bağlantı üretir: bag({ sayfa: 2 }) → /v4/calismalar?tur=fuar&sayfa=2
+  const bag = (degisen) => {
+    const p = { ...filtre, sayfa: 1, ...degisen };
+    const qs = Object.entries(p)
+      .filter(([k, v]) => v !== '' && v != null && !(k === 'sayfa' && +v === 1) && !(k === 'gorunum' && v === 'izgara'))
+      .map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+    return `${kok}/calismalar${qs ? '?' + qs : ''}`;
+  };
+  const suzuluyor = filtre.tur || filtre.sehir || filtre.yil || filtre.q;
+  const turler = [['', 'Tümü'], ['fuar', 'Fuar'], ['etkinlik', 'Etkinlik'], ['kurumsal', 'Kurumsal']];
+%>
+
+<section class="sayfa-bas cizim-zemin">
+  <div class="kap">
+    <p class="ust-etiket mono"><a href="<%= kok %>/">Ana sayfa</a> / Örnek çalışmalar</p>
+    <h1>Örnek çalışmalar</h1>
+    <p class="sayfa-bas__giris">2009'dan bu yana kurduğumuz fuar standı, etkinlik ve kurumsal truss işlerinden bir arşiv. Türe, şehre ya da yıla göre süzün; müşteri veya fuar adıyla arayın.</p>
+  </div>
+</section>
+
+<section class="bolum bolum--sik">
+  <div class="kap">
+    <form class="suzgec" action="<%= kok %>/calismalar" method="get" role="search" aria-label="Çalışmaları süz" data-suzgec>
+      <fieldset class="suzgec__tur">
+        <legend class="gorunmez">Tür</legend>
+        <% for (const [deger, ad] of turler) { %>
+          <label class="cip">
+            <input type="radio" name="tur" value="<%= deger %>"<% if (filtre.tur === deger || (!deger && !['fuar','etkinlik','kurumsal'].includes(filtre.tur))) { %> checked<% } %>>
+            <span><%= ad %></span>
+          </label>
+        <% } %>
+      </fieldset>
+
+      <div class="suzgec__alanlar">
+        <label class="alan alan--ara">
+          <span class="alan__ad">Ara</span>
+          <input type="search" name="q" value="<%= filtre.q %>" placeholder="Müşteri ya da fuar adı" maxlength="80" autocomplete="off">
+        </label>
+        <label class="alan">
+          <span class="alan__ad">Şehir</span>
+          <select name="sehir">
+            <option value="">Tüm şehirler</option>
+            <% for (const s of sehirler) { %><option<% if (filtre.sehir === s) { %> selected<% } %>><%= s %></option><% } %>
+          </select>
+        </label>
+        <label class="alan">
+          <span class="alan__ad">Yıl</span>
+          <select name="yil">
+            <option value="">Tüm yıllar</option>
+            <% for (const y of yillar) { %><option<% if (String(filtre.yil) === String(y)) { %> selected<% } %>><%= y %></option><% } %>
+          </select>
+        </label>
+        <% if (filtre.gorunum === 'liste') { %><input type="hidden" name="gorunum" value="liste"><% } %>
+        <button class="dugme dugme--murekkep" type="submit">Süz</button>
+      </div>
+    </form>
+
+    <div class="arsiv-bas">
+      <p class="arsiv-bas__sayi" aria-live="polite"><span class="mono">Arşiv · <%= toplam %> proje</span>
+        <% if (suzuluyor) { %><a class="temizle" href="<%= bag({ tur: '', sehir: '', yil: '', q: '' }) %>">Süzgeci temizle ×</a><% } %>
+      </p>
+      <div class="gorunum" role="group" aria-label="Görünüm">
+        <a href="<%= bag({ gorunum: 'izgara', sayfa }) %>"<% if (filtre.gorunum !== 'liste') { %> aria-current="true"<% } %>>Izgara</a>
+        <a href="<%= bag({ gorunum: 'liste', sayfa }) %>"<% if (filtre.gorunum === 'liste') { %> aria-current="true"<% } %>>Liste</a>
+      </div>
+    </div>
+
+    <% if (!projeler.length) { %>
+      <div class="bos">
+        <h2>Bu süzgece uyan proje yok</h2>
+        <p>Başka bir yıl ya da şehir deneyin. Aradığınız iş arşivde olmayabilir; bize sorun.</p>
+        <p><a class="dugme dugme--cizgi" href="<%= kok %>/calismalar">Tüm arşivi göster</a> <a class="dugme dugme--sinyal" href="<%= kok %>/teklif">Teklif iste</a></p>
+      </div>
+    <% } else if (filtre.gorunum === 'liste') { %>
+      <div class="tablo-kap">
+        <table class="liste">
+          <caption class="gorunmez">Örnek çalışmalar, sayfa <%= sayfa %> / <%= sayfaSayisi %></caption>
+          <thead><tr><th scope="col"><span class="gorunmez">Fotoğraf</span></th><th scope="col">Müşteri</th><th scope="col">Etkinlik</th><th scope="col">Şehir</th><th scope="col">Yıl</th><th scope="col">Tür</th></tr></thead>
+          <tbody>
+            <% for (const p of projeler) { %>
+            <tr>
+              <td class="liste__foto"><img src="/gorsel/<%= p.id %>" alt="" width="96" height="72" loading="lazy" decoding="async"></td>
+              <th scope="row"><a href="<%= kok %>/calismalar/<%= p.id %>"><%= p.musteri %></a></th>
+              <td data-ad="Etkinlik"><%= p.etkinlik || '—' %></td>
+              <td data-ad="Şehir"><%= p.sehir || '—' %></td>
+              <td data-ad="Yıl" class="mono"><%= p.yil || '—' %></td>
+              <td data-ad="Tür"><%= turAdi[p.tur] || p.tur %></td>
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div class="izgara">
+        <% projeler.forEach((p, i) => { %><%- include('parca/kart', { p, oncelik: i < 4 }) %><% }) %>
+      </div>
+    <% } %>
+
+    <% if (sayfaSayisi > 1) { %>
+    <nav class="sayfalama" aria-label="Sayfalar">
+      <% if (sayfa > 1) { %><a href="<%= bag({ sayfa: sayfa - 1 }) %>" rel="prev">← Önceki</a><% } %>
+      <ul>
+        <% for (let i = 1; i <= sayfaSayisi; i++) { %>
+          <li><a href="<%= bag({ sayfa: i }) %>"<% if (i === sayfa) { %> aria-current="page"<% } %>><%= i %></a></li>
+        <% } %>
+      </ul>
+      <% if (sayfa < sayfaSayisi) { %><a href="<%= bag({ sayfa: sayfa + 1 }) %>" rel="next">Sonraki →</a><% } %>
+    </nav>
+    <% } %>
+  </div>
+</section>
+
+<%- include('parca/cagri') %>
+<%- include('parca/son') %>

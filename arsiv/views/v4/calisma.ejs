@@ -1,0 +1,56 @@
+<%- include('parca/bas', { aciklama: `${p.musteri}${p.etkinlik ? ' — ' + p.etkinlik : ''}: ${firma.ad} truss kurulumu.` }) %>
+<% const ad = p.musteri + (p.etkinlik ? ' — ' + p.etkinlik : ''); %>
+
+<article class="proje">
+  <div class="kap">
+    <p class="ust-etiket mono proje__iz"><a href="<%= kok %>/">Ana sayfa</a> / <a href="<%= kok %>/calismalar">Örnek çalışmalar</a> / Proje <%= String(p.id).padStart(3, '0') %></p>
+
+    <div class="proje__ic">
+      <figure class="proje__gorsel">
+        <img src="/gorsel/<%= p.id %>" alt="<%= ad %> için kurulan truss" width="1200" height="900" fetchpriority="high">
+      </figure>
+
+      <div class="proje__yan">
+        <h1 class="proje__baslik"><%= p.musteri %></h1>
+        <% if (p.etkinlik) { %><p class="proje__alt"><%= p.etkinlik %></p><% } %>
+
+        <%# Teknik çizimlerdeki antet (künye kutusu) gibi %>
+        <dl class="antet">
+          <div><dt class="mono">Müşteri</dt><dd><%= p.musteri %></dd></div>
+          <div><dt class="mono">Etkinlik</dt><dd><%= p.etkinlik || '—' %></dd></div>
+          <div><dt class="mono">Şehir</dt><dd><%= p.sehir || '—' %></dd></div>
+          <div><dt class="mono">Yıl</dt><dd><%= p.yil || '—' %></dd></div>
+          <div><dt class="mono">Tür</dt><dd><a href="<%= kok %>/calismalar?tur=<%= p.tur %>"><%= turAdi[p.tur] || p.tur %></a></dd></div>
+          <div><dt class="mono">No</dt><dd class="mono"><%= String(p.id).padStart(3, '0') %></dd></div>
+        </dl>
+
+        <% if (p.aciklama) { %><p class="proje__aciklama"><%= p.aciklama %></p><% } %>
+
+        <div class="proje__eylem">
+          <a class="dugme dugme--sinyal dugme--genis" href="<%= kok %>/teklif?ref=<%= p.id %>">Buna benzer bir kurulum iste</a>
+          <a class="dugme dugme--cizgi dugme--genis" href="tel:<%= firma.telefonLink %>">Ara: <%= firma.telefon %></a>
+        </div>
+        <p class="proje__not">Teklif formu bu projeyi referans olarak not eder.</p>
+      </div>
+    </div>
+  </div>
+</article>
+
+<% if (benzer.length) { %>
+<section class="bolum" aria-labelledby="benzer-baslik">
+  <div class="kap">
+    <header class="bolum__bas bolum__bas--yan">
+      <div>
+        <p class="ust-etiket mono">Arşivden</p>
+        <h2 id="benzer-baslik">Benzer çalışmalar</h2>
+      </div>
+      <a class="dugme dugme--cizgi" href="<%= kok %>/calismalar">Tüm arşiv</a>
+    </header>
+    <div class="izgara izgara--dort">
+      <% benzer.forEach((b) => { %><%- include('parca/kart', { p: b }) %><% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<%- include('parca/son') %>

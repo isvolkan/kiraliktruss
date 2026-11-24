@@ -1,0 +1,11 @@
+<%# Sayfa sonu çağrı levhası %>
+<section class="levha z-mavi cagri" aria-labelledby="cagri-baslik">
+  <div class="ic">
+    <h2 id="cagri-baslik">Tarihiniz belli mi?</h2>
+    <p class="cagri-metin">Fiyatlandırmamız proje bazlıdır. Bilgileri gönderin ya da doğrudan arayın.</p>
+    <div class="dugmeler">
+      <a class="btn btn-1" href="/teklif">Teklif iste <span class="ok" aria-hidden="true"><%- include('ok', { yon: 'sag' }) %></span></a>
+      <a class="btn btn-2" href="tel:<%= firma.telefonLink %>">Ara: <%= firma.telefon %> <span class="ok" aria-hidden="true"><%- include('ok', { yon: 'capraz' }) %></span></a>
+    </div>
+  </div>
+</section>

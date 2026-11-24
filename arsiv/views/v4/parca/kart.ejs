@@ -1,0 +1,16 @@
+<%#
+  Proje kartı (ızgara). Yereller: p (id, musteri, etkinlik, sehir, yil, tur), oncelik (true ise ilk kartlar hemen yüklenir)
+%>
+<article class="kart">
+  <a class="kart__bag" href="<%= kok %>/calismalar/<%= p.id %>">
+    <span class="kart__foto">
+      <img src="/gorsel/<%= p.id %>" alt="<%= p.musteri %><%= p.etkinlik ? ' — ' + p.etkinlik : '' %> için kurulan truss" width="480" height="360"
+           loading="<%= typeof oncelik !== 'undefined' && oncelik ? 'eager' : 'lazy' %>" decoding="async">
+      <span class="kart__etiket mono"><%= turAdi[p.tur] || p.tur %></span>
+    </span>
+    <span class="kart__metin">
+      <span class="kart__ad"><%= p.musteri %></span>
+      <span class="kart__meta mono"><%= [p.etkinlik, p.sehir && p.sehir !== p.etkinlik ? p.sehir : '', p.yil].filter(Boolean).join(' · ') || '—' %></span>
+    </span>
+  </a>
+</article>

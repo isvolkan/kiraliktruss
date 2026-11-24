@@ -1,0 +1,10 @@
+<%# Yön satırları (iletişim ve 404): her satır tam genişlik bağlantı; değişken yonler = [[yazı, bağlantı, ok yönü (sag | capraz ...)], ...] %>
+<nav class="levha <%= typeof zemin === 'string' ? zemin : 'z-beyaz' %> yonler" aria-label="Ne yapmak istersiniz?">
+  <div class="ic">
+    <ul>
+      <% for (const [yazi, href, yon] of yonler) { %>
+        <li><a class="yon" href="<%= href %>"><span><%= yazi %></span><span class="yon-ok" aria-hidden="true"><%- include('ok', { yon }) %></span></a></li>
+      <% } %>
+    </ul>
+  </div>
+</nav>

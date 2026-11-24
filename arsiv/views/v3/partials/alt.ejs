@@ -1,0 +1,45 @@
+<%# v3 alt bölüm (düz alt bilgi; v2'deki açılan alt katman yok). İsteğe bağlı: sayfaJs (['anasayfa'] → /v3/js/anasayfa.js) %>
+  </main>
+
+  <footer class="alt" id="alt">
+    <div class="alt-ic">
+      <div class="alt-ust">
+        <div>
+          <span class="mono">Hemen arayın</span>
+          <a class="alt-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+        </div>
+        <a class="alt-eposta" href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a>
+      </div>
+      <div class="alt-kolonlar">
+        <div>
+          <span class="mono">Depo ve ofis</span>
+          <p><%= firma.adres %><br><%= firma.ilce %></p>
+        </div>
+        <div>
+          <span class="mono">Sayfalar</span>
+          <p><a href="<%= kok %>/">Ana sayfa</a><br><a href="<%= kok %>/calismalar">Çalışmalar</a><br><a href="<%= kok %>/hakkimizda">Hakkımızda</a><br><a href="<%= kok %>/iletisim">İletişim</a><br><a href="<%= kok %>/teklif">Teklif iste</a></p>
+        </div>
+        <div>
+          <span class="mono">Belgeler</span>
+          <ul class="belgeler"><% for (const b of firma.belgeler) { %><li><%= b %></li><% } %></ul>
+        </div>
+      </div>
+      <div class="alt-alt mono">
+        <span>© <%= new Date().getFullYear() %> <%= firma.ad %> · <%= firma.kurulus %>'dan beri</span>
+        <span><%= firma.belgeler.join(' · ') %></span>
+        <a href="/yonetim">Yönetim</a>
+      </div>
+    </div>
+  </footer>
+  </div><%# /.sayfa %>
+
+  <%# Telefonda (860 px altı) ekranın altında sabit hızlı eylem çubuğu %>
+  <nav class="hizli" aria-label="Hızlı iletişim">
+    <a class="dugme" href="tel:<%= firma.telefonLink %>" aria-label="Ara: <%= firma.telefon %>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5 9 3l1.6 4.4-2 1.4a12 12 0 0 0 6.6 6.6l1.4-2L21 15l-.5 2.4A3 3 0 0 1 17.6 20 14.6 14.6 0 0 1 4 6.4a3 3 0 0 1 2.6-2.9Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Ara</a>
+    <a class="dugme ana" href="<%= kok %>/teklif">Teklif iste</a>
+  </nav>
+  <script src="/v3/js/temel.js" defer></script>
+  <% for (const j of (locals.sayfaJs || [])) { %><script src="/v3/js/<%= j %>.js" defer></script>
+  <% } %>
+</body>
+</html>

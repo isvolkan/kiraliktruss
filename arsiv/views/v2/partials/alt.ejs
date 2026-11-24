@@ -1,0 +1,39 @@
+<%# v2 alt bölüm (N-07: sayfa kayınca alttaki katman açılır). İsteğe bağlı: sayfaJs (['anasayfa'] → /v2/js/anasayfa.js) %>
+  </main>
+  </div><%# /.sayfa %>
+
+  <footer class="alt" id="alt">
+    <div class="alt-ic">
+      <div class="alt-ust">
+        <div>
+          <span class="mono">Hemen arayın</span>
+          <a class="alt-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+        </div>
+        <a class="alt-eposta" href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a>
+      </div>
+      <div class="alt-kolonlar">
+        <div>
+          <span class="mono">Depo ve ofis</span>
+          <p><%= firma.adres %><br><%= firma.ilce %></p>
+        </div>
+        <div>
+          <span class="mono">Sayfalar</span>
+          <p><a href="<%= kok %>/">Ana sayfa</a><br><a href="<%= kok %>/calismalar">Çalışmalar</a><br><a href="<%= kok %>/hakkimizda">Hakkımızda</a><br><a href="<%= kok %>/iletisim">İletişim</a><br><a href="<%= kok %>/teklif">Teklif iste</a></p>
+        </div>
+        <div>
+          <span class="mono">Belgeler</span>
+          <ul class="belgeler"><% for (const b of firma.belgeler) { %><li><%= b %></li><% } %></ul>
+        </div>
+      </div>
+      <div class="alt-alt mono">
+        <span>© <%= new Date().getFullYear() %> <%= firma.ad %> · <%= firma.kurulus %>'dan beri</span>
+        <span><%= firma.belgeler.join(' · ') %></span>
+        <a href="/yonetim">Yönetim</a>
+      </div>
+    </div>
+  </footer>
+  <script src="/v2/js/temel.js" defer></script>
+  <% for (const j of (locals.sayfaJs || [])) { %><script src="/v2/js/<%= j %>.js" defer></script>
+  <% } %>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<%# v2 üst bölüm. İsteğe bağlı: sayfaCss (['anasayfa'] → /v2/css/anasayfa.css), govdeSinifi %>
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= baslik %> · <%= firma.ad %></title>
+  <meta name="description" content="<%= firma.kurulus %>'dan beri İstanbul'da fuar, konser, kongre ve etkinlikler için orijinal alüminyum truss kiralama ve teknik ekip desteği.">
+  <meta name="theme-color" content="#EDEBE4">
+  <% if (demo) { %><meta name="robots" content="noindex, nofollow"><% } %>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..900&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="/v2/js/tema-erken.js"></script>
+  <link rel="stylesheet" href="/v2/css/temel.css">
+  <% for (const c of (locals.sayfaCss || [])) { %><link rel="stylesheet" href="/v2/css/<%= c %>.css">
+  <% } %>
+</head>
+<body class="<%= locals.govdeSinifi || '' %>">
+  <a class="atla" href="#icerik">İçeriğe geç</a>
+  <div class="sayfa" id="sayfa">
+  <% if (demo) { %><div class="demo-not mono">Önizleme · yeni site taslağı (ders projesi)<span class="demo-ek">. Acil işler için <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></span></div><% } %>
+
+  <header class="ust" id="ust">
+    <div class="ust-ic">
+      <a class="logo" href="<%= kok %>/" aria-label="<%= firma.ad %> ana sayfa">
+        <svg viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="2" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M2 26 26 2M2 2l24 24" stroke="currentColor" stroke-width="1.2" opacity=".55"/><rect x="11" y="11" width="6" height="6" fill="#FF5B1F"/></svg>
+        <span>kiralık<b>truss</b></span>
+      </a>
+      <nav class="menu" id="menu" aria-label="Ana menü">
+        <% const linkler = [['/', 'Ana sayfa'], ['/calismalar', 'Çalışmalar'], ['/hakkimizda', 'Hakkımızda'], ['/iletisim', 'İletişim']]; %>
+        <% for (const [href, ad] of linkler) { %>
+          <a href="<%= kok %><%= href %>"<% if (href === '/' ? yol === '/' : yol.startsWith(href)) { %> class="aktif" aria-current="page"<% } %>><%= ad %></a>
+        <% } %>
+        <a class="menu-teklif" href="<%= kok %>/teklif">Teklif iste</a>
+      </nav>
+      <div class="ust-sag">
+        <button class="tema-dugme" type="button" id="temaDugme" aria-label="Açık / koyu tema" aria-pressed="false">
+          <svg class="gunes" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="1.8"/></svg>
+          <svg class="ay" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </button>
+        <a class="dugme ana" href="<%= kok %>/teklif">Teklif iste</a>
+        <button class="menu-dugme" type="button" id="menuDugme" aria-controls="menu" aria-expanded="false">Menü</button>
+      </div>
+    </div>
+  </header>
+
+  <% if (bildirim) { %><div class="bildirim" role="status"><%= bildirim %></div><% } %>
+  <main id="icerik">

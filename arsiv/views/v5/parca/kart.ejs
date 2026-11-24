@@ -1,0 +1,8 @@
+<%# Proje kartı (değişken: p). Boş alanların satırı hiç çizilmez. %>
+<% const yerYil = [p.sehir, p.yil].filter(Boolean).join(' · '); %>
+<a class="kart" href="<%= kok %>/calismalar/<%= p.id %>">
+  <span class="kart-foto"><img src="/gorsel/<%= p.id %>" alt="<%= p.musteri %> kurulumu" loading="lazy" width="800" height="600"></span>
+  <span class="kart-ad"><%= p.musteri %> <span class="ok" aria-hidden="true">→</span></span>
+  <% if (p.etkinlik && p.etkinlik !== p.sehir) { /* etkinlik adı şehirle aynıysa yinelenmesin */ %><span class="kart-ek"><%= p.etkinlik %></span><% } %>
+  <% if (yerYil) { %><span class="kart-ek"><%= yerYil %></span><% } %>
+</a>

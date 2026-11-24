@@ -1,7 +1,13 @@
-<%- include('partials/ust') %>
-<section class="sayfa-bas orta">
-  <p class="mono soluk">500</p>
-  <h1>Bir şeyler ters gitti.</h1>
-  <p class="dar">Lütfen birazdan tekrar deneyin ya da bizi arayın: <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></p>
+<%- include('parca/bas', { hataSayfasi_: true }) %>
+
+<section class="levha z-alu hata-sayfa">
+  <div class="ic">
+    <h1>Bir sorun oluştu.</h1>
+    <p class="giris">Hata bizden kaynaklandı. Biraz sonra yeniden deneyin ya da arayın: <a class="satir-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></p>
+    <div class="dugmeler">
+      <a class="btn btn-1" href="/">Ana sayfa <span class="ok ok-geri" aria-hidden="true"><%- include('parca/ok', { yon: 'sol' }) %></span></a>
+    </div>
+  </div>
 </section>
-<%- include('partials/alt') %>
+
+<%- include('parca/son') %>

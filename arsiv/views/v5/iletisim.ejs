@@ -1,0 +1,38 @@
+<%- include('parca/bas') %>
+<%
+  // OpenStreetMap gömme haritası: merkezin ±0.01 derece çevresi
+  const { lat, lon } = firma.harita;
+  const bbox = [lon - 0.01, lat - 0.01, lon + 0.01, lat + 0.01].map(n => n.toFixed(4)).join(',');
+  const harita = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`;
+%>
+
+<section class="levha z-alu iletisim-bas">
+  <div class="ic">
+    <h1>Bize ulaşın</h1>
+    <p class="dev-tel"><a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a> <span class="etiket">Telefon</span></p>
+  </div>
+</section>
+
+<%- include('parca/yonler', { yonler: [
+  ['Teklif istiyorum', kok + '/teklif', '→'],
+  ['Kaç metretül gerektiğini bilmiyorum', kok + '/#hesapla', '→'],
+  ['Daha önce ne kurdunuz, görmek istiyorum', kok + '/calismalar', '→'],
+  ['E-posta yazacağım', 'mailto:' + firma.eposta, '↗'],
+] }) %>
+
+<section class="levha z-alu" aria-label="Adres ve harita">
+  <div class="ic iki-sutun">
+    <dl class="kunye">
+      <div><dt>Adres</dt><dd class="kunye-uzun"><%= firma.adres %><br><%= firma.ilce %></dd></div>
+      <div><dt>Telefon</dt><dd><a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></dd></div>
+      <div><dt>Faks</dt><dd><%= firma.faks %></dd></div>
+      <div><dt>E-posta</dt><dd><a href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a></dd></div>
+    </dl>
+    <div>
+      <iframe class="harita" src="<%= harita %>" title="Kiralık Truss konumu haritası" loading="lazy" width="800" height="600"></iframe>
+      <p class="kucuk">Haritadaki konum yaklaşıktır.</p>
+    </div>
+  </div>
+</section>
+
+<%- include('parca/son') %>

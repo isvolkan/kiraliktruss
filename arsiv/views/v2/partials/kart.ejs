@@ -1,0 +1,7 @@
+<%# v2 proje kartı: değişken p (id, musteri, etkinlik, sehir, yil). Fotoğraf /gorsel/<id>. %>
+<a class="kart" href="<%= kok %>/calismalar/<%= p.id %>">
+  <span class="kart-gorsel kose"><img src="/gorsel/<%= p.id %>" alt="<%= p.musteri %><%= p.etkinlik ? ' — ' + p.etkinlik : '' %>" loading="lazy" width="600" height="400"></span>
+  <span class="kart-kunye mono"><%= [p.yil, p.sehir].filter(Boolean).join(' · ') || '—' %></span>
+  <span class="kart-baslik"><%= p.musteri %></span>
+  <% if (p.etkinlik) { %><span class="kart-alt"><%= p.etkinlik %></span><% } %>
+</a>

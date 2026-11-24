@@ -1,0 +1,160 @@
+tarih 2026-11-24
+arac Chrome headless (CDP, Node betigi); fetch; curl
+ekran_goruntusu_adedi 39
+
+GET /calismalar?q=a&q=b -> 200
+GET /calismalar?q=a -> 200
+GET /calismalar?tur=fuar&tur=etkinlik -> 200
+GET /calismalar?sayfa=1&sayfa=2 -> 200
+GET /calismalar?q[]=a -> 200
+GET /calismalar?q[x]=1 -> 200
+GET /kvkk -> 200
+GET /gizlilik -> 404
+GET /aydinlatma -> 404
+GET /v6/kvkk -> 301 -> /kvkk
+SEO / -> 200 desc=Truss kiralıyoruz. Yaklaşık 1000 metretül orijinal canon=true og=7 ld=LocalBusiness robotsmeta=noindex, nofollow xrt=noindex, nofollow
+SEO /calismalar -> 200 desc=Kiralık Truss örnek çalışmaları (96 kayıtlı çalışm canon=true og=7 ld= robotsmeta=noindex, nofollow xrt=noindex, nofollow
+SEO /calismalar/96 -> 200 desc=İstanbul&#39;un Fethi Etkinlikleri · İstanbul · 20 canon=true og=7 ld= robotsmeta=noindex, nofollow xrt=noindex, nofollow
+SEO /hakkimizda -> 200 desc=2009&#39;dan beri alüminyum truss kiralama ve tekn canon=true og=7 ld= robotsmeta=noindex, nofollow xrt=noindex, nofollow
+SEO /iletisim -> 200 desc=Kiralık Truss iletişim bilgileri: +90 212 222 96 9 canon=true og=7 ld=LocalBusiness robotsmeta=noindex, nofollow xrt=noindex, nofollow
+SEO /teklif -> 200 desc=Etkinliğiniz için proje bazlı alüminyum truss kira canon=true og=7 ld= robotsmeta=noindex, nofollow xrt=noindex, nofollow
+SEO /kvkk -> 200 desc=Kiralık Truss 6698 sayılı Kişisel Verilerin Korunm canon=true og=7 ld= robotsmeta=noindex, nofollow xrt=noindex, nofollow
+SEO /teklif-yok-sayfa -> 404 desc=Kiralık Truss — alüminyum truss kiralama ve teknik canon=false og=6 ld= robotsmeta=noindex xrt=noindex, nofollow
+robots.txt -> 200: User-agent: * | Disallow: /
+sitemap.xml -> 200, 102 url
+CSRF'siz POST /yonetim/giris -> 403
+giris (jetonlu) -> 302 /yonetim
+form /yonetim -> 200 {"http":200,"form":1,"post_form":1,"csrf_alani":1}
+form /yonetim/projeler -> 200 {"http":200,"form":22,"post_form":21,"csrf_alani":21}
+form /yonetim/projeler/96/duzenle -> 200 {"http":200,"form":3,"post_form":3,"csrf_alani":3}
+form /yonetim/teklifler -> 200 {"http":200,"form":2,"post_form":1,"csrf_alani":1}
+form /yonetim/teklifler/150 -> 200 {"http":200,"form":4,"post_form":4,"csrf_alani":4}
+form /yonetim/hesap -> 200 {"http":200,"form":2,"post_form":2,"csrf_alani":2}
+CSRF'siz POST /yonetim/projeler/96 (girisli) -> 403
+yanlis jetonlu POST .../96/sil -> 403
+sahte .jpg yukleme -> 422 Yalnız JPEG, PNG ya da WebP fotoğraf yüklenebilir; dosyanın içeriği fotoğraf değil.
+proje listesi once/sonra: 20/20
+
+GORSEL /@1280: html=26026B img=44 ilk=16 istek/830063B tum=16 istek/830063B tipler=image/png,image/webp,image/svg+xml
+GORSEL /calismalar@1280: html=29244B img=25 ilk=21 istek/802741B tum=25 istek/966670B tipler=image/png,image/webp
+GORSEL /@375: html=26026B img=44 ilk=16 istek/830063B tum=16 istek/830063B tipler=image/png,image/webp,image/svg+xml
+GORSEL /calismalar@375: html=29244B img=25 ilk=6 istek/221646B tum=25 istek/966670B tipler=image/png,image/webp
+GET /gorsel/96 -> 200 image/webp 196042B cache=no-cache
+GET /gorsel/96?boy=kucuk -> 200 image/webp 60206B
+
+--- curl ---
+GET /gorsel/96 If-None-Match: "96-t-1795466253061-196042" -> 304
+GET /gorsel/96?boy=kucuk&v=1 Cache-Control: Cache-Control: public, max-age=31536000, immutable
+grep 'throw err' routes lib: 0 sonuc
+GET /v6/calismalar?q=a -> 301 
+
+
+===== npm test =====
+
+> kiraliktruss@1.0.0 test
+> node scripts/test.js
+
+◇ injected env (7) from .env
+◇ injected env (0) from .env
+Göç uygulandı: 001-gorsel.sql
+Göç uygulandı: 002-yonetim.sql
+◇ injected env (0) from .env
+◇ injected env (0) from .env
+◇ injected env (0) from .env
+✔ halka açık sayfalar açılıyor (187.0876ms)
+✔ bilinmeyen sayfa 404 döner (6.9181ms)
+✔ çalışmalar süzgeci sonuçları daraltır ve SQL enjeksiyonuna dayanır (34.1658ms)
+✔ proje fotoğrafı veritabanından gelir (3.8778ms)
+✔ teklif formu: eksik/hatalı alanlar reddedilir (25.3708ms)
+[bildirim] Yeni teklif (e-posta ayarlı değil): TEST-1795468326174 Deneme · Fuar standı · İstanbul · 2026-11-24
+✔ teklif CRUD: ziyaretçi ekler, yönetici listeler, günceller, siler (274.8225ms)
+✔ bal küpü dolu gönderim kaydedilmez (2.7249ms)
+✔ yönetim paneli girişsiz açılmaz, yanlış parola reddedilir (242.7371ms)
+✔ proje CRUD: ekle (fotoğraflı), listele, güncelle, sil (360.5569ms)
+✔ yönetim sayfaları ve teşekkür sayfası açılıyor (256.255ms)
+✔ fotoğraf yükleme hataları form hatası olarak döner (500 değil) (234.4726ms)
+✔ önizleme modunda arama motorlarına kapalı (9.9503ms)
+◇ injected env (0) from .env
+◇ injected env (0) from .env
+◇ injected env (0) from .env
+✔ H1: /kvkk 200 döner, teklif formu ve alt bilgi /kvkk bağlantısı içerir (94.4148ms)
+✔ H5: her sayfanın meta description değeri birbirinden farklı, süzgeç yansır (224.5096ms)
+✔ H5: Open Graph, Twitter Card ve siteUrl varsa canonical / og:url basılır (21.9125ms)
+✔ H5: ana sayfada ve iletişimde geçerli LocalBusiness JSON-LD var (23.7798ms)
+✔ H10: teklif formunda legend içinde h2 yok (4.8561ms)
+✔ H11: hakkımızda otomatik slaytta aria-live yok ve görünür Duraklat düğmesi var (7.1498ms)
+✔ H4: kartlarda küçük boy + srcset + sizes, şeritte yalnız ilk 4 eager, detay tam boy (19.926ms)
+✔ H9: koyu temada --hata ve --basari zemin ve yüzey üstünde WCAG AA (>=4.5:1) sağlar (0.5734ms)
+◇ injected env (0) from .env
+◇ injected env (0) from .env
+✔ D1 seed: panelden değiştirilen yönetici şifresi ikinci seed çalışmasında korunur (969.6498ms)
+✔ D2 açılış: eski şemalı veritabanında seed + göç + yeniden seed başarılı (indeks/sütun çökmesi yok) (1357.7008ms)
+◇ injected env (0) from .env
+◇ injected env (0) from .env
+◇ injected env (0) from .env
+✔ sorgu parametreleri: dizi / bozuk değerler 500 vermez (350.2827ms)
+✔ teklif POST: tekrarlanan form alanları 500 vermez (19.7274ms)
+✔ görsel: tam ve küçük boy, ETag, 304, sürümsüz no-cache (15.8352ms)
+✔ görsel: küçük boyu olmayan eski kayıt için anında üretilir ve kaydedilir (102.9245ms)
+✔ görsel: olmayan proje yer tutucuya yönlenir (2.521ms)
+✔ robots.txt: önizlemede kapalı, gerçek yayında açık + sitemap satırı (3.9788ms)
+✔ sitemap.xml: sabit sayfalar + tüm çalışma detayları, lastmod (3.7107ms)
+✔ kvkk: rota var (views/kvkk.ejs yazılınca 200 döner) (3.9939ms)
+✔ teklif POST: kayıttan sonra bildirim modülü çağrılır, hatası akışı bozmaz (8.0364ms)
+✔ bildirim: SMTP ayarı yokken gönderim yapmaz, hata fırlatmaz (1.1389ms)
+✔ lib/gorsel: imzaKontrol doğru ve yanlış örnekler (2.6015ms)
+✔ lib/gorsel: hazirla — WebP, tam ≤1600, küçük ≤600, büyütme yok (113.7411ms)
+✔ D3 görsel: ?v= varsa bir yıl immutable, yoksa / geçersizse no-cache; 304 ikisinde de çalışır (22.9561ms)
+✔ D3 görsel: ziyaretçi sayfalarındaki her /gorsel/ adresi ?v= taşır; fotoğraf değişince adres de değişir (65.0699ms)
+✔ D4 teklif POST: form dışı gövde (text/plain) 500 vermez, doğrulama hatası döner (7.1494ms)
+✔ D5 pool: DATABASE_SSL_GEVSEK adresteki sslmode=require varken de etkili, varsayılan davranış değişmez (251.9531ms)
+✔ D6 bildirim: SITE_URL de olmadan e-posta ayarı tamam sayılmaz (0.5331ms)
+✔ D10 hata sayfaları: canonical / og:url yok, her zaman noindex (12.1687ms)
+✔ D11 hakkımızda gösterisi: küçük boy + srcset (sürümlü), gosteri.js srcset yükler (6.775ms)
+◇ injected env (0) from .env
+◇ injected env (0) from .env
+◇ injected env (0) from .env
+✔ site: tüm sayfalar açılıyor, bilinmeyen sayfa 404 (228.6276ms)
+✔ site: sayfalarda eski sürüm öneki (/v2 … /v6) yok (68.1717ms)
+✔ site: eski sürüm adresleri kalıcı olarak öneksiz adrese yönlenir (28.1434ms)
+✔ site: ana sayfada mini form var, hesaplayıcı (şimdilik) yok (12.9813ms)
+✔ site: çalışmalar liste görünümü tablo çizer, süzgeç daraltır (38.4091ms)
+✔ site: teklif formu sorgu parametreleriyle dolu açılır (4.8354ms)
+✔ site: geçersiz ön doldurma yok sayılır, şehir kaçışlı basılır (4.9706ms)
+✔ site: ?ref ile örnek iş mesaja yazılır, olmayan ref sessizce yok sayılır (8.4627ms)
+✔ site: teklif formunda tüm alan adları var (3.9937ms)
+✔ site: boş gönderim 422, özet ve alan hataları; değerler korunur (18.5787ms)
+[bildirim] Yeni teklif (e-posta ayarlı değil): TEST-site-1795468326207 Deneme · Fuar standı · Ankara · 2026-11-24
+✔ site: geçerli gönderim kaydedilir ve teşekkür sayfasına yönlenir (6.3624ms)
+✔ site: gerçek logo ve hero arka plan fotoğrafları (12.772ms)
+✔ site: ana sayfadaki sonsuz şerit açılıştaki işleri yinelemiyor; taslak kaldırıldı (15.0409ms)
+✔ site: sayfa başlıkları, çalışmalarda #suzgec çapası, iletişimde Google Maps (39.1448ms)
+✔ site: sayfalarda emoji ya da emojiye dönebilen ok karakteri yok (oklar SVG) (60.85ms)
+✔ site: çalışmalar süzgeci kapalı gelir, süzülünce açık gelir (30.3261ms)
+✔ site: Yönetim bağlantısı sitede yok, /yonetim rotası duruyor (43.8546ms)
+✔ site: çalışma detayında tam boy bağlantısı ve dialog işaretlemesi var (8.1663ms)
+✔ site: Hakkımızda dönen fotoğrafı: 12 kare, Maschio Gaspardo aralarında, her karede bağlantı = fotoğraf, ileri/geri düğmeleri (11.4603ms)
+✔ site: Hakkımızda gösterisinin sırası açılıştan açılışa değişir (11.5165ms)
+✔ site: telefonda sabit mobil eylem çubuğu var, teklif sayfasında yalnız Ara görünür (42.3967ms)
+✔ site: hero fotoğraf boyası beyaz yazıya WCAG AA kontrast bırakır, düz mavi katman yok (1.2874ms)
+◇ injected env (0) from .env
+◇ injected env (0) from .env
+◇ injected env (0) from .env
+✔ yönetim: girişsiz erişim giriş sayfasına yönlenir, girişten sonra istenen sayfaya dönülür (343.1305ms)
+✔ yönetim: yanlış şifre 401, jetonsuz POST 403 (544.0507ms)
+✔ yönetim: proje ekle (fotoğraf WebP + küçük boy), süz, düzenle, sil (138.2384ms)
+✔ yönetim: içeriği fotoğraf olmayan .jpg reddedilir (dosya imzası) (4.8699ms)
+✔ yönetim: teklif açılınca okundu olur; durum ve not güncellenir; okunmamış rozeti (25.7035ms)
+✔ yönetim: teklifler CSV (UTF-8 BOM, ; ayırıcı, Türkçe karakter, tırnak kaçışı) (4.0166ms)
+✔ yönetim: şifre değiştirme (mevcut şifre, en az 10 karakter, eski şifre artık geçmez) (938.2548ms)
+✔ yönetim: tüm sayfalar açılıyor, tek h1, çıkış ana siteye döner (265.364ms)
+✔ D7 yönetim menüsü: bulunulan sayfanın bağlantısı aria-current="page" taşır (18.8219ms)
+✔ D9 yönetim 403 sayfası: "İçeriğe geç" bağlantısı var (2.4758ms)
+ℹ tests 73
+ℹ suites 0
+ℹ pass 73
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2846.9486

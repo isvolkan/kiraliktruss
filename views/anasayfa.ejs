@@ -1,105 +1,117 @@
-<%- include('partials/ust') %>
+<%- include('parca/bas', {
+  aciklama: `Truss kiralıyoruz. Yaklaşık ${firma.stokMetretul} metretül orijinal alüminyum truss stoğu; ${firma.belgeler.join(', ')} belgeli. ${firma.kurulus}'dan beri fuar, stand, kongre ve konser kurulumları.`,
+  ogGorsel: heroFotolar.length ? gorselUrl(heroFotolar[0]) : '/img/logo.png',
+  yerelIsletme: true,
+}) %>
+<%
+  // Bugünün tarihi (YYYY-AA-GG): tarih alanında geçmiş gün seçilmesin
+  const b = new Date();
+  const bugun = b.getFullYear() + '-' + String(b.getMonth() + 1).padStart(2, '0') + '-' + String(b.getDate()).padStart(2, '0');
+  const donenler = ['Fuar için.', 'Stand için.', 'Kongre için.', 'Konser için.', 'Düğün için.', 'Tanıtım için.'];
+%>
 
-<%# 1) Açılış: gerçek proje fotoğrafı + alttan taşan dev yazı + köşelerde bilgi (White Desert + Telha Clarke) %>
-<section class="acilis">
-  <% const kapak = projeler[0]; %>
-  <% if (kapak) { %><img class="acilis-foto" src="/gorsel/<%= kapak.id %>" alt="<%= kapak.musteri %> için kurulan truss sistemi" fetchpriority="high"><% } %>
-  <div class="acilis-ortu"></div>
-  <div class="kose kose-sol-ust mono"><%= firma.ilce %></div>
-  <div class="kose kose-sag-ust mono"><%= firma.kurulus %>'dan beri</div>
-  <div class="kose kose-sol-alt">
-    <h1>Fuar, sahne ve etkinlikler için <em>orijinal alüminyum</em> truss.</h1>
-    <p>Truss kiralama ve deneyimli teknik ekip desteği. Fiyatlandırma proje bazlıdır.</p>
-    <div class="dugmeler">
-      <a class="dugme" href="/teklif">Teklif iste</a>
-      <a class="dugme cizgili" href="tel:<%= firma.telefonLink %>">Ara: <%= firma.telefon %></a>
+<%# a. Hero: mavi levha, dönen kelime, mini teklif formu %>
+<section class="levha z-mavi hero">
+  <%# Arka plan: en yeni kurulumdan geriye doğru fotoğraflar. İlki sayfayla gelir; diğerlerini JS sonradan yükler ve sırayla geçirir. %>
+  <div class="hero-zemin" aria-hidden="true">
+    <% heroFotolar.forEach((f, i) => { %><img <%- i === 0 ? 'class="aktif" src' : 'data-src' %>="<%= gorselUrl(f) %>" alt="" width="1200" height="800" data-kunye="<%= f.musteri %><%= f.sehir && f.sehir !== f.musteri ? ' · ' + f.sehir : '' %><%= f.yil ? ' · ' + f.yil : '' %>"<% if (i === 0) { %> fetchpriority="high"<% } %>><% }) %>
+  </div>
+  <div class="ic">
+    <p class="etiket yukselen"><span>Beylikdüzü, İstanbul · <%= firma.kurulus %>'dan beri</span></p>
+    <h1 class="hero-baslik">
+      <span class="yukselen"><span>Truss kiralıyoruz.</span></span>
+      <span class="donen" aria-hidden="true">
+        <% donenler.forEach((k, i) => { %><span class="donen-k<%= i === 0 ? ' aktif' : '' %>"><%= k %></span><% }) %>
+      </span>
+      <span class="gizli donen-okuyucu">Fuar, stand, kongre, konser, düğün ve tanıtım için.</span>
+      <span class="donen-sabit">Fuar, stand, kongre ve konser için.</span>
+    </h1>
+    <p class="hero-metin">Yaklaşık <%= firma.stokMetretul %> metretül orijinal alüminyum truss stoğumuz var. Hepsi TÜV, TSE ve CE belgeli.</p>
+
+    <form class="mini-form beyaz-kart" method="get" action="/teklif">
+      <p class="etiket">Üç soruyla teklife başlayın</p>
+      <div class="mini-alanlar">
+        <div class="alan">
+          <label for="m-tur">Ne için?</label>
+          <select id="m-tur" name="etkinlik_turu">
+            <option value="">Seçin</option>
+            <% for (const t of turler) { %><option><%= t %></option><% } %>
+          </select>
+        </div>
+        <div class="alan">
+          <label for="m-tarih">Ne zaman?</label>
+          <input id="m-tarih" type="date" name="tarih" min="<%= bugun %>">
+        </div>
+        <div class="alan">
+          <label for="m-sehir">Hangi şehirde?</label>
+          <input id="m-sehir" name="sehir" autocomplete="address-level2">
+        </div>
+        <button class="btn btn-1" type="submit">Teklife devam et <span class="ok" aria-hidden="true"><%- include('parca/ok', { yon: 'sag' }) %></span></button>
+      </div>
+    </form>
+
+    <p class="hero-ara">ya da hemen arayın: <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %> <span aria-hidden="true"><%- include('parca/ok', { yon: 'capraz' }) %></span></a></p>
+    <% if (heroFotolar.length) { const f = heroFotolar[0]; %>
+      <p class="hero-kunye" aria-hidden="true"><span class="hero-kunye-no">1 / <%= heroFotolar.length %></span> <span class="hero-kunye-isim"><%= f.musteri %><%= f.sehir && f.sehir !== f.musteri ? ' · ' + f.sehir : '' %><%= f.yil ? ' · ' + f.yil : '' %></span></p>
+    <% } %>
+  </div>
+</section>
+
+<%# b. Son kurulumlar: kendiliğinden akan sonsuz şerit (JS kartların kopyasını ekler). Açılışta dönen 6 iş burada yinelenmez.
+     Şerit .ic dışında, ekranın iki kenarına kadar uzanır; JS yoksa elle yatay kaydırılan sıradan liste. %>
+<section class="levha z-alu son-kurulum" aria-labelledby="son-baslik">
+  <div class="ic">
+    <div class="bolum-bas">
+      <h2 id="son-baslik">Son kurulumlardan</h2>
+      <a class="bag-ok" href="/calismalar">Tüm çalışmalar (<%= sayilar.proje %>) <span class="ok" aria-hidden="true"><%- include('parca/ok', { yon: 'sag' }) %></span></a>
+    </div>
+    <div class="serit-oklar">
+      <button class="kare-dugme" type="button" data-serit="-1" aria-label="Önceki çalışma" aria-controls="serit"><span aria-hidden="true"><%- include('parca/ok', { yon: 'sol' }) %></span></button>
+      <button class="kare-dugme" type="button" data-serit="1" aria-label="Sonraki çalışma" aria-controls="serit"><span aria-hidden="true"><%- include('parca/ok', { yon: 'sag' }) %></span></button>
     </div>
   </div>
-  <div class="kose kose-sag-alt mono"><% if (kapak) { %>Fotoğraf: <%= kapak.musteri %>, <%= kapak.yil %><% } %></div>
-  <p class="acilis-dev" aria-hidden="true">TRUSS</p>
-  <%# Dönen damga (Nettie's / Zora) %>
-  <svg class="damga" viewBox="0 0 120 120" aria-hidden="true">
-    <defs><path id="daire" d="M60 60m-46 0a46 46 0 1 1 92 0a46 46 0 1 1-92 0"/></defs>
-    <text><textPath href="#daire">ORİJİNAL ALÜMİNYUM · <%= firma.belgeler.join(' · ') %> · </textPath></text>
-    <rect x="44" y="44" width="32" height="32" fill="none" stroke="currentColor" stroke-width="3"/>
-    <path d="M44 76 76 44" stroke="currentColor" stroke-width="2"/>
-  </svg>
-</section>
-
-<%# 2) Kayan bant: çalışılan fuarlar (Thunderbuns / Amici) %>
-<div class="bant" aria-label="Çalıştığımız fuarlardan bazıları">
-  <div class="bant-ic">
-    <% for (let i = 0; i < 2; i++) { %><span aria-hidden="<%= i === 1 %>"><% for (const f of fuarlar) { %><%= f %> <b>✕</b> <% } %></span><% } %>
-  </div>
-</div>
-
-<%# 3) Sayılar + kaydırdıkça kendini çizen truss kafesi (sayfanın tek büyük anı) %>
-<section class="bolum sayilar-bolum">
-  <div class="sayilar">
-    <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= new Date().getFullYear() - firma.kurulus %>">0</span><span class="mono">yıllık deneyim</span></div>
-    <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= firma.stokMetretul %>" data-on="~">0</span><span class="mono">metretül truss stoğu</span></div>
-    <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= sayilar.proje %>" data-son="+">0</span><span class="mono">arşivdeki proje</span></div>
-    <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= sayilar.fuar %>">0</span><span class="mono">farklı fuar</span></div>
-  </div>
-  <svg class="kafes" id="kafes" viewBox="0 0 1200 140" preserveAspectRatio="none" aria-hidden="true">
-    <path class="kafes-cizgi" pathLength="1" d="M0 20H1200M0 120H1200<% for (let x = 0; x <= 1200; x += 100) { %>M<%= x %> 20V120<% } %><% for (let x = 0; x < 1200; x += 100) { %>M<%= x %> 20L<%= x + 100 %> 120<% } %>"/>
-  </svg>
-  <div class="kafes-etiket mono"><span>Orijinal alüminyum · demir kaynatma değil</span><span>Avrupa standartlarında imal · <%= firma.belgeler.join(' · ') %></span></div>
-</section>
-
-<%# 4) Öne çıkan projeler %>
-<section class="bolum">
-  <div class="bolum-bas">
-    <h2 class="kelime-kelime">Son kurduklarımızdan</h2>
-    <a class="ok-link" href="/calismalar">Tüm çalışmalar (<%= sayilar.proje %>) →</a>
-  </div>
-  <div class="izgara">
-    <% for (const p of projeler) { %><%- include('partials/kart', { p }) %><% } %>
+  <div class="serit" id="serit" data-oto="38">
+    <ul class="serit-ray">
+      <%# Yalnız ilk 4 kart anında yüklenir, geri kalanı kaydırdıkça (lazy) %>
+      <% seritProjeler.forEach((p, i) => { %><li><%- include('parca/kart', { p, hemen: i < 4, olcu: '(min-width: 488px) 380px, 78vw' }) %></li><% }) %>
+    </ul>
   </div>
 </section>
 
-<%# 5) Nasıl çalışıyoruz: numaralı adımlar (Nettie's Bees) %>
-<section class="bolum adimlar-bolum">
-  <h2 class="kelime-kelime">Nasıl çalışıyoruz</h2>
-  <ol class="adimlar">
-    <li class="ortaya-cik"><span class="adim-no mono">01</span><h3>Proje bilgisi</h3><p>Tarih, mekân ve stand ölçüsünü formdan ya da telefonla iletirsiniz.</p></li>
-    <li class="ortaya-cik"><span class="adim-no mono">02</span><h3>Çözüm ve teklif</h3><p>İhtiyacınıza göre çözümü birlikte belirler, proje bazlı fiyat veririz.</p></li>
-    <li class="ortaya-cik"><span class="adim-no mono">03</span><h3>Uygulama</h3><p>Deneyimli teknik ekibimizle projenizi etkinlik gününe hazır ederiz.</p></li>
-    <li class="ortaya-cik"><span class="adim-no mono">04</span><h3>Etkinlik sonrası</h3><p>Sistemlerimiz özenle depolanır; ilk günkü alüminyum parlaklığıyla bir sonraki projeye hazırdır.</p></li>
-  </ol>
+<%# c. Üç sayı: rakamlar görünüme girince basamak basamak döner (JS); DOM'da gerçek sayı yazılı %>
+<section class="levha z-beyaz sayilar" aria-label="Sayılarla Kiralık Truss">
+  <div class="ic">
+    <ul class="uc-sayi">
+      <li><span class="dev-rakam" data-rulo><%= firma.kurulus %></span><span class="sayi-etiket">yılından beri truss kiralıyoruz</span></li>
+      <li><span class="dev-rakam" data-rulo>~<%= firma.stokMetretul %></span><span class="sayi-etiket">metretül alüminyum truss stoğu</span></li>
+      <li><span class="dev-rakam" data-rulo><%= sayilar.proje %></span><span class="sayi-etiket">kayıtlı çalışma, <%= sayilar.fuar %> ayrı fuar</span></li>
+    </ul>
+  </div>
 </section>
 
-<%# 6) Metretül hesaplayıcı (değer katma) %>
-<section class="bolum hesap-bolum" id="hesapla">
-  <div>
-    <h2 class="kelime-kelime">Ne kadar truss lazım?</h2>
-    <p class="soluk">Stand ölçünüzü girin, yaklaşık metretülü hesaplayalım. Sonuç teklif formuna otomatik geçer. Kesin ölçü keşif ve çizimden sonra çıkar.</p>
+<%# d. Malzeme %>
+<section class="levha z-murekkep malzeme" aria-labelledby="malzeme-baslik">
+  <div class="ic">
+    <h2 id="malzeme-baslik">Demir kaynatma değil. Orijinal alüminyum.</h2>
+    <p class="giris">Truss sistemlerimizin hepsi Avrupa standartlarında imal edilmiştir. Depolama ve nakliye yüzünden deforme olmamış, ilk günkü alüminyum parlaklığındadır.</p>
+    <ul class="belgeler">
+      <% for (const belge of firma.belgeler) { %><li><span class="belge-isim"><%= belge %></span><span class="belge-et">belgeli</span></li><% } %>
+    </ul>
   </div>
-  <form class="hesap" id="hesap" action="/teklif" method="get">
-    <label>Yapı
-      <select name="yapi" id="hYapi">
-        <option value="cerceve">Çerçeve (4 ayak + üst kuşak)</option>
-        <option value="tavan">Çerçeve + tavan ara kirişleri</option>
-        <option value="kemer">Kemer / kapı (2 ayak + kiriş)</option>
-        <option value="kule">Kule (tek dikey)</option>
-      </select>
-    </label>
-    <div class="hesap-satir">
-      <label>En (m)<input type="number" id="hEn" min="1" max="60" step="0.5" value="6"></label>
-      <label>Boy (m)<input type="number" id="hBoy" min="1" max="60" step="0.5" value="4"></label>
-      <label>Yükseklik (m)<input type="number" id="hYuk" min="1" max="12" step="0.5" value="3"></label>
-      <label>Adet<input type="number" id="hAdet" min="1" max="50" step="1" value="1"></label>
+</section>
+
+<%# e. Kurulum yaptığımız işlerden: sade ad ızgarası (en yeni 12 müşteri). Masaüstünde adın üstüne gelince fotoğraf önizlemesi. %>
+<section class="levha z-beyaz kimler" aria-labelledby="kimler-baslik">
+  <div class="ic">
+    <div class="bolum-bas">
+      <h2 id="kimler-baslik">Kurulum yaptığımız işlerden</h2>
+      <a class="bag-ok" href="/calismalar">Tüm çalışmalar <span class="ok" aria-hidden="true"><%- include('parca/ok', { yon: 'sag' }) %></span></a>
     </div>
-    <output class="hesap-sonuc" id="hSonuc" aria-live="polite"><b>0</b> <span class="mono">metretül</span></output>
-    <input type="hidden" name="metretul" id="hMetretul">
-    <button class="dugme" type="submit">Bu ölçüyle teklif iste</button>
-  </form>
+    <ul class="musteriler">
+      <% for (const m of musteriler) { %><li><a href="/calismalar?q=<%= encodeURIComponent(m.ad) %>" data-onizleme="<%= gorselUrl(m, true) %>"><span class="m-isim"><%= m.ad %></span><% if (m.yil) { %><span class="m-yil"><%= m.yil %></span><% } %></a></li><% } %>
+    </ul>
+  </div>
 </section>
 
-<%# 7) Bölünmüş çağrı (Last Crumb) %>
-<section class="ikiye">
-  <a class="ikiye-yari" href="/teklif"><span class="mono">Yazılı teklif</span><span class="ikiye-buyuk">Formu doldurun</span><span>Bilgileri inceleyip size dönüş yapıyoruz.</span></a>
-  <a class="ikiye-yari koyu" href="tel:<%= firma.telefonLink %>"><span class="mono">Acil mi?</span><span class="ikiye-buyuk">Hemen arayın</span><span><%= firma.telefon %></span></a>
-</section>
-
-<%- include('partials/alt') %>
+<%- include('parca/cagri') %>
+<%- include('parca/son') %>

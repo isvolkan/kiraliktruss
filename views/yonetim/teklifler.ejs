@@ -1,25 +1,73 @@
 <%- include('_ust') %>
-<h1>Teklif talepleri (<%= teklifler.length %>)</h1>
-<div class="gorunum-sec">
-  <a class="hap<%= !durum ? ' aktif' : '' %>" href="/yonetim/teklifler">Hepsi</a>
-  <% for (const [k, ad] of Object.entries(DURUMLAR)) { %><a class="hap<%= durum === k ? ' aktif' : '' %>" href="?durum=<%= k %>"><%= ad %></a><% } %>
+<%
+  const gun = (d) => d.toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul' });
+  // Durum sekmesi adresi: arama korunur
+  const sekme = (d) => {
+    const p = new URLSearchParams();
+    if (d) p.set('durum', d);
+    if (suzgec.q) p.set('q', suzgec.q);
+    const s = p.toString();
+    return '/yonetim/teklifler' + (s ? '?' + s : '');
+  };
+  const csvAdres = sekme(suzgec.durum).replace('/yonetim/teklifler', '/yonetim/teklifler.csv');
+  const hepsi = Object.values(durumSayisi).reduce((a, b) => a + b, 0);
+%>
+<div class="y-bas">
+  <div>
+    <p class="etiket">Gelen talepler</p>
+    <h1>Teklifler</h1>
+  </div>
+  <div class="y-bas-dugmeler">
+    <a class="btn btn-2" href="<%= csvAdres %>" download>CSV indir<span class="gizli"> (Excel için, bu süzgeçle)</span></a>
+  </div>
 </div>
-<% if (!teklifler.length) { %><p class="soluk">Bu durumda teklif yok.</p><% } else { %>
-<div class="tablo-kap"><table class="tablo">
-  <thead><tr><th>No.</th><th>Geliş</th><th>Kişi / firma</th><th>Tür</th><th>Şehir</th><th>Etkinlik tarihi</th><th>Metretül</th><th>Durum</th><th></th></tr></thead>
-  <tbody><% for (const t of teklifler) { %>
-    <tr>
-      <td class="mono"><%= t.id %></td>
-      <td class="mono"><%= t.olusturma.toLocaleDateString('tr-TR') %></td>
-      <td><%= t.ad_soyad %><% if (t.firma) { %><br><small class="soluk"><%= t.firma %></small><% } %></td>
-      <td><%= t.etkinlik_turu %></td>
-      <td><%= t.sehir %></td>
-      <td class="mono"><%= t.tarih.toLocaleDateString('tr-TR') %></td>
-      <td class="mono"><%= t.metretul || '-' %></td>
-      <td><span class="durum durum-<%= t.durum %>"><%= DURUMLAR[t.durum] %></span></td>
-      <td><a class="hap" href="/yonetim/teklifler/<%= t.id %>">Aç</a></td>
-    </tr>
-  <% } %></tbody>
-</table></div>
+
+<nav class="y-sekmeler" aria-label="Duruma göre süz">
+  <ul>
+    <li><a href="<%= sekme('') %>"<% if (!suzgec.durum) { %> aria-current="page"<% } %>>Hepsi <b><%= hepsi %></b></a></li>
+    <% for (const [k, ad] of Object.entries(DURUMLAR)) { %>
+      <li><a href="<%= sekme(k) %>"<% if (suzgec.durum === k) { %> aria-current="page"<% } %>><%= ad %> <b><%= durumSayisi[k] || 0 %></b></a></li>
+    <% } %>
+  </ul>
+</nav>
+
+<form class="y-suzgec y-suzgec-tek" method="get" action="/yonetim/teklifler" role="search" aria-label="Tekliflerde ara">
+  <% if (suzgec.durum) { %><input type="hidden" name="durum" value="<%= suzgec.durum %>"><% } %>
+  <div class="alan y-suzgec-ara">
+    <label for="q">Ara</label>
+    <input id="q" type="search" name="q" value="<%= suzgec.q %>" placeholder="Kişi, firma, e-posta, telefon ya da şehir">
+  </div>
+  <div class="y-suzgec-dugmeler">
+    <button class="btn btn-1" type="submit">Ara</button>
+    <% if (suzgec.q) { %><a class="btn btn-2" href="<%= sekme(suzgec.durum).replace(/[?&]q=[^&]*/, '') %>">Temizle</a><% } %>
+  </div>
+</form>
+
+<p class="y-sonuc"><b><%= toplam %></b> teklif<% if (okunmamis) { %> · <span class="y-yeni-isaret"><%= okunmamis %> okunmamış</span> (en üstte)<% } %></p>
+
+<% if (!teklifler.length) { %>
+  <p class="y-bos">Bu süzgece uyan teklif yok.</p>
+<% } else { %>
+  <table class="y-tablo">
+    <caption class="gizli">Teklif talepleri; okunmamışlar en üstte, sonra en yeni</caption>
+    <thead><tr><th scope="col">Kişi / firma</th><th scope="col">Geliş</th><th scope="col">Etkinlik</th><th scope="col">Etkinlik tarihi</th><th scope="col">Metretül</th><th scope="col">Durum</th></tr></thead>
+    <tbody>
+      <% for (const t of teklifler) { %>
+        <tr class="<%= t.okundu ? '' : 'y-okunmamis' %>">
+          <th scope="row" class="y-t-ana">
+            <a href="/yonetim/teklifler/<%= t.id %>"><%= t.ad_soyad %></a>
+            <% if (!t.okundu) { %><span class="y-yeni-isaret">Okunmadı</span><% } %>
+            <span class="y-satir-ek">No. <%= t.id %><% if (t.firma) { %> · <%= t.firma %><% } %></span>
+          </th>
+          <td data-etiket="Geliş" class="y-sayi"><%= gun(t.olusturma) %></td>
+          <td data-etiket="Etkinlik"><%= t.etkinlik_turu %> · <%= t.sehir %></td>
+          <td data-etiket="Etkinlik tarihi" class="y-sayi"><%= gun(t.tarih) %></td>
+          <td data-etiket="Metretül" class="y-sayi"><%= t.metretul || '—' %></td>
+          <td data-etiket="Durum"><%- include('_durum', { durum: t.durum }) %></td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+  <%- include('_sayfalama', { taban: '/yonetim/teklifler' }) %>
 <% } %>
 <%- include('_alt') %>

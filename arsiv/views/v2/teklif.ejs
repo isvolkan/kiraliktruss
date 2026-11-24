@@ -1,0 +1,103 @@
+<%- include('partials/ust', { sayfaCss: ['sayfalar'] }) %>
+<%
+  const d = deger || {};
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const hata = (k) => hatalar[k] ? '<span class="alan-hata" id="h-' + k + '">' + esc(hatalar[k]) + '</span>' : '';
+  const aria = (k) => hatalar[k] ? 'aria-invalid="true" aria-describedby="h-' + k + '"' : '';
+  const hataSayisi = Object.keys(hatalar).length;
+  const mt = parseInt(d.metretul, 10);
+  const mtVar = mt > 0;
+%>
+
+<section class="sayfa-bas">
+  <div class="kap">
+    <span class="mono">Fiyatlandırma proje bazlıdır</span>
+    <h1 data-yuksel>Teklif iste</h1>
+    <p class="giris soluk">Etkinliğinizi kısaca anlatın; bilgileri inceleyip size dönelim. Acil durumda <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>.</p>
+  </div>
+</section>
+
+<section class="bolum tk" aria-label="Teklif formu">
+  <div class="kap tk-izgara">
+
+    <aside class="tk-yan" aria-label="Talep özeti">
+      <div class="kunye tk-kunye">
+        <span class="kunye-hucre"><small>Belge</small><b>Teklif talebi</b></span>
+        <span class="kunye-hucre"><small>Fiyat</small><b>Proje bazlı</b></span>
+        <span class="kunye-hucre"><small>Tahmini metretül</small><b id="tkMt"><%= mtVar ? mt.toLocaleString('tr-TR') + ' mt' : '—' %></b></span>
+        <span class="kunye-hucre"><small>Acil iş</small><b><a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></b></span>
+      </div>
+      <div class="olcu tk-olcu" id="tkOlcu"<%- mtVar ? '' : ' hidden' %>><span id="tkOlcuYazi"><%= mtVar ? mt.toLocaleString('tr-TR') + ' mt truss' : '' %></span></div>
+      <p class="alan-ipucu tk-ipucu">Ölçüyü bilmiyorsanız stand ölçünüzden <a href="<%= kok %>/#hesapla">metretül hesaplayın</a>; sonuç bu forma otomatik geçer.</p>
+    </aside>
+
+    <form class="tk-form" method="post" action="<%= kok %>/teklif" novalidate>
+      <% if (hatalar.genel) { %><p class="tk-hata-kutu" role="alert" tabindex="-1"><%= hatalar.genel %></p><% } %>
+      <% if (hataSayisi && !hatalar.genel) { %><p class="tk-hata-kutu" role="alert" tabindex="-1">Lütfen işaretli alanları düzeltin.</p><% } %>
+
+      <fieldset class="tk-grup">
+        <legend class="mono"><b>01</b> / 03 · Kim</legend>
+        <div class="form-izgara">
+          <label class="alan">Ad soyad <span class="zor" aria-hidden="true">*</span>
+            <input name="ad_soyad" value="<%= d.ad_soyad || '' %>" required minlength="3" maxlength="80" autocomplete="name" <%- aria('ad_soyad') %>><%- hata('ad_soyad') %>
+          </label>
+          <label class="alan">Firma
+            <input name="firma" value="<%= d.firma || '' %>" maxlength="100" autocomplete="organization" <%- aria('firma') %>><%- hata('firma') %>
+          </label>
+          <label class="alan">Telefon <span class="zor" aria-hidden="true">*</span>
+            <input name="telefon" type="tel" value="<%= d.telefon || '' %>" required autocomplete="tel" placeholder="0532 123 45 67" <%- aria('telefon') %>><%- hata('telefon') %>
+          </label>
+          <label class="alan">E-posta <span class="zor" aria-hidden="true">*</span>
+            <input name="eposta" type="email" value="<%= d.eposta || '' %>" required autocomplete="email" <%- aria('eposta') %>><%- hata('eposta') %>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="tk-grup">
+        <legend class="mono"><b>02</b> / 03 · Ne</legend>
+        <div class="form-izgara">
+          <label class="alan">Etkinlik türü <span class="zor" aria-hidden="true">*</span>
+            <select name="etkinlik_turu" required <%- aria('etkinlik_turu') %>>
+              <option value="">Seçin</option>
+              <% for (const t of turler) { %><option<%= d.etkinlik_turu === t ? ' selected' : '' %>><%= t %></option><% } %>
+            </select><%- hata('etkinlik_turu') %>
+          </label>
+          <label class="alan">Tahmini metretül
+            <input name="metretul" type="number" min="1" max="5000" inputmode="numeric" value="<%= d.metretul || '' %>" <%- aria('metretul') %>><%- hata('metretul') %>
+          </label>
+          <label class="alan tam">Mesaj
+            <textarea name="mesaj" rows="5" maxlength="2000" placeholder="Stand ölçüsü, yükseklik, ışık/ses asılacak mı…" <%- aria('mesaj') %>><%= d.mesaj || '' %></textarea><%- hata('mesaj') %>
+          </label>
+          <label class="onay tam"><input type="checkbox" name="kurulum"<%= d.kurulum ? ' checked' : '' %>> Teknik ekip desteği de istiyorum</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="tk-grup">
+        <legend class="mono"><b>03</b> / 03 · Ne zaman, nerede</legend>
+        <div class="form-izgara">
+          <label class="alan tam">Şehir / mekân <span class="zor" aria-hidden="true">*</span>
+            <input name="sehir" value="<%= d.sehir || '' %>" required maxlength="60" placeholder="ör. İstanbul, TÜYAP" <%- aria('sehir') %>><%- hata('sehir') %>
+          </label>
+          <label class="alan">Başlangıç tarihi <span class="zor" aria-hidden="true">*</span>
+            <input name="tarih" type="date" value="<%= d.tarih || '' %>" required <%- aria('tarih') %>><%- hata('tarih') %>
+          </label>
+          <label class="alan">Kaç gün?
+            <input name="gun_sayisi" type="number" min="1" max="60" inputmode="numeric" value="<%= d.gun_sayisi || 1 %>" <%- aria('gun_sayisi') %>><%- hata('gun_sayisi') %>
+          </label>
+        </div>
+      </fieldset>
+
+      <%# Bal küpü: ekranda görünmez, botlar doldurur %>
+      <label class="gizli" aria-hidden="true">Web siteniz<input name="web_sitesi" tabindex="-1" autocomplete="off"></label>
+
+      <div class="tk-onay">
+        <label class="onay"><input type="checkbox" name="kvkk" required <%- aria('kvkk') %>> <span>Bilgilerimin yalnız bu teklif talebine dönüş yapmak için kullanılacağını ve bu amaçla saklanacağını okudum, onaylıyorum. <span class="zor" aria-hidden="true">*</span></span></label>
+        <%- hata('kvkk') %>
+      </div>
+
+      <button class="dugme ana tk-gonder" type="submit">Teklif talebini gönder</button>
+    </form>
+  </div>
+</section>
+
+<%- include('partials/alt', { sayfaJs: ['teklif'] }) %>

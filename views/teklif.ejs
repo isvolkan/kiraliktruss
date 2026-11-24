@@ -1,48 +1,128 @@
-<%- include('partials/ust') %>
-<% const d = deger || {}; const hata = (k) => hatalar[k] ? `<span class="hata" id="h-${k}">${hatalar[k]}</span>` : ''; const aria = (k) => hatalar[k] ? `aria-invalid="true" aria-describedby="h-${k}"` : ''; %>
+<%- include('parca/bas', {
+  aciklama: 'Etkinliğiniz için proje bazlı alüminyum truss kiralama teklifi isteyin. Fuar, stand, kongre, konser ve tanıtım kurulumları.',
+}) %>
+<%
+  const d = deger || {};
+  const h = hatalar || {};
+  const b = new Date();
+  const bugun = b.getFullYear() + '-' + String(b.getMonth() + 1).padStart(2, '0') + '-' + String(b.getDate()).padStart(2, '0');
+  // Alan hataları (genel hata hariç) ve hatalı alana eklenecek nitelikler
+  const alanHatalari = Object.entries(h).filter(([ad]) => ad !== 'genel');
+  const hataNit = (ad) => h[ad] ? ` aria-invalid="true" aria-describedby="${ad}-hata"` : '';
+  const sec = (ad, v) => (d[ad] === v ? ' selected' : '');
+  const isaret = (ad) => (d[ad] === 'on' ? ' checked' : '');
+%>
+<%# Bir alanın altındaki hata satırı %>
+<% const hataSatiri = (ad) => h[ad] ? `<p class="alan-hata" id="${ad}-hata">${String(h[ad]).replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';')}</p>` : ''; %>
 
-<section class="sayfa-bas">
-  <p class="mono soluk">Fiyatlandırma proje bazlıdır</p>
-  <h1 class="kelime-kelime">Teklif iste</h1>
-  <p class="soluk dar">Etkinliğinizi kısaca anlatın; bilgileri inceleyip size dönelim. Acil durumda <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>.</p>
+<section class="levha z-alu teklif">
+  <div class="ic">
+    <h1>Teklif isteyin</h1>
+    <p class="giris">Fiyatlandırmamız proje bazlıdır. Bilgileri gönderin, sizinle iletişime geçelim.</p>
+    <% if (typeof ornek !== 'undefined' && ornek) { %>
+      <p class="ornek-satir">Örnek gösterdiğiniz iş: <%= ornek.musteri %><% if (ornek.etkinlik) { %> — <%= ornek.etkinlik %><% } %></p>
+    <% } %>
+
+    <div class="teklif-duzen">
+      <div class="teklif-ana">
+        <% if (Object.keys(h).length) { %>
+          <%# Görsel özet kutusu yok; yalnız ekran okuyucuya tek cümle. Hatalar alanların altında. %>
+          <p class="gizli" role="alert"><% if (alanHatalari.length) { %>Formda <%= alanHatalari.length %> alan düzeltilmeli.<% } %><% if (h.genel) { %> <%= h.genel %><% } %></p>
+          <% if (h.genel) { %><p class="alan-hata genel-hata"><%= h.genel %></p><% } %>
+        <% } %>
+
+        <form class="teklif-form" method="post" action="/teklif"<%- alanHatalari.length ? ' data-hatali' : '' %>>
+          <fieldset>
+            <legend><span class="fs-no" aria-hidden="true">1</span><span>Etkinlik</span></legend>
+            <div class="alan<%= h.etkinlik_turu ? ' hatali' : '' %>">
+              <label for="etkinlik_turu">Etkinlik türü</label>
+              <select id="etkinlik_turu" name="etkinlik_turu" required<%- hataNit('etkinlik_turu') %>>
+                <option value="">Seçin</option>
+                <% for (const t of turler) { %><option<%= sec('etkinlik_turu', t) %>><%= t %></option><% } %>
+              </select>
+              <%- hataSatiri('etkinlik_turu') %>
+            </div>
+            <div class="alan<%= h.sehir ? ' hatali' : '' %>">
+              <label for="sehir">Şehir</label>
+              <input id="sehir" name="sehir" value="<%= d.sehir || '' %>" required maxlength="60" autocomplete="address-level2"<%- hataNit('sehir') %>>
+              <%- hataSatiri('sehir') %>
+            </div>
+            <div class="alan<%= h.tarih ? ' hatali' : '' %>">
+              <label for="tarih">Kurulum tarihi</label>
+              <input id="tarih" type="date" name="tarih" value="<%= d.tarih || '' %>" min="<%= bugun %>" required<%- hataNit('tarih') %>>
+              <%- hataSatiri('tarih') %>
+            </div>
+            <div class="alan<%= h.gun_sayisi ? ' hatali' : '' %>">
+              <label for="gun_sayisi">Kaç gün?</label>
+              <input id="gun_sayisi" type="number" name="gun_sayisi" min="1" max="60" step="1" value="<%= d.gun_sayisi || '' %>" required<%- hataNit('gun_sayisi') %>>
+              <%- hataSatiri('gun_sayisi') %>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend><span class="fs-no" aria-hidden="true">2</span><span>Ölçü</span></legend>
+            <div class="alan<%= h.metretul ? ' hatali' : '' %>">
+              <label for="metretul">Yaklaşık metretül (isteğe bağlı)</label>
+              <input id="metretul" type="number" name="metretul" min="1" max="5000" step="1" inputmode="numeric" value="<%= d.metretul || '' %>" aria-describedby="metretul-yardim<%= h.metretul ? ' metretul-hata' : '' %>"<%- h.metretul ? ' aria-invalid="true"' : '' %>>
+              <p class="yardim" id="metretul-yardim">Bilmiyorsanız boş bırakın; ölçüye göre biz hesaplarız.</p>
+              <%- hataSatiri('metretul') %>
+            </div>
+            <div class="alan alan-onay">
+              <input id="kurulum" type="checkbox" name="kurulum" value="on"<%= isaret('kurulum') %>>
+              <label for="kurulum">Teknik ekip desteği istiyorum</label>
+            </div>
+            <div class="alan<%= h.mesaj ? ' hatali' : '' %>">
+              <label for="mesaj">Eklemek istedikleriniz (isteğe bağlı)</label>
+              <textarea id="mesaj" name="mesaj" rows="5" maxlength="2000"<%- hataNit('mesaj') %>><%= d.mesaj || '' %></textarea>
+              <%- hataSatiri('mesaj') %>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend><span class="fs-no" aria-hidden="true">3</span><span>İletişim</span></legend>
+            <div class="alan<%= h.ad_soyad ? ' hatali' : '' %>">
+              <label for="ad_soyad">Ad soyad</label>
+              <input id="ad_soyad" name="ad_soyad" value="<%= d.ad_soyad || '' %>" autocomplete="name" required maxlength="80"<%- hataNit('ad_soyad') %>>
+              <%- hataSatiri('ad_soyad') %>
+            </div>
+            <div class="alan<%= h.firma ? ' hatali' : '' %>">
+              <label for="firma">Firma (isteğe bağlı)</label>
+              <input id="firma" name="firma" value="<%= d.firma || '' %>" autocomplete="organization" maxlength="100"<%- hataNit('firma') %>>
+              <%- hataSatiri('firma') %>
+            </div>
+            <div class="alan<%= h.telefon ? ' hatali' : '' %>">
+              <label for="telefon">Telefon</label>
+              <input id="telefon" type="tel" name="telefon" value="<%= d.telefon || '' %>" autocomplete="tel" required<%- hataNit('telefon') %>>
+              <%- hataSatiri('telefon') %>
+            </div>
+            <div class="alan<%= h.eposta ? ' hatali' : '' %>">
+              <label for="eposta">E-posta</label>
+              <input id="eposta" type="email" name="eposta" value="<%= d.eposta || '' %>" autocomplete="email" required<%- hataNit('eposta') %>>
+              <%- hataSatiri('eposta') %>
+            </div>
+            <div class="alan alan-onay<%= h.kvkk ? ' hatali' : '' %>">
+              <input id="kvkk" type="checkbox" name="kvkk" value="on" required<%= isaret('kvkk') %><%- hataNit('kvkk') %>>
+              <label for="kvkk"><a href="/kvkk" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>'ni okudum, kişisel verilerimin teklif hazırlanması amacıyla işlenmesini kabul ediyorum.</label>
+              <%- hataSatiri('kvkk') %>
+            </div>
+          </fieldset>
+
+          <%# Bal küpü: insanlar görmez (ekran dışında); dolduran bottur %>
+          <div class="bal" aria-hidden="true">
+            <label for="web_sitesi">Web sitesi</label>
+            <input id="web_sitesi" name="web_sitesi" tabindex="-1" autocomplete="off">
+          </div>
+
+          <button class="btn btn-1 gonder" type="submit">Teklif isteğini gönder <span class="ok" aria-hidden="true"><%- include('parca/ok', { yon: 'sag' }) %></span></button>
+        </form>
+      </div>
+
+      <aside class="beyaz-kart teklif-yan">
+        <h2 class="h3">Aramayı mı tercih edersiniz?</h2>
+        <a class="yan-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %> <span aria-hidden="true"><%- include('parca/ok', { yon: 'capraz' }) %></span></a>
+      </aside>
+    </div>
+  </div>
 </section>
 
-<form class="form kart-form" method="post" action="/teklif" novalidate>
-  <% if (hatalar.genel) { %><p class="hata-kutu" role="alert"><%= hatalar.genel %></p><% } %>
-  <% if (Object.keys(hatalar).length && !hatalar.genel) { %><p class="hata-kutu" role="alert">Lütfen işaretli alanları düzeltin.</p><% } %>
-
-  <fieldset>
-    <legend class="mono">01 · Siz</legend>
-    <label>Ad soyad *<input name="ad_soyad" value="<%= d.ad_soyad || '' %>" required minlength="3" maxlength="80" autocomplete="name" <%- aria('ad_soyad') %>><%- hata('ad_soyad') %></label>
-    <label>Firma<input name="firma" value="<%= d.firma || '' %>" maxlength="100" autocomplete="organization"><%- hata('firma') %></label>
-    <label>Telefon *<input name="telefon" type="tel" value="<%= d.telefon || '' %>" required autocomplete="tel" placeholder="0532 123 45 67" <%- aria('telefon') %>><%- hata('telefon') %></label>
-    <label>E-posta *<input name="eposta" type="email" value="<%= d.eposta || '' %>" required autocomplete="email" <%- aria('eposta') %>><%- hata('eposta') %></label>
-  </fieldset>
-
-  <fieldset>
-    <legend class="mono">02 · Etkinlik</legend>
-    <label>Etkinlik türü *
-      <select name="etkinlik_turu" required <%- aria('etkinlik_turu') %>>
-        <option value="">Seçin</option>
-        <% for (const t of turler) { %><option<%= d.etkinlik_turu === t ? ' selected' : '' %>><%= t %></option><% } %>
-      </select><%- hata('etkinlik_turu') %>
-    </label>
-    <label>Şehir / mekân *<input name="sehir" value="<%= d.sehir || '' %>" required maxlength="60" placeholder="ör. İstanbul, TÜYAP" <%- aria('sehir') %>><%- hata('sehir') %></label>
-    <label>Başlangıç tarihi *<input name="tarih" type="date" value="<%= d.tarih || '' %>" required <%- aria('tarih') %>><%- hata('tarih') %></label>
-    <label>Kaç gün?<input name="gun_sayisi" type="number" min="1" max="60" value="<%= d.gun_sayisi || 1 %>" <%- aria('gun_sayisi') %>><%- hata('gun_sayisi') %></label>
-    <label>Tahmini metretül <small><a href="/#hesapla">hesapla</a></small><input name="metretul" type="number" min="1" max="5000" value="<%= d.metretul || '' %>" <%- aria('metretul') %>><%- hata('metretul') %></label>
-    <label class="onay"><input type="checkbox" name="kurulum"<%= d.kurulum ? ' checked' : '' %>> Teknik ekip desteği de istiyorum</label>
-  </fieldset>
-
-  <fieldset>
-    <legend class="mono">03 · Ayrıntı</legend>
-    <label>Mesaj<textarea name="mesaj" rows="5" maxlength="2000" placeholder="Stand ölçüsü, yükseklik, ışık/ses asılacak mı…"><%= d.mesaj || '' %></textarea><%- hata('mesaj') %></label>
-    <%# Bal küpü: ekranda görünmez, botlar doldurur %>
-    <label class="gizli" aria-hidden="true">Web siteniz<input name="web_sitesi" tabindex="-1" autocomplete="off"></label>
-    <label class="onay"><input type="checkbox" name="kvkk" required <%- aria('kvkk') %>> Bilgilerimin yalnız bu teklif talebine dönüş yapmak için kullanılacağını ve bu amaçla saklanacağını okudum, onaylıyorum. *</label><%- hata('kvkk') %>
-  </fieldset>
-
-  <button class="dugme buyuk" type="submit">Teklif talebini gönder</button>
-</form>
-
-<%- include('partials/alt') %>
+<%- include('parca/son') %>

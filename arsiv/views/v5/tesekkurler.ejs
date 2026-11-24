@@ -1,0 +1,14 @@
+<%- include('parca/bas') %>
+
+<section class="levha z-mavi tesekkur">
+  <div class="ic">
+    <h1 class="yukselen"><span>İsteğiniz bize ulaştı.</span></h1>
+    <p class="giris">Bilgilerinizi aldık; teklif için sizinle iletişime geçeceğiz. Aceleniz varsa arayın: <a class="satir-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></p>
+    <div class="dugmeler">
+      <a class="btn btn-1" href="<%= kok %>/calismalar">Çalışmalara bak <span class="ok" aria-hidden="true">→</span></a>
+      <a class="btn btn-2" href="<%= kok %>/">Ana sayfa <span class="ok ok-geri" aria-hidden="true">←</span></a>
+    </div>
+  </div>
+</section>
+
+<%- include('parca/son') %>

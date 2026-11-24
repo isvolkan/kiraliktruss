@@ -1,0 +1,39 @@
+<%- include('partials/ust', { sayfaCss: ['sayfalar'] }) %>
+<%
+  // Devrilmiş truss: iki kuşak, dikmeler ve çaprazlar (üretilir)
+  const L = 400, Y1 = 150, Y2 = 188, ADIM = 40;
+  let yol = 'M0 ' + Y1 + 'H' + L + 'M0 ' + Y2 + 'H' + L;
+  for (let x = 0; x <= L; x += ADIM) yol += 'M' + x + ' ' + Y1 + 'V' + Y2;
+  for (let x = 0; x < L; x += ADIM) yol += 'M' + x + ' ' + Y2 + 'L' + (x + ADIM) + ' ' + Y1;
+%>
+<section class="bolum yok">
+  <div class="kap yok-ic">
+    <div class="yok-cizim kose" aria-hidden="true">
+      <svg viewBox="0 80 640 150" focusable="false">
+        <line class="yok-zemin" x1="10" y1="206" x2="630" y2="206"/>
+        <g class="yok-isaret"><path d="M10 206v8M110 206v8M210 206v8M310 206v8M410 206v8M510 206v8M610 206v8"/></g>
+        <%# Ayakta kalan kule kütüğü %>
+        <g class="yok-kule">
+          <rect x="52" y="198" width="64" height="8"/>
+          <path d="M66 198V120M102 198V120M66 198L102 170L66 142L102 120"/>
+          <path d="M60 120l6 8 6-6 8 8 6-8 6 6 8-8 6 6 6-6"/>
+        </g>
+        <%# Devrilen kiriş: sol uçtan dönerek yere yatar %>
+        <g transform="translate(150 18)"><g class="yok-devrik"><path d="<%= yol %>"/></g></g>
+        <%# Kırılma noktası işareti %>
+        <g class="yok-nokta"><circle cx="150" cy="208" r="5"/><path d="M150 188V170"/></g>
+      </svg>
+      <span class="arti" style="left:-6px;top:30%"></span><span class="arti" style="right:-6px;top:70%"></span>
+    </div>
+    <div class="yok-metin">
+      <span class="mono yok-kod"><b>404</b> · Sayfa bulunamadı</span>
+      <h1 class="b-xl">Bu truss burada kurulmadı.</h1>
+      <p class="giris">Aradığınız sayfa taşınmış ya da hiç olmamış olabilir.</p>
+      <div class="tt-dugmeler">
+        <a class="dugme ana" href="<%= kok %>/">Ana sayfa</a>
+        <a class="dugme" href="<%= kok %>/calismalar">Çalışmalar</a>
+      </div>
+    </div>
+  </div>
+</section>
+<%- include('partials/alt') %>

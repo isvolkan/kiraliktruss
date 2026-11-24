@@ -1,0 +1,462 @@
+﻿{
+    "tarih":  "2026-11-23",
+    "arac":  "Chrome headless (CDP, Node betigi); curl/fetch",
+    "1":  {
+              "url":  "/v6/calismalar?q=a\u0026q=b",
+              "http":  500,
+              "ayni_istek_tek_q":  200,
+              "neden":  "routes/site.js:44 q dizi olunca q.trim yok",
+              "kanit":  "komut ciktisi (olcumler.md 1)"
+          },
+    "2":  {
+              "genislik":  375,
+              "ust_teklif_display":  "none",
+              "ust_tel_display":  "none",
+              "css":  "public/v6/css/v6.css:190-191 (teklif \u003e=768px, tel \u003e=1024px)",
+              "kanit":  [
+                            "m02-ust-cubuk-375-v6.png",
+                            "m02-ust-cubuk-375-v6-calismalar.png",
+                            "m02-ilk-ekran-375-v6.png",
+                            "m02-ilk-ekran-375-v6-calismalar.png"
+                        ]
+          },
+    "3":  {
+              "hata_rengi":  "#B3261E",
+              "yuzey":  "#171A1F",
+              "zemin":  "#0E1013",
+              "kontrast_hata_yuzey":  2.67,
+              "kontrast_hata_zemin":  2.91,
+              "esik_aa":  4.5,
+              "acik_tema_kontrast":  6.54,
+              "hata_adedi":  7,
+              "css":  "public/v6/css/v6.css:14,305,306,656-659 (koyu temada --hata yeniden tanimli degil)",
+              "kanit":  [
+                            "m03-koyu-bos-post-1280.png",
+                            "m03-koyu-bos-post-375.png"
+                        ]
+          },
+    "4":  {
+              "kvkk_sayfasi_var":  false,
+              "onay_metni_baglanti_sayisi":  0,
+              "denenen_url_404":  [
+                                      "/v6/kvkk",
+                                      "/v6/gizlilik",
+                                      "/v6/aydinlatma",
+                                      "/v6/kvkk-aydinlatma",
+                                      "/kvkk",
+                                      "/gizlilik",
+                                      "/v6/aydinlatma-metni",
+                                      "/v6/gizlilik-politikasi"
+                                  ],
+              "kanit":  [
+                            "m04-kvkk-onay-kutusu-1280.png",
+                            "m04-kvkk-onay-kutusu-375.png"
+                        ]
+          },
+    "5":  {
+              "/v6":  {
+                          "html_bayt":  21431,
+                          "gorsel_istek_adedi":  19,
+                          "html_img_etiketi":  19,
+                          "toplam_gorsel_bayt":  3583371,
+                          "gorseller":  [
+                                            {
+                                                "url":  "/v6/img/logo.png",
+                                                "bayt":  4157,
+                                                "boyut":  "166x72",
+                                                "tip":  "image/png"
+                                            },
+                                            {
+                                                "url":  "/gorsel/96",
+                                                "bayt":  286885,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/95",
+                                                "bayt":  210792,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/94",
+                                                "bayt":  154164,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/93",
+                                                "bayt":  228143,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/91",
+                                                "bayt":  136503,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/88",
+                                                "bayt":  204054,
+                                                "boyut":  "1200x900",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/89",
+                                                "bayt":  170278,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/86",
+                                                "bayt":  222586,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/85",
+                                                "bayt":  222038,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/84",
+                                                "bayt":  212705,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/83",
+                                                "bayt":  215074,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/80",
+                                                "bayt":  154570,
+                                                "boyut":  "1200x674",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/77",
+                                                "bayt":  204998,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/74",
+                                                "bayt":  181730,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/73",
+                                                "bayt":  143607,
+                                                "boyut":  "1000x667",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/60",
+                                                "bayt":  175005,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/59",
+                                                "bayt":  214215,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            },
+                                            {
+                                                "url":  "/gorsel/57",
+                                                "bayt":  241867,
+                                                "boyut":  "1200x800",
+                                                "tip":  "image/jpeg"
+                                            }
+                                        ]
+                      },
+              "/v6/calismalar":  {
+                                     "html_bayt":  22668,
+                                     "gorsel_istek_adedi":  25,
+                                     "html_img_etiketi":  25,
+                                     "toplam_gorsel_bayt":  4741019,
+                                     "gorseller":  [
+                                                       {
+                                                           "url":  "/v6/img/logo.png",
+                                                           "bayt":  4157,
+                                                           "boyut":  "166x72",
+                                                           "tip":  "image/png"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/96",
+                                                           "bayt":  286885,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/95",
+                                                           "bayt":  210792,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/94",
+                                                           "bayt":  154164,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/93",
+                                                           "bayt":  228143,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/92",
+                                                           "bayt":  200682,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/91",
+                                                           "bayt":  136503,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/90",
+                                                           "bayt":  186566,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/88",
+                                                           "bayt":  204054,
+                                                           "boyut":  "1200x900",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/89",
+                                                           "bayt":  170278,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/86",
+                                                           "bayt":  222586,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/85",
+                                                           "bayt":  222038,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/84",
+                                                           "bayt":  212705,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/83",
+                                                           "bayt":  215074,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/82",
+                                                           "bayt":  216749,
+                                                           "boyut":  "1200x801",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/80",
+                                                           "bayt":  154570,
+                                                           "boyut":  "1200x674",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/77",
+                                                           "bayt":  204998,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/74",
+                                                           "bayt":  181730,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/73",
+                                                           "bayt":  143607,
+                                                           "boyut":  "1000x667",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/60",
+                                                           "bayt":  175005,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/59",
+                                                           "bayt":  214215,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/57",
+                                                           "bayt":  241867,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/56",
+                                                           "bayt":  182132,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/55",
+                                                           "bayt":  189541,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       },
+                                                       {
+                                                           "url":  "/gorsel/50",
+                                                           "bayt":  181978,
+                                                           "boyut":  "1200x800",
+                                                           "tip":  "image/jpeg"
+                                                       }
+                                                   ]
+                                 }
+          },
+    "6":  {
+              "sayfalar":  {
+                               "/v6":  {
+                                           "http":  200,
+                                           "title":  "Truss kiralama Â· KiralÄ±k Truss",
+                                           "description":  "Truss kiralÄ±yoruz. YaklaÅŸÄ±k 1000 metretÃ¼l orijinal alÃ¼minyum truss stoÄŸu; hepsi TÃœV, TSE, CE belgeli. BeylikdÃ¼zÃ¼ / Ä°stanbul.",
+                                           "canonical":  false,
+                                           "og":  false,
+                                           "jsonld":  false,
+                                           "x_robots_tag":  "noindex, nofollow"
+                                       },
+                               "/v6/calismalar":  {
+                                                      "http":  200,
+                                                      "title":  "Ã–rnek Ã§alÄ±ÅŸmalar Â· KiralÄ±k Truss",
+                                                      "description":  "Truss kiralÄ±yoruz. YaklaÅŸÄ±k 1000 metretÃ¼l orijinal alÃ¼minyum truss stoÄŸu; hepsi TÃœV, TSE, CE belgeli. BeylikdÃ¼zÃ¼ / Ä°stanbul.",
+                                                      "canonical":  false,
+                                                      "og":  false,
+                                                      "jsonld":  false,
+                                                      "x_robots_tag":  "noindex, nofollow"
+                                                  },
+                               "/v6/calismalar/96":  {
+                                                         "http":  200,
+                                                         "title":  "Ä°stanbul\u0026#39;un Fethi Etkinlikleri â€” Ä°stanbul Â· KiralÄ±k Truss",
+                                                         "description":  "Truss kiralÄ±yoruz. YaklaÅŸÄ±k 1000 metretÃ¼l orijinal alÃ¼minyum truss stoÄŸu; hepsi TÃœV, TSE, CE belgeli. BeylikdÃ¼zÃ¼ / Ä°stanbul.",
+                                                         "canonical":  false,
+                                                         "og":  false,
+                                                         "jsonld":  false,
+                                                         "x_robots_tag":  "noindex, nofollow"
+                                                     },
+                               "/v6/hakkimizda":  {
+                                                      "http":  200,
+                                                      "title":  "HakkÄ±mÄ±zda Â· KiralÄ±k Truss",
+                                                      "description":  "Truss kiralÄ±yoruz. YaklaÅŸÄ±k 1000 metretÃ¼l orijinal alÃ¼minyum truss stoÄŸu; hepsi TÃœV, TSE, CE belgeli. BeylikdÃ¼zÃ¼ / Ä°stanbul.",
+                                                      "canonical":  false,
+                                                      "og":  false,
+                                                      "jsonld":  false,
+                                                      "x_robots_tag":  "noindex, nofollow"
+                                                  },
+                               "/v6/iletisim":  {
+                                                    "http":  200,
+                                                    "title":  "Ä°letiÅŸim Â· KiralÄ±k Truss",
+                                                    "description":  "Truss kiralÄ±yoruz. YaklaÅŸÄ±k 1000 metretÃ¼l orijinal alÃ¼minyum truss stoÄŸu; hepsi TÃœV, TSE, CE belgeli. BeylikdÃ¼zÃ¼ / Ä°stanbul.",
+                                                    "canonical":  false,
+                                                    "og":  false,
+                                                    "jsonld":  false,
+                                                    "x_robots_tag":  "noindex, nofollow"
+                                                },
+                               "/v6/teklif":  {
+                                                  "http":  200,
+                                                  "title":  "Teklif iste Â· KiralÄ±k Truss",
+                                                  "description":  "Truss kiralÄ±yoruz. YaklaÅŸÄ±k 1000 metretÃ¼l orijinal alÃ¼minyum truss stoÄŸu; hepsi TÃœV, TSE, CE belgeli. BeylikdÃ¼zÃ¼ / Ä°stanbul.",
+                                                  "canonical":  false,
+                                                  "og":  false,
+                                                  "jsonld":  false,
+                                                  "x_robots_tag":  "noindex, nofollow"
+                                              },
+                               "/v6/teklif/tesekkurler":  {
+                                                              "http":  200,
+                                                              "title":  "Talebiniz alÄ±ndÄ± Â· KiralÄ±k Truss",
+                                                              "description":  "Truss kiralÄ±yoruz. YaklaÅŸÄ±k 1000 metretÃ¼l orijinal alÃ¼minyum truss stoÄŸu; hepsi TÃœV, TSE, CE belgeli. BeylikdÃ¼zÃ¼ / Ä°stanbul.",
+                                                              "canonical":  false,
+                                                              "og":  false,
+                                                              "jsonld":  false,
+                                                              "x_robots_tag":  "noindex, nofollow"
+                                                          }
+                           },
+              "robots_txt":  404,
+              "sitemap_xml":  404
+          },
+    "7":  {
+              "kok_css":  "/css/site.css (eski)",
+              "v6_css":  "/v6/css/v6.css, /v6/css/sayfa.css (yeni)",
+              "kanit":  [
+                            "m07-kok-eski-tasarim-1280.png",
+                            "g01-v6-1280.png"
+                        ]
+          },
+    "8":  {
+              "tasarim":  "eski kok tasarim (site.css, koyu lacivert)",
+              "csrf_alani_var":  false,
+              "formlar":  {
+                              "/yonetim/giris":  1,
+                              "/yonetim":  1,
+                              "/yonetim/projeler":  98,
+                              "/yonetim/projeler/96/duzenle":  2,
+                              "/yonetim/teklifler":  1
+                          },
+              "gizli_alan":  "hic yok (csrf/_token/xsrf eslesmesi yok)",
+              "kanit":  [
+                            "m08-yonetim-1-giris-1280.png",
+                            "m08-yonetim-2-pano-1280.png",
+                            "m08-yonetim-3-projeler-1280.png",
+                            "m08-yonetim-4-proje-duzenle-1280.png",
+                            "m08-yonetim-5-teklifler-1280.png"
+                        ]
+          },
+    "9":  {
+              "dosya":  "routes/yonetim.js",
+              "satir":  "16-17 (fileFilter: yalniz file.mimetype listesi); 98 ve 126 mimetype aynen saklanir",
+              "icerik_dogrulama":  false
+          },
+    "10":  {
+               "dosya":  "routes/yonetim.js",
+               "satir":  50,
+               "ifade":  "throw err (req.session.regenerate geri cagrisi)"
+           },
+    "11":  {
+               "dosya":  "routes/site.js",
+               "satir":  "122-127 (INSERT sonrasi yalniz redirect; eposta/bildirim yok)",
+               "bildirim_var":  false
+           },
+    "12":  {
+               "teklif_legend_h2":  "views/v6/teklif.ejs:38,65,84",
+               "hakkimizda_aria_live":  "views/v6/hakkimizda.ejs:25 (figcaption aria-live=polite)"
+           },
+    "13":  {
+               "komut":  "npm test",
+               "toplam":  84,
+               "gecen":  84,
+               "kalan":  0,
+               "atlanan":  0,
+               "sure_ms":  1854
+           },
+    "ekran_goruntusu_adedi":  26
+}

@@ -1,0 +1,13 @@
+<%# Proje kartı (değişken: p; isteğe bağlı: hemen, olcu). Boş alanların satırı hiç çizilmez. %>
+<%
+  const yerYil = [p.sehir, p.yil].filter(Boolean).join(' · ');
+  const gorselOlcu = (typeof olcu !== 'undefined' && olcu)
+    ? olcu
+    : '(min-width: 1280px) 290px, (min-width: 900px) 31vw, (min-width: 560px) 46vw, 92vw';
+%>
+<a class="kart" href="/calismalar/<%= p.id %>">
+  <span class="kart-foto"><img src="<%= gorselUrl(p, true) %>" srcset="<%= gorselUrl(p, true) %> 600w, <%= gorselUrl(p) %> 1600w" sizes="<%= gorselOlcu %>" alt="<%= p.musteri %> kurulumu" loading="<%= typeof hemen !== 'undefined' && hemen ? 'eager' : 'lazy' %>" decoding="async" width="600" height="450"></span>
+  <span class="kart-isim"><%= p.musteri %> <span class="ok" aria-hidden="true"><%- include('ok', { yon: 'sag' }) %></span></span>
+  <% if (p.etkinlik && p.etkinlik !== p.sehir) { /* etkinlik adı şehirle aynıysa yinelenmesin */ %><span class="kart-ek"><%= p.etkinlik %></span><% } %>
+  <% if (yerYil) { %><span class="kart-ek"><%= yerYil %></span><% } %>
+</a>

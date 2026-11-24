@@ -6,22 +6,25 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const pool = require('./pool');
 const { basliktanProje } = require('./baslik');
+const gocCalistir = require('./goc');
 
 async function main() {
   const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
   await pool.query(sql);
+  // Eski şemalı veritabanında (sütunlar sonradan eklendi) göçler seed'den önce uygulanır; her biri tekrar çalıştırılabilir.
+  await gocCalistir();
   console.log('Tablolar hazır.');
 
   // Yönetici hesabı: e-posta ve parola .env'den okunur, parola bcrypt ile saklanır.
+  // Yalnız hesap yoksa oluşturulur; varsa dokunulmaz (panelden değiştirilen şifre yeniden başlatmada geri yazılmasın).
   const { ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
   if (ADMIN_EMAIL && ADMIN_PASSWORD) {
     const hash = await bcrypt.hash(ADMIN_PASSWORD, 12);
-    await pool.query(
-      `INSERT INTO kullanicilar (eposta, sifre_hash) VALUES ($1, $2)
-       ON CONFLICT (eposta) DO UPDATE SET sifre_hash = EXCLUDED.sifre_hash`,
+    const eklendi = await pool.query(
+      `INSERT INTO kullanicilar (eposta, sifre_hash) VALUES ($1, $2) ON CONFLICT (eposta) DO NOTHING`,
       [ADMIN_EMAIL.toLowerCase(), hash]
     );
-    console.log('Yönetici hesabı hazır:', ADMIN_EMAIL);
+    console.log(eklendi.rowCount ? 'Yönetici hesabı oluşturuldu:' : 'Yönetici hesabı zaten var, şifre değiştirilmedi:', ADMIN_EMAIL);
   }
 
   const { rows } = await pool.query('SELECT count(*)::int AS n FROM projeler');

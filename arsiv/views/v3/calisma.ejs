@@ -1,0 +1,62 @@
+<%- include('partials/ust', { sayfaCss: ['calismalar'] }) %>
+<%
+  const turAd = { fuar: 'Fuar', etkinlik: 'Etkinlik', kurumsal: 'Kurumsal' };
+  const no = String(p.id).padStart(3, '0');
+  const ayni = (a, b) => a && b && a.trim().toLocaleLowerCase('tr') === b.trim().toLocaleLowerCase('tr');
+  // Etkinlik şehirle aynıysa yalnız şehir yazılır ("İstanbul / İstanbul" olmasın)
+  const etkinlik = p.etkinlik && !ayni(p.etkinlik, p.sehir) ? p.etkinlik : '';
+  const hucreler = [['Müşteri', p.musteri], etkinlik ? ['Etkinlik', etkinlik] : null, ['Şehir', p.sehir || '—'],
+    ['Yıl', p.yil || '—', true], ['Tür', turAd[p.tur] || '—'], ['Arşiv no', no, true]].filter(Boolean);
+  // Benzer işlerde aynı ad iki kez (ya da bu projenin adıyla) çıkmasın
+  const gorulen = new Set([p.musteri.trim().toLocaleLowerCase('tr')]);
+  const benzerTekil = benzer.filter((b) => { const k = b.musteri.trim().toLocaleLowerCase('tr'); if (gorulen.has(k)) return false; gorulen.add(k); return true; });
+%>
+<article class="detay kap" aria-labelledby="detay-b">
+  <div class="detay-ust mono">
+    <a class="ok-link" href="<%= kok %>/calismalar">← Tüm çalışmalar</a>
+    <span class="soluk">Arşiv · No. <%= no %></span>
+  </div>
+
+  <div class="detay-izgara">
+    <figure class="detay-foto">
+      <div class="detay-foto-ic kose">
+        <img src="/gorsel/<%= p.id %>" alt="<%= p.musteri %><%= etkinlik ? ' — ' + etkinlik : '' %>" fetchpriority="high" width="900" height="600">
+        <span class="arti" style="left:-6px;top:30%"></span><span class="arti" style="right:-6px;top:70%"></span>
+      </div>
+      <figcaption class="mono soluk">Fig. <%= no %><%= p.sehir || p.yil ? ' · ' + [p.sehir, p.yil].filter(Boolean).join(' · ') : '' %></figcaption>
+    </figure>
+
+    <div class="detay-bilgi">
+      <h1 class="b-l" id="detay-b"><%= p.musteri %></h1>
+      <div class="olcu detay-olcu" aria-hidden="true"><span>Proje künyesi</span></div>
+      <div class="kunye" role="group" aria-label="Proje künyesi">
+        <% for (const [ad, deger, rakam] of hucreler) { %><span class="kunye-hucre"><small><%= ad %></small><b<%- rakam ? ' class="mono-rakam"' : '' %>><%= deger %></b></span>
+        <% } %>
+      </div>
+      <% if (p.aciklama) { %><p class="detay-aciklama"><%= p.aciklama %></p><% } %>
+      <div class="detay-dugmeler">
+        <a class="dugme ana" href="<%= kok %>/teklif">Bu işe benzer teklif iste</a>
+        <a class="dugme" href="<%= kok %>/calismalar">Bütün çalışmalar</a>
+      </div>
+    </div>
+  </div>
+</article>
+
+<% if (benzerTekil.length) { %>
+<section class="bolum detay-benzer" aria-labelledby="benzer-b">
+  <div class="kap">
+    <div class="bolum-bas">
+      <div>
+        <span class="bolum-no mono"><b>02</b> / 02</span>
+        <h2 class="b-l" id="benzer-b" data-belir>Benzer çalışmalar</h2>
+      </div>
+      <a class="ok-link" href="<%= kok %>/calismalar">Arşivin tamamı →</a>
+    </div>
+    <div class="izgara-kart cal-izgara">
+      <% benzerTekil.forEach(function (b) { %><%- include('partials/kart', { p: b }) %><% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<%- include('partials/alt') %>

@@ -1,0 +1,62 @@
+<%- include('parca/bas') %>
+<%
+  const { lat, lon } = firma.harita;
+  const d = 0.008; // harita çerçevesinin yarı genişliği (derece)
+  const haritaAdres = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - d}%2C${lat - d / 2}%2C${lon + d}%2C${lat + d / 2}&layer=mapnik&marker=${lat}%2C${lon}`;
+  const buyukHarita = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
+  const yolTarifi = `https://www.openstreetmap.org/directions?route=%3B${lat}%2C${lon}`;
+%>
+
+<section class="sayfa-bas cizim-zemin">
+  <div class="kap">
+    <p class="ust-etiket mono"><a href="<%= kok %>/">Ana sayfa</a> / İletişim</p>
+    <h1>İletişim</h1>
+    <p class="sayfa-bas__giris">En hızlısı telefon. Yazılı teklif için formu kullanın; ofisimiz <%= firma.ilce %>'nde.</p>
+  </div>
+</section>
+
+<section class="bolum bolum--sik">
+  <div class="kap iletisim">
+    <div class="iletisim__kanallar">
+      <a class="kanal kanal--ana" href="tel:<%= firma.telefonLink %>">
+        <span class="kanal__ad mono">Telefon</span>
+        <span class="kanal__deger"><%= firma.telefon %></span>
+        <span class="kanal__ok" aria-hidden="true">→</span>
+      </a>
+      <a class="kanal" href="mailto:<%= firma.eposta %>">
+        <span class="kanal__ad mono">E-posta</span>
+        <span class="kanal__deger"><%= firma.eposta %></span>
+        <span class="kanal__ok" aria-hidden="true">→</span>
+      </a>
+      <a class="kanal" href="<%= kok %>/teklif">
+        <span class="kanal__ad mono">Form</span>
+        <span class="kanal__deger">Teklif iste</span>
+        <span class="kanal__ok" aria-hidden="true">→</span>
+      </a>
+      <div class="kanal kanal--duz">
+        <span class="kanal__ad mono">Faks</span>
+        <span class="kanal__deger"><%= firma.faks %></span>
+      </div>
+      <a class="kanal" href="<%= kok %>/kartvizit.vcf">
+        <span class="kanal__ad mono">Rehber</span>
+        <span class="kanal__deger">Numarayı rehbere ekle</span>
+        <span class="kanal__ok" aria-hidden="true">↓</span>
+      </a>
+    </div>
+
+    <div class="iletisim__adres">
+      <h2>Adres</h2>
+      <address><%= firma.adres %><br><%= firma.ilce %></address>
+      <div class="harita">
+        <iframe src="<%= haritaAdres %>" title="<%= firma.ad %> ofisinin haritadaki konumu" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      </div>
+      <p class="harita__bag">
+        <a class="dugme dugme--murekkep" href="<%= yolTarifi %>" rel="noopener" target="_blank">Yol tarifi al</a>
+        <a class="dugme dugme--cizgi" href="<%= buyukHarita %>" rel="noopener" target="_blank">Büyük haritada aç</a>
+      </p>
+      <p class="harita__not">Haritadaki konum yaklaşıktır; adres bilgisini esas alın.</p>
+    </div>
+  </div>
+</section>
+
+<%- include('parca/son') %>

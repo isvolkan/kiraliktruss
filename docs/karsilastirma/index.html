@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Kiralık Truss — düzeltme öncesi / sonrası</title>
+<style>
+:root { --zemin:#EAECF0; --yuzey:#fff; --yazi:#111318; --soluk:#4A5160; --cizgi:#CBD0DA; --mavi:#1530C8; --ok:#0B6B3A; --okz:#DDF3E6; --kis:#8A5200; --kisz:#FFF0D6; --mus:#8E1B14; --musz:#FDE3E1; --bil:#3A4458; --bilz:#E3E7EE; }
+@media (prefers-color-scheme: dark) { :root { --zemin:#0E1013; --yuzey:#171A1F; --yazi:#EEF0F4; --soluk:#A9B0BD; --cizgi:#343A45; --mavi:#8CA2FF; --ok:#7FDDA5; --okz:#12301F; --kis:#FFC46B; --kisz:#3A2A0A; --mus:#FF9A93; --musz:#3D1512; --bil:#C5CCD9; --bilz:#272C36; } }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--zemin); color:var(--yazi); font:16px/1.6 system-ui, "Segoe UI", Roboto, sans-serif; }
+main { max-width:1100px; margin:0 auto; padding:24px 16px 80px; }
+h1 { font-size:clamp(28px,5vw,44px); line-height:1.1; margin:.2em 0 .3em; letter-spacing:-.02em; }
+h2 { font-size:26px; margin:2.2em 0 .6em; line-height:1.2; }
+h3 { font-size:19px; margin:1.6em 0 .4em; }
+h4 { margin:0 0 8px; font-size:16px; }
+a { color:var(--mavi); }
+code { font:13px ui-monospace, Consolas, monospace; background:var(--bilz); padding:1px 5px; border-radius:4px; }
+.tarih { color:var(--soluk); margin:0; }
+.sayilar { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:20px 0; }
+.sayi { background:var(--yuzey); border:1px solid var(--cizgi); border-radius:10px; padding:14px 16px; }
+.sayi b { display:block; font-size:34px; line-height:1.1; }
+.sayi span { color:var(--soluk); font-size:14px; }
+.tablo-kap { background:var(--yuzey); border:1px solid var(--cizgi); border-radius:10px; overflow:hidden; }
+table { width:100%; border-collapse:collapse; font-size:15px; }
+th, td { text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--cizgi); }
+thead th { background:var(--bilz); font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--soluk); }
+tbody th { white-space:nowrap; }
+tr:last-child > * { border-bottom:0; }
+.rozet { display:inline-block; padding:2px 10px; border-radius:99px; font-size:13px; font-weight:600; white-space:nowrap; }
+.rozet.ok { background:var(--okz); color:var(--ok); } .rozet.kis { background:var(--kisz); color:var(--kis); } .rozet.mus { background:var(--musz); color:var(--mus); } .rozet.bil { background:var(--bilz); color:var(--bil); }
+.cift { background:var(--yuzey); border:1px solid var(--cizgi); border-radius:10px; padding:14px; margin:14px 0; }
+.yanyana { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+figure { margin:0; min-width:0; }
+figcaption { font-size:13px; font-weight:700; color:var(--soluk); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+.kucuk { display:block; width:100%; height:340px; overflow:hidden; padding:0; border:1px solid var(--cizgi); border-radius:8px; background:var(--zemin); cursor:zoom-in; }
+.kucuk img { display:block; width:100%; height:100%; object-fit:cover; object-position:top; }
+.yok p { display:grid; place-items:center; height:340px; margin:0; border:1px dashed var(--cizgi); border-radius:8px; color:var(--soluk); }
+.not { margin:8px 0 0; color:var(--soluk); font-size:14px; }
+ul.liste { padding-left:20px; } ul.liste li { margin:4px 0; }
+.kutu { background:var(--yuzey); border:1px solid var(--cizgi); border-radius:10px; padding:4px 18px 14px; }
+dialog { max-width:96vw; max-height:96vh; width:auto; padding:0; border:0; border-radius:10px; background:var(--yuzey); color:var(--yazi); }
+dialog::backdrop { background:rgba(0,0,0,.75); }
+dialog img { display:block; max-width:94vw; }
+dialog .kapat { position:sticky; top:0; float:right; margin:8px; padding:8px 14px; border:1px solid var(--cizgi); border-radius:8px; background:var(--yuzey); color:var(--yazi); font:inherit; cursor:pointer; z-index:1; }
+@media (max-width:720px) {
+  .yanyana { grid-template-columns:1fr; }
+  .kucuk, .yok p { height:260px; }
+  table, tbody, tr, th, td { display:block; }
+  thead { display:none; }
+  tr { border-bottom:1px solid var(--cizgi); padding:8px 0; }
+  tr:last-child { border-bottom:0; }
+  th, td { border:0; padding:3px 12px; }
+  td[data-et]::before { content:attr(data-et) ": "; font-weight:700; color:var(--soluk); }
+}
+</style>
+</head>
+<body>
+<main>
+<p class="tarih">24 Kasım 2026 · Web II dönem projesi</p>
+<h1>Kiralık Truss — düzeltme öncesi / sonrası</h1>
+<p>İnceleme turunda bulunan 18 bulgu (H1–H18) ve düzeltme turunda bulunan 11 sorun (D1–D11), aynı yöntemle (Chrome headless, 1280×800 ve 375×812, koyu tema <code>localStorage</code> ile) önce ve sonra ölçüldü. Ölçülmeyen şey "ölçülmedi" diye yazıldı.</p>
+<div class="sayilar">
+  <div class="sayi"><b>18</b><span>bulgu (H1–H18)</span></div>
+  <div class="sayi"><b>12</b><span>çözüldü</span></div>
+  <div class="sayi"><b>3</b><span>kısmen</span></div>
+  <div class="sayi"><b>2</b><span>müşteri kararı bekliyor</span></div>
+  <div class="sayi"><b>1</b><span>bilerek bırakıldı</span></div>
+  <div class="sayi"><b>11 / 11</b><span>D maddesi çözüldü</span></div>
+  <div class="sayi"><b>73</b><span>test geçti, 0 kaldı</span></div>
+</div>
+
+<h2 id="ozet">Özet tablo</h2>
+<div class="tablo-kap"><table>
+<thead><tr><th>#</th><th>Bulgu</th><th>Önce</th><th>Sonra</th><th>Durum</th></tr></thead>
+<tbody>
+<tr><th scope="row">H1</th><td data-et="Bulgu">KVKK aydınlatma metni sayfası yok</td><td data-et="Önce">sayfa yok (8 adres 404), onay metninde bağlantı 0</td><td data-et="Sonra"><code>/kvkk</code> HTTP 200, onay metninde bağlantı 1</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H2</th><td data-et="Bulgu">Yeni teklif bildirilmiyor</td><td data-et="Önce">bildirim yok</td><td data-et="Sonra">Panelde okunmamış rozeti + e-posta kodu (SMTP yoksa konsola yazar). <b>E-posta canlı denenmedi</b></td><td data-et="Durum"><span class="rozet kis">Kısmen</span></td></tr>
+<tr><th scope="row">H3</th><td data-et="Bulgu">Teyitsiz içerik iddiaları (TÜV/TSE/CE, ~1000 metretül, "Avrupa standartları")</td><td data-et="Önce">siteye işli, teyitsiz</td><td data-et="Sonra">Metin hâlâ aynı; müşteriye sorulacak. Değerlerin çoğu <code>config/firma.js</code>'te ama "Avrupa standartları" cümlesi şablonda sabit</td><td data-et="Durum"><span class="rozet mus">Müşteri kararı</span></td></tr>
+<tr><th scope="row">H4</th><td data-et="Bulgu">Görseller ağır</td><td data-et="Önce">/ 3,42 MB (19 istek); /calismalar <b>4,52 MB</b> (25 istek)</td><td data-et="Sonra">/ 0,79 MB (16 istek); /calismalar ilk yükleme 0,77 MB, 375 px'te <b>0,21 MB</b> (6 istek); tümü 0,92 MB. Tek görsel 286 885 B JPEG → 196 042 B WebP, küçük boy 60 206 B; ETag/304</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H5</th><td data-et="Bulgu">SEO eksik, kök eski tasarım</td><td data-et="Önce">aynı description ×7, canonical/og/ld+json yok, robots.txt ve sitemap.xml 404, kök eski tasarım</td><td data-et="Sonra">description benzersiz (7/7), canonical + 7 og etiketi, LocalBusiness JSON-LD, robots.txt 200, sitemap.xml 200 (102 URL), kök = v6. <b>Not:</b> SITE_DEMO nedeniyle robots <code>Disallow: /</code> (bkz. H18)</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H6</th><td data-et="Bulgu">Sorgu parametresi dizi gelince 500</td><td data-et="Önce">HTTP 500</td><td data-et="Sonra">HTTP 200 (altı farklı dizi/parametre biçimi denendi)</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H7</th><td data-et="Bulgu">Oturum yenilemede <code>throw err</code></td><td data-et="Önce">yonetim.js:50</td><td data-et="Sonra">projede <code>throw err</code> yok, <code>next(err)</code></td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H8</th><td data-et="Bulgu">Mobilde teklif/arama düğmesi yok</td><td data-et="Önce">375 px: Teklif ve Tel gizli</td><td data-et="Sonra">Üst çubukta hâlâ gizli; alta sabit "Ara / Teklif iste" çubuğu (375×61, düğmeler 44 px)</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H9</th><td data-et="Bulgu">Koyu temada hata rengi kontrastı</td><td data-et="Önce">2,67:1 (yüzey), 2,91:1 (zemin)</td><td data-et="Sonra"><b>6,92:1</b> (yüzey), 7,56:1 (zemin); #B3261E → #FF7B72</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H10</th><td data-et="Bulgu"><code>&lt;legend&gt;</code> içinde <code>&lt;h2&gt;</code></td><td data-et="Önce">3 yerde</td><td data-et="Sonra">0 (legend içinde span)</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H11</th><td data-et="Bulgu">Dönen slaytta <code>aria-live</code></td><td data-et="Önce">her zaman polite</td><td data-et="Sonra">yalnız elle gezinirken; Duraklat düğmesi var</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H12</th><td data-et="Bulgu">Yönetimde CSRF yok; yüklemede dosya imzası yok</td><td data-et="Önce">CSRF alanı 0; yalnız mimetype</td><td data-et="Sonra">Tüm POST formlarında <code>_csrf</code>; jetonsuz POST → <b>403</b>; sahte .jpg → <b>422</b></td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H13</th><td data-et="Bulgu">Ana sayfa kullanılmayan 2 sorgu çalıştırıyor</td><td data-et="Önce">next() zinciri + 2 gereksiz sorgu</td><td data-et="Sonra">Tek <code>routes/site.js</code>, her rota kendi sorgusunu yapar. Sorgu sayısı <i>ölçülmedi</i></td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H14</th><td data-et="Bulgu">Yönetim eski tasarımda, çıkış eski siteye</td><td data-et="Önce">eski kök tasarım</td><td data-et="Sonra">Yeni tasarım (yonetim.css, ortak tema), çıkış ana siteye döner (testli)</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">H15</th><td data-et="Bulgu">Ölü kod: metretül hesaplayıcı</td><td data-et="Önce">kullanılmıyor ama README özellik sayıyordu</td><td data-et="Sonra">Bilerek kaldırıldı; README dürüst yazıyor. Kod <b>silinmedi</b>: <code>views/parca/hesaplayici.ejs</code> ve <code>public/js/site.js</code> (~424. satır) duruyor</td><td data-et="Durum"><span class="rozet bil">Bilerek bırakıldı</span></td></tr>
+<tr><th scope="row">H16</th><td data-et="Bulgu">Testler geliştirme DB'sine yazıyor; yönetim/CSRF testi yok</td><td data-et="Önce">84 test, v6'ya özel yönetim testi yok</td><td data-et="Sonra">73 test geçti; yönetim, CSRF, imza, seed testleri var. Ayrı test DB desteği (<code>TEST_DATABASE_URL</code>) eklendi ama <b>.env'de tanımlı değil</b>, bu koşu geliştirme DB'sinde yapıldı</td><td data-et="Durum"><span class="rozet kis">Kısmen</span></td></tr>
+<tr><th scope="row">H17</th><td data-et="Bulgu">SSL <code>rejectUnauthorized:false</code>, SESSION_SECRET</td><td data-et="Önce">sabit false</td><td data-et="Sonra">Doğrulama varsayılan açık, <code>DATABASE_SSL_GEVSEK</code> ile isteğe bağlı gevşetme. SESSION_SECRET yine yalnız canlıda zorunlu (render.yaml'da otomatik üretilir)</td><td data-et="Durum"><span class="rozet kis">Kısmen</span></td></tr>
+<tr><th scope="row">H18</th><td data-et="Bulgu">SITE_DEMO=true → noindex</td><td data-et="Önce">açık</td><td data-et="Sonra">Hâlâ açık (<code>X-Robots-Tag</code> + robots <code>Disallow: /</code>). Müşteri alan adına geçerken kapatılacak</td><td data-et="Durum"><span class="rozet mus">Müşteri kararı</span></td></tr>
+</tbody></table></div>
+<p class="not">Test sayısı: önce 84 (84 geçti), şimdi 73 (73 geçti). Test dosyaları baştan yazıldığı için iki sayı doğrudan karşılaştırılamaz.</p>
+
+<h3 id="d">İnceleme turunda bulunup düzeltilenler (D1–D11)</h3>
+<div class="tablo-kap"><table>
+<thead><tr><th>#</th><th>Sorun</th><th>Sonra</th><th>Durum</th></tr></thead>
+<tbody>
+<tr><th scope="row">D1</th><td data-et="Sorun">Seed her açılışta yönetici şifresini .env değerine geri yazıyordu</td><td data-et="Sonra">Yalnız yoksa oluşturur; testli</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">D2</th><td data-et="Sorun">Eski şemalı veritabanında açılış çöküyordu (indeks/sütun)</td><td data-et="Sonra">Eski şemayla seed + göç + yeniden seed geçer; testli</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">D3</th><td data-et="Sorun">Görsel adresi sürümsüz, 30 gün eski kalabilirdi</td><td data-et="Sonra"><code>?v=</code> ile 1 yıl immutable, yoksa no-cache + ETag</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">D4</th><td data-et="Sorun">POST /teklif form dışı gövdede 500</td><td data-et="Sonra">Doğrulama hatası döner; testli</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">D5</th><td data-et="Sorun">DATABASE_SSL_GEVSEK açıklaması yanlıştı</td><td data-et="Sonra">Açıklama ve davranış tutarlı</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">D6</th><td data-et="Sorun">Bildirim için SITE_URL istenmiyordu, SMTP notu yoktu</td><td data-et="Sonra">SITE_URL de gerekli; README'de "SMTP portları kapalı olabilir" notu</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">D7</th><td data-et="Sorun">Yönetim menüsünde aria-current basılmıyordu</td><td data-et="Sonra">Bulunulan sayfa <code>aria-current="page"</code>; testli</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">D8</th><td data-et="Sorun">README güncel yapıyla tutarsızdı</td><td data-et="Sonra">Güncellendi (yapı, yönetim özellikleri, env anahtarları, hesaplayıcı dürüst notu)</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">D9</th><td data-et="Sorun">403 sayfasında "İçeriğe geç" yoktu</td><td data-et="Sonra">Eklendi; testli</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">D10</th><td data-et="Sorun">Hata sayfalarında canonical/og:url</td><td data-et="Sonra">Basılmaz, <code>noindex</code> (404 sayfasında canonical yok, ölçüldü)</td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+<tr><th scope="row">D11</th><td data-et="Sorun">Hakkımızda slayt görselleri tam boy</td><td data-et="Sonra">Küçük boy + srcset + <code>?v=</code></td><td data-et="Durum"><span class="rozet ok">Çözüldü</span></td></tr>
+</tbody></table></div>
+<p class="not">D maddeleri görev 07 raporuna ve test paketine dayanır (D1, D2, D3, D4, D7, D9, D10 için testler bu koşuda geçti); D2'nin eski şema denemesi bu turda ayrıca elle yinelenmedi, testin kendisi o denemeyi yapar ve geçti.</p>
+
+<h2 id="goruntuler">Ekran görüntüleri: önce / sonra</h2>
+<p class="not">Görüntüye tıklayınca tam boy açılır (en çok 6000 px yükseklik).</p>
+<div class="cift"><h4>H1 · KVKK onay kutusu (1280)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m04-kvkk-onay-kutusu-1280.png"><img src="oncesi/m04-kvkk-onay-kutusu-1280.png" alt="Önce: H1 · KVKK onay kutusu (1280)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m04-kvkk-onay-kutusu-1280.png"><img src="sonrasi/m04-kvkk-onay-kutusu-1280.png" alt="Sonra: H1 · KVKK onay kutusu (1280)" loading="lazy"></button></figure></div><p class="not">Önce: düz metin. Sonra: "KVKK Aydınlatma Metni" bağlantısı.</p></div>
+<div class="cift"><h4>H1 · KVKK onay kutusu (375)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m04-kvkk-onay-kutusu-375.png"><img src="oncesi/m04-kvkk-onay-kutusu-375.png" alt="Önce: H1 · KVKK onay kutusu (375)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m04-kvkk-onay-kutusu-375.png"><img src="sonrasi/m04-kvkk-onay-kutusu-375.png" alt="Sonra: H1 · KVKK onay kutusu (375)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>H1 · KVKK sayfası (1280)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/g13-kvkk-1280.png"><img src="sonrasi/g13-kvkk-1280.png" alt="Sonra: H1 · KVKK sayfası (1280)" loading="lazy"></button></figure></div><p class="not">Yeni sayfa.</p></div>
+<div class="cift"><h4>H1 · KVKK sayfası (375)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/g13-kvkk-375.png"><img src="sonrasi/g13-kvkk-375.png" alt="Sonra: H1 · KVKK sayfası (375)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>H8 · 375 px ilk ekran, ana sayfa</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m02-ilk-ekran-375-v6.png"><img src="oncesi/m02-ilk-ekran-375-v6.png" alt="Önce: H8 · 375 px ilk ekran, ana sayfa" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m02-eylem-cubugu-375.png"><img src="sonrasi/m02-eylem-cubugu-375.png" alt="Sonra: H8 · 375 px ilk ekran, ana sayfa" loading="lazy"></button></figure></div><p class="not">Sonra: alta sabit "Ara / Teklif iste" çubuğu.</p></div>
+<div class="cift"><h4>H8 · 375 px ilk ekran, çalışmalar</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m02-ilk-ekran-375-v6-calismalar.png"><img src="oncesi/m02-ilk-ekran-375-v6-calismalar.png" alt="Önce: H8 · 375 px ilk ekran, çalışmalar" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m02-ilk-ekran-375-v6-calismalar.png"><img src="sonrasi/m02-ilk-ekran-375-v6-calismalar.png" alt="Sonra: H8 · 375 px ilk ekran, çalışmalar" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>H8 · 375 px üst çubuk</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m02-ust-cubuk-375-v6.png"><img src="oncesi/m02-ust-cubuk-375-v6.png" alt="Önce: H8 · 375 px üst çubuk" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m02-ust-cubuk-375-v6.png"><img src="sonrasi/m02-ust-cubuk-375-v6.png" alt="Sonra: H8 · 375 px üst çubuk" loading="lazy"></button></figure></div><p class="not">Üst çubuk bilerek aynı kaldı; eylem alt çubukta.</p></div>
+<div class="cift"><h4>H9 · Koyu tema, boş gönderim (1280)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m03-koyu-bos-post-1280.png"><img src="oncesi/m03-koyu-bos-post-1280.png" alt="Önce: H9 · Koyu tema, boş gönderim (1280)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m03-koyu-bos-post-1280.png"><img src="sonrasi/m03-koyu-bos-post-1280.png" alt="Sonra: H9 · Koyu tema, boş gönderim (1280)" loading="lazy"></button></figure></div><p class="not">Hata metni 2,67:1 → 6,92:1.</p></div>
+<div class="cift"><h4>H9 · Koyu tema, boş gönderim (375)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m03-koyu-bos-post-375.png"><img src="oncesi/m03-koyu-bos-post-375.png" alt="Önce: H9 · Koyu tema, boş gönderim (375)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m03-koyu-bos-post-375.png"><img src="sonrasi/m03-koyu-bos-post-375.png" alt="Sonra: H9 · Koyu tema, boş gönderim (375)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>H5 · Kök adres "/" (1280)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m07-kok-eski-tasarim-1280.png"><img src="oncesi/m07-kok-eski-tasarim-1280.png" alt="Önce: H5 · Kök adres "/" (1280)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m07-kok-eski-tasarim-1280.png"><img src="sonrasi/m07-kok-eski-tasarim-1280.png" alt="Sonra: H5 · Kök adres "/" (1280)" loading="lazy"></button></figure></div><p class="not">Dosya adı öncekiyle eşleşsin diye aynı; sonrasındaki içerik yeni tasarımdır (kök = v6).</p></div>
+<div class="cift"><h4>H4 · Çalışmalar sayfası (1280, tam sayfa)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/g02-v6-calismalar-1280.png"><img src="oncesi/g02-v6-calismalar-1280.png" alt="Önce: H4 · Çalışmalar sayfası (1280, tam sayfa)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/g02-v6-calismalar-1280.png"><img src="sonrasi/g02-v6-calismalar-1280.png" alt="Sonra: H4 · Çalışmalar sayfası (1280, tam sayfa)" loading="lazy"></button></figure></div><p class="not">Görünüm aynı kalmalı, ağırlık 4,52 MB → 0,77 MB (ilk yükleme).</p></div>
+<div class="cift"><h4>Ana sayfa (1280)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/g01-v6-1280.png"><img src="oncesi/g01-v6-1280.png" alt="Önce: Ana sayfa (1280)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/g01-v6-1280.png"><img src="sonrasi/g01-v6-1280.png" alt="Sonra: Ana sayfa (1280)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Ana sayfa (375)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/g07-v6-375.png"><img src="oncesi/g07-v6-375.png" alt="Önce: Ana sayfa (375)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/g07-v6-375.png"><img src="sonrasi/g07-v6-375.png" alt="Sonra: Ana sayfa (375)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Çalışma detayı (1280)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/g03-v6-calisma-96-1280.png"><img src="oncesi/g03-v6-calisma-96-1280.png" alt="Önce: Çalışma detayı (1280)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/g03-v6-calisma-96-1280.png"><img src="sonrasi/g03-v6-calisma-96-1280.png" alt="Sonra: Çalışma detayı (1280)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Hakkımızda (1280) · H11</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/g04-v6-hakkimizda-1280.png"><img src="oncesi/g04-v6-hakkimizda-1280.png" alt="Önce: Hakkımızda (1280) · H11" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/g04-v6-hakkimizda-1280.png"><img src="sonrasi/g04-v6-hakkimizda-1280.png" alt="Sonra: Hakkımızda (1280) · H11" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>İletişim (1280)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/g05-v6-iletisim-1280.png"><img src="oncesi/g05-v6-iletisim-1280.png" alt="Önce: İletişim (1280)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/g05-v6-iletisim-1280.png"><img src="sonrasi/g05-v6-iletisim-1280.png" alt="Sonra: İletişim (1280)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Teklif formu (1280) · H10</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/g06-v6-teklif-1280.png"><img src="oncesi/g06-v6-teklif-1280.png" alt="Önce: Teklif formu (1280) · H10" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/g06-v6-teklif-1280.png"><img src="sonrasi/g06-v6-teklif-1280.png" alt="Sonra: Teklif formu (1280) · H10" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Teklif formu (375)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/g12-v6-teklif-375.png"><img src="oncesi/g12-v6-teklif-375.png" alt="Önce: Teklif formu (375)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/g12-v6-teklif-375.png"><img src="sonrasi/g12-v6-teklif-375.png" alt="Sonra: Teklif formu (375)" loading="lazy"></button></figure></div></div>
+
+<h2 id="yonetim">Yönetim paneli</h2>
+<p>Eski panel (sol sütun) kök sitenin eski tasarımındaydı ve formlarında CSRF jetonu yoktu. Yeni panel (sağ sütun) v6 tasarım diliyle baştan yazıldı. Yeni ekranların öncesi yok: teklif detayı, hesap, koyu tema ve 375 px.</p>
+<div class="cift"><h4>Giriş (1280)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m08-yonetim-1-giris-1280.png"><img src="oncesi/m08-yonetim-1-giris-1280.png" alt="Önce: Giriş (1280)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-1-giris-1280.png"><img src="sonrasi/m08-yonetim-1-giris-1280.png" alt="Sonra: Giriş (1280)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Pano (1280)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m08-yonetim-2-pano-1280.png"><img src="oncesi/m08-yonetim-2-pano-1280.png" alt="Önce: Pano (1280)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-2-pano-1280.png"><img src="sonrasi/m08-yonetim-2-pano-1280.png" alt="Sonra: Pano (1280)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Projeler (1280)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m08-yonetim-3-projeler-1280.png"><img src="oncesi/m08-yonetim-3-projeler-1280.png" alt="Önce: Projeler (1280)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-3-projeler-1280.png"><img src="sonrasi/m08-yonetim-3-projeler-1280.png" alt="Sonra: Projeler (1280)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Proje düzenleme (1280)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m08-yonetim-4-proje-duzenle-1280.png"><img src="oncesi/m08-yonetim-4-proje-duzenle-1280.png" alt="Önce: Proje düzenleme (1280)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-4-proje-duzenle-1280.png"><img src="sonrasi/m08-yonetim-4-proje-duzenle-1280.png" alt="Sonra: Proje düzenleme (1280)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Teklifler (1280)</h4><div class="yanyana"><figure><figcaption>Önce</figcaption><button type="button" class="kucuk" data-buyut="oncesi/m08-yonetim-5-teklifler-1280.png"><img src="oncesi/m08-yonetim-5-teklifler-1280.png" alt="Önce: Teklifler (1280)" loading="lazy"></button></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-5-teklifler-1280.png"><img src="sonrasi/m08-yonetim-5-teklifler-1280.png" alt="Sonra: Teklifler (1280)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Teklif detayı (1280)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-6-teklif-detay-1280.png"><img src="sonrasi/m08-yonetim-6-teklif-detay-1280.png" alt="Sonra: Teklif detayı (1280)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Hesap (1280)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-7-hesap-1280.png"><img src="sonrasi/m08-yonetim-7-hesap-1280.png" alt="Sonra: Hesap (1280)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Pano, koyu tema (1280)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-2-pano-koyu-1280.png"><img src="sonrasi/m08-yonetim-2-pano-koyu-1280.png" alt="Sonra: Pano, koyu tema (1280)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Giriş (375)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-1-giris-375.png"><img src="sonrasi/m08-yonetim-1-giris-375.png" alt="Sonra: Giriş (375)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Pano (375)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-2-pano-375.png"><img src="sonrasi/m08-yonetim-2-pano-375.png" alt="Sonra: Pano (375)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Projeler (375)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-3-projeler-375.png"><img src="sonrasi/m08-yonetim-3-projeler-375.png" alt="Sonra: Projeler (375)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Proje düzenleme (375)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-4-proje-duzenle-375.png"><img src="sonrasi/m08-yonetim-4-proje-duzenle-375.png" alt="Sonra: Proje düzenleme (375)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Teklifler (375)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-5-teklifler-375.png"><img src="sonrasi/m08-yonetim-5-teklifler-375.png" alt="Sonra: Teklifler (375)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Teklif detayı (375)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-6-teklif-detay-375.png"><img src="sonrasi/m08-yonetim-6-teklif-detay-375.png" alt="Sonra: Teklif detayı (375)" loading="lazy"></button></figure></div></div>
+<div class="cift"><h4>Hesap (375)</h4><div class="yanyana"><figure class="yok"><figcaption>Önce</figcaption><p>Öncesinde karşılığı yok</p></figure><figure><figcaption>Sonra</figcaption><button type="button" class="kucuk" data-buyut="sonrasi/m08-yonetim-7-hesap-375.png"><img src="sonrasi/m08-yonetim-7-hesap-375.png" alt="Sonra: Hesap (375)" loading="lazy"></button></figure></div></div>
+<h3>Yeni özellikler</h3>
+<div class="kutu"><ul class="liste">
+<li>Oturum açma (bcrypt, oturum veritabanında), girişsiz erişimde girişe yönlendirme ve girişten sonra istenen sayfaya dönüş.</li>
+<li>Pano: toplam teklif, son 30 gün, okunmamış teklif rozeti.</li>
+<li>Projeler: ekle / düzenle / sil, fotoğraf yükleme (içerik imzası denetimi, WebP + küçük boy), arama ve süzgeç, sayfalama.</li>
+<li>Teklifler: liste (arama / süzgeç / sayfalama), detay, durum ve yönetici notu, okundu / okunmadı, silme, CSV dışa aktarma.</li>
+<li>Hesap: şifre değiştirme (mevcut şifre ve en az 10 karakter şartı).</li>
+<li>Güvenlik: tüm POST formlarında CSRF jetonu, giriş için istek sınırı, <code>no-store</code> ve noindex başlıkları.</li>
+<li>Açık / koyu tema, 375 px mobil düzen, menüde <code>aria-current</code>.</li>
+</ul></div>
+<h3>Yönergedeki opsiyonel artılar</h3>
+<div class="tablo-kap"><table>
+<thead><tr><th>Artı</th><th>Durum</th><th>Nerede</th></tr></thead>
+<tbody>
+<tr><th scope="row">Authentication</th><td data-et="Durum"><span class="rozet ok">Karşılandı</span></td><td data-et="Nerede">Yönetim girişi, bcrypt, oturum, CSRF, şifre değiştirme</td></tr>
+<tr><th scope="row">Gelişmiş yönetim paneli</th><td data-et="Durum"><span class="rozet ok">Karşılandı</span></td><td data-et="Nerede">Pano, proje CRUD + fotoğraf, teklif takibi, CSV</td></tr>
+<tr><th scope="row">Arama / filtreleme</th><td data-et="Durum"><span class="rozet ok">Karşılandı</span></td><td data-et="Nerede">Ziyaretçi sitesinde yıl / şehir / tür süzgeci ve arama; yönetimde projeler ve teklifler listesi</td></tr>
+<tr><th scope="row">Otomatik e-posta</th><td data-et="Durum"><span class="rozet kis">Kısmen</span></td><td data-et="Nerede">Kodu ve ayarı var (<code>lib/bildirim.js</code>); SMTP ile <b>canlı denenmedi</b>. Render ücretsiz planda giden SMTP portları kapalı olabilir</td></tr>
+</tbody></table></div>
+
+<h2 id="acik">Açık kalanlar</h2>
+<div class="kutu"><ul class="liste">
+<li><b>H3 — müşteri teyidi:</b> TÜV / TSE / CE, yaklaşık 1000 metretül, "Avrupa standartları" iddiaları müşteriden teyit edilene kadar aynen duruyor.</li>
+<li><b>H18 — SITE_DEMO:</b> <code>true</code> iken tüm site arama motorlarına kapalı (<code>X-Robots-Tag</code>, robots.txt <code>Disallow: /</code>). Gerçek alan adına geçerken kapatılacak; karar kullanıcıda.</li>
+<li><b>SMTP canlı denenmedi:</b> e-posta bildirimi yalnız kod ve ayar düzeyinde; gerçek gönderim ölçülmedi.</li>
+<li><b>Hesaplayıcı bilerek kaldırıldı:</b> v6'da hiçbir sayfada yok; kodu (<code>views/parca/hesaplayici.ejs</code>, <code>public/js/site.js</code>) silinmedi (H15).</li>
+<li><b>Render ortam anahtarları:</b> <code>SITE_URL</code>, <code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_USER</code>, <code>SMTP_PASS</code>, <code>BILDIRIM_EPOSTA</code>, <code>SESSION_SECRET</code> (render.yaml üretir), <code>SITE_DEMO</code> canlıda ayarlanmalı; henüz ayarlanıp ayarlanmadığı <i>doğrulanmadı</i>.</li>
+<li><b>Test veritabanı:</b> <code>TEST_DATABASE_URL</code> tanımlı değilse testler geliştirme veritabanına yazar (bu koşu öyle yapıldı).</li>
+<li><b>Ölçülmeyenler:</b> açık temada hata kontrastı yeniden ölçülmedi (6,54:1 önceki değer); ana sayfa sorgu sayısı ölçülmedi; canlı (Render + Neon) ortamı bu karşılaştırmaya dahil değil.</li>
+</ul></div>
+<p class="not">Ham ölçümler: <a href="oncesi/olcumler.md">öncesi</a> · <a href="sonrasi/olcumler.md">sonrası</a> (JSON ve komut çıktıları aynı klasörlerde).</p>
+</main>
+<dialog id="buyuk"><button type="button" class="kapat">Kapat ✕</button><img alt=""></dialog>
+<script>
+(function () {
+  var d = document.getElementById('buyuk'), im = d.querySelector('img');
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-buyut]');
+    if (b) { im.src = b.getAttribute('data-buyut'); im.alt = b.querySelector('img').alt; d.showModal(); d.scrollTop = 0; return; }
+    if (ev.target === d || ev.target.closest('.kapat')) d.close();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<%- include('partials/ust') %>
+<% const turAd = { fuar: 'Fuar', etkinlik: 'Etkinlik', kurumsal: 'Kurumsal' }; %>
+<article class="detay">
+  <a class="ok-link" href="/calismalar">← Tüm çalışmalar</a>
+  <div class="detay-ic">
+    <figure class="detay-foto"><img src="/gorsel/<%= p.id %>" alt="<%= p.musteri %> — <%= p.etkinlik %>"></figure>
+    <div class="detay-bilgi">
+      <p class="mono soluk">No. <%= String(p.id).padStart(3, '0') %></p>
+      <h1><%= p.musteri %></h1>
+      <dl class="kunye-liste mono">
+        <div><dt>Etkinlik</dt><dd><%= p.etkinlik || '—' %></dd></div>
+        <div><dt>Tür</dt><dd><%= turAd[p.tur] %></dd></div>
+        <div><dt>Şehir</dt><dd><%= p.sehir || '—' %></dd></div>
+        <div><dt>Yıl</dt><dd><%= p.yil || '—' %></dd></div>
+      </dl>
+      <% if (p.aciklama) { %><p><%= p.aciklama %></p><% } %>
+      <a class="dugme" href="/teklif">Benzer bir proje için teklif iste</a>
+    </div>
+  </div>
+</article>
+<% if (benzer.length) { %>
+<section class="bolum">
+  <h2>Benzer çalışmalar</h2>
+  <div class="izgara"><% for (const b of benzer) { %><%- include('partials/kart', { p: b }) %><% } %></div>
+</section>
+<% } %>
+<%- include('partials/alt') %>

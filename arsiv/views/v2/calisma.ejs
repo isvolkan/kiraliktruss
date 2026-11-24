@@ -1,0 +1,58 @@
+<%- include('partials/ust', { sayfaCss: ['calismalar'] }) %>
+<%
+  const turAd = { fuar: 'Fuar', etkinlik: 'Etkinlik', kurumsal: 'Kurumsal' };
+  const no = String(p.id).padStart(3, '0');
+%>
+<article class="detay kap" aria-labelledby="detay-b">
+  <div class="detay-ust mono">
+    <a class="ok-link" href="<%= kok %>/calismalar">← Tüm çalışmalar</a>
+    <span class="soluk" data-karistir>Arşiv · No. <%= no %></span>
+  </div>
+
+  <div class="detay-izgara">
+    <figure class="detay-foto">
+      <div class="detay-foto-ic kose">
+        <img src="/gorsel/<%= p.id %>" alt="<%= p.musteri %><%= p.etkinlik ? ' — ' + p.etkinlik : '' %>" fetchpriority="high" width="900" height="600">
+        <span class="arti" style="left:-6px;top:30%"></span><span class="arti" style="right:-6px;top:70%"></span>
+      </div>
+      <figcaption class="mono soluk">Fig. <%= no %><%= p.sehir || p.yil ? ' · ' + [p.sehir, p.yil].filter(Boolean).join(' · ') : '' %></figcaption>
+    </figure>
+
+    <div class="detay-bilgi">
+      <h1 class="b-l" id="detay-b" data-yuksel><%= p.musteri %></h1>
+      <div class="olcu detay-olcu" aria-hidden="true"><span>Proje künyesi</span></div>
+      <div class="kunye" role="group" aria-label="Proje künyesi">
+        <span class="kunye-hucre"><small>Müşteri</small><b><%= p.musteri %></b></span>
+        <span class="kunye-hucre"><small>Etkinlik</small><b><%= p.etkinlik || '—' %></b></span>
+        <span class="kunye-hucre"><small>Şehir</small><b><%= p.sehir || '—' %></b></span>
+        <span class="kunye-hucre"><small>Yıl</small><b class="mono-rakam"><%= p.yil || '—' %></b></span>
+        <span class="kunye-hucre"><small>Tür</small><b><%= turAd[p.tur] || '—' %></b></span>
+        <span class="kunye-hucre"><small>Arşiv no</small><b class="mono-rakam"><%= no %></b></span>
+      </div>
+      <% if (p.aciklama) { %><p class="detay-aciklama"><%= p.aciklama %></p><% } %>
+      <div class="detay-dugmeler">
+        <a class="dugme ana" href="<%= kok %>/teklif">Bu işe benzer teklif iste</a>
+        <a class="dugme" href="<%= kok %>/calismalar">Bütün çalışmalar</a>
+      </div>
+    </div>
+  </div>
+</article>
+
+<% if (benzer.length) { %>
+<section class="bolum detay-benzer" aria-labelledby="benzer-b">
+  <div class="kap">
+    <div class="bolum-bas">
+      <div>
+        <span class="bolum-no mono"><b>02</b> / 02</span>
+        <h2 class="b-l" id="benzer-b" data-yuksel>Benzer çalışmalar</h2>
+      </div>
+      <a class="ok-link" href="<%= kok %>/calismalar">Arşivin tamamı →</a>
+    </div>
+    <div class="izgara-kart cal-izgara">
+      <% benzer.forEach(function (b) { %><%- include('partials/kart', { p: b }) %><% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<%- include('partials/alt') %>

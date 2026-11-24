@@ -1,8 +1,16 @@
-<%- include('partials/ust') %>
-<section class="sayfa-bas orta">
-  <p class="mono soluk">Talebiniz alındı</p>
-  <h1>Teşekkürler.</h1>
-  <p class="dar">Talebiniz bize ulaştı. Bilgileri inceleyip size telefon ya da e-postayla dönüş yapacağız. Acil durumda <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>.</p>
-  <a class="dugme" href="/calismalar">Örnek çalışmalara göz atın</a>
+<%- include('parca/bas', {
+  aciklama: 'Teklif talebiniz Kiralık Truss ekibine ulaştı. En kısa sürede sizinle iletişime geçeceğiz.',
+}) %>
+
+<section class="levha z-mavi tesekkur">
+  <div class="ic">
+    <h1 class="yukselen"><span>İsteğiniz bize ulaştı.</span></h1>
+    <p class="giris">Bilgilerinizi aldık; teklif için sizinle iletişime geçeceğiz. Aceleniz varsa arayın: <a class="satir-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></p>
+    <div class="dugmeler">
+      <a class="btn btn-1" href="/calismalar">Çalışmalara bak <span class="ok" aria-hidden="true"><%- include('parca/ok', { yon: 'sag' }) %></span></a>
+      <a class="btn btn-2" href="/">Ana sayfa <span class="ok ok-geri" aria-hidden="true"><%- include('parca/ok', { yon: 'sol' }) %></span></a>
+    </div>
+  </div>
 </section>
-<%- include('partials/alt') %>
+
+<%- include('parca/son') %>

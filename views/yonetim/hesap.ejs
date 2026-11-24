@@ -1,0 +1,45 @@
+<%- include('_ust') %>
+<%
+  const h = hatalar;
+  const kac = (s) => String(s).replace(/[&<>"']/g, (c) => '&#' + c.charCodeAt(0) + ';');
+  const hataSatiri = (ad) => (h[ad] ? `<p class="alan-hata" id="${ad}-hata">${kac(h[ad])}</p>` : '');
+  // Her alanın açıklaması: varsa yardım metni + hata satırı
+  const aria = (ad, yardim) => {
+    const ids = [yardim, h[ad] ? ad + '-hata' : ''].filter(Boolean).join(' ');
+    return (h[ad] ? ' aria-invalid="true"' : '') + (ids ? ` aria-describedby="${ids}"` : '');
+  };
+%>
+<div class="y-bas">
+  <div>
+    <p class="etiket"><%= yonetici.eposta %></p>
+    <h1>Hesap</h1>
+  </div>
+</div>
+
+<%- include('_hata-ozet', { hatalar }) %>
+
+<form class="y-form y-dar beyaz-kart" method="post" action="/yonetim/hesap/sifre" novalidate>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <h2 class="h3">Şifre değiştir</h2>
+  <%# Tarayıcının şifre yöneticisi için gizli kullanıcı adı alanı %>
+  <input type="text" name="kullanici" value="<%= yonetici.eposta %>" autocomplete="username" hidden>
+  <div class="alan<%= h.mevcut ? ' hatali' : '' %>">
+    <label for="mevcut">Mevcut şifre</label>
+    <input id="mevcut" type="password" name="mevcut" required autocomplete="current-password"<%- aria('mevcut') %>>
+    <%- hataSatiri('mevcut') %>
+  </div>
+  <div class="alan<%= h.yeni ? ' hatali' : '' %>">
+    <label for="yeni">Yeni şifre</label>
+    <p class="yardim" id="yeni-yardim">En az 10 karakter. Uzun bir cümle hatırlaması kolay ve güçlüdür.</p>
+    <input id="yeni" type="password" name="yeni" required minlength="10" maxlength="72" autocomplete="new-password"<%- aria('yeni', 'yeni-yardim') %>>
+    <%- hataSatiri('yeni') %>
+  </div>
+  <div class="alan<%= h.yeni_tekrar ? ' hatali' : '' %>">
+    <label for="yeni_tekrar">Yeni şifre (tekrar)</label>
+    <input id="yeni_tekrar" type="password" name="yeni_tekrar" required autocomplete="new-password"<%- aria('yeni_tekrar') %>>
+    <%- hataSatiri('yeni_tekrar') %>
+  </div>
+  <button class="btn btn-1 y-tam" type="submit">Şifreyi değiştir</button>
+  <p class="yardim y-not-zaman">Şifre değişince diğer cihazlardaki oturumlar kapanır.</p>
+</form>
+<%- include('_alt') %>

@@ -1,18 +1,87 @@
 <%- include('_ust') %>
-<h1>Pano</h1>
-<div class="pano-kartlar">
-  <a class="pano-kart" href="/yonetim/teklifler?durum=yeni"><b><%= s.yeni %></b><span class="mono">yeni teklif</span></a>
-  <a class="pano-kart" href="/yonetim/teklifler"><b><%= s.teklif %></b><span class="mono">toplam teklif</span></a>
-  <a class="pano-kart" href="/yonetim/projeler"><b><%= s.proje %></b><span class="mono">proje</span></a>
+<% const gun = (d) => d.toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul' }); %>
+<div class="y-bas">
+  <div>
+    <p class="etiket">Yönetim</p>
+    <h1>Pano</h1>
+  </div>
+  <div class="y-bas-dugmeler">
+    <a class="btn btn-1" href="/yonetim/projeler/yeni">Yeni proje <span class="ok" aria-hidden="true"><%- include('../parca/ok', { yon: 'sag' }) %></span></a>
+  </div>
 </div>
-<h2>Son teklifler</h2>
-<% if (!teklifler.length) { %><p class="soluk">Henüz teklif yok.</p><% } else { %>
-<div class="tablo-kap"><table class="tablo">
-  <thead><tr><th>No.</th><th>Kişi</th><th>Şehir</th><th>Etkinlik tarihi</th><th>Durum</th></tr></thead>
-  <tbody><% for (const t of teklifler) { %>
-    <tr><td class="mono"><a href="/yonetim/teklifler/<%= t.id %>"><%= t.id %></a></td><td><%= t.ad_soyad %><% if (t.firma) { %> · <%= t.firma %><% } %></td><td><%= t.sehir %></td><td class="mono"><%= t.tarih.toLocaleDateString('tr-TR') %></td><td><span class="durum durum-<%= t.durum %>"><%= DURUMLAR[t.durum] %></span></td></tr>
-  <% } %></tbody>
-</table></div>
-<% } %>
-<a class="dugme" href="/yonetim/projeler/yeni">+ Yeni proje ekle</a>
+
+<%# Özet kutuları: okunmamış teklif varsa mavi levha olur (göze çarpsın) %>
+<ul class="y-kutular">
+  <li>
+    <a class="y-kutu<%= okunmamis ? ' z-mavi' : '' %>" href="/yonetim/teklifler">
+      <span class="y-kutu-sayi"><%= okunmamis %></span>
+      <span class="y-kutu-et">okunmamış teklif</span>
+    </a>
+  </li>
+  <li>
+    <a class="y-kutu" href="/yonetim/teklifler">
+      <span class="y-kutu-sayi"><%= s.teklif %></span>
+      <span class="y-kutu-et">toplam teklif · son 30 günde <%= s.son30 %></span>
+    </a>
+  </li>
+  <li>
+    <a class="y-kutu" href="/yonetim/projeler">
+      <span class="y-kutu-sayi"><%= s.proje %></span>
+      <span class="y-kutu-et">proje · <%= s.one_cikan %> tanesi ana sayfada</span>
+    </a>
+  </li>
+</ul>
+
+<section class="y-bolum" aria-labelledby="durum-baslik">
+  <h2 id="durum-baslik">Teklifler durumlarına göre</h2>
+  <ul class="y-durumlar">
+    <% for (const [k, ad] of Object.entries(DURUMLAR)) { %>
+      <li><a href="/yonetim/teklifler?durum=<%= k %>"><%- include('_durum', { durum: k }) %><b><%= durumSayisi[k] %></b></a></li>
+    <% } %>
+  </ul>
+</section>
+
+<div class="y-iki">
+  <section class="y-bolum" aria-labelledby="son-teklif">
+    <div class="y-bolum-bas">
+      <h2 id="son-teklif">Son teklifler</h2>
+      <a class="bag-ok" href="/yonetim/teklifler">Tümü <span class="ok" aria-hidden="true"><%- include('../parca/ok', { yon: 'sag' }) %></span></a>
+    </div>
+    <% if (!teklifler.length) { %><p class="y-bos">Henüz teklif yok.</p><% } else { %>
+      <ul class="y-satirlar">
+        <% for (const t of teklifler) { %>
+          <li class="<%= t.okundu ? '' : 'y-okunmamis' %>">
+            <a href="/yonetim/teklifler/<%= t.id %>">
+              <span class="y-satir-ana"><%= t.ad_soyad %><% if (t.firma) { %> · <%= t.firma %><% } %><% if (!t.okundu) { %> <span class="y-yeni-isaret">Okunmadı</span><% } %></span>
+              <span class="y-satir-ek"><%= t.sehir %> · etkinlik <%= gun(t.tarih) %> · geldi <%= gun(t.olusturma) %></span>
+            </a>
+            <%- include('_durum', { durum: t.durum }) %>
+          </li>
+        <% } %>
+      </ul>
+    <% } %>
+  </section>
+
+  <section class="y-bolum" aria-labelledby="son-proje">
+    <div class="y-bolum-bas">
+      <h2 id="son-proje">Son eklenen projeler</h2>
+      <a class="bag-ok" href="/yonetim/projeler">Tümü <span class="ok" aria-hidden="true"><%- include('../parca/ok', { yon: 'sag' }) %></span></a>
+    </div>
+    <% if (!projeler.length) { %><p class="y-bos">Henüz proje yok.</p><% } else { %>
+      <ul class="y-satirlar">
+        <% for (const p of projeler) { %>
+          <li>
+            <a class="y-satir-foto" href="/yonetim/projeler/<%= p.id %>/duzenle">
+              <% if (p.foto) { %><img src="/gorsel/<%= p.id %>?boy=kucuk&amp;v=<%= p.guncelleme.getTime() %>" alt="" width="72" height="54" loading="lazy"><% } else { %><span class="y-foto-yok" aria-hidden="true"></span><% } %>
+              <span>
+                <span class="y-satir-ana"><%= p.musteri %></span>
+                <span class="y-satir-ek"><%= [p.etkinlik, p.sehir, p.yil].filter(Boolean).join(' · ') || '—' %></span>
+              </span>
+            </a>
+          </li>
+        <% } %>
+      </ul>
+    <% } %>
+  </section>
+</div>
 <%- include('_alt') %>

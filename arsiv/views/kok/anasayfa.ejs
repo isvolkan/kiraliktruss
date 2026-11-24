@@ -1,0 +1,105 @@
+<%- include('partials/ust') %>
+
+<%# 1) Açılış: gerçek proje fotoğrafı + alttan taşan dev yazı + köşelerde bilgi (White Desert + Telha Clarke) %>
+<section class="acilis">
+  <% const kapak = projeler[0]; %>
+  <% if (kapak) { %><img class="acilis-foto" src="/gorsel/<%= kapak.id %>" alt="<%= kapak.musteri %> için kurulan truss sistemi" fetchpriority="high"><% } %>
+  <div class="acilis-ortu"></div>
+  <div class="kose kose-sol-ust mono"><%= firma.ilce %></div>
+  <div class="kose kose-sag-ust mono"><%= firma.kurulus %>'dan beri</div>
+  <div class="kose kose-sol-alt">
+    <h1>Fuar, sahne ve etkinlikler için <em>orijinal alüminyum</em> truss.</h1>
+    <p>Truss kiralama ve deneyimli teknik ekip desteği. Fiyatlandırma proje bazlıdır.</p>
+    <div class="dugmeler">
+      <a class="dugme" href="/teklif">Teklif iste</a>
+      <a class="dugme cizgili" href="tel:<%= firma.telefonLink %>">Ara: <%= firma.telefon %></a>
+    </div>
+  </div>
+  <div class="kose kose-sag-alt mono"><% if (kapak) { %>Fotoğraf: <%= kapak.musteri %>, <%= kapak.yil %><% } %></div>
+  <p class="acilis-dev" aria-hidden="true">TRUSS</p>
+  <%# Dönen damga (Nettie's / Zora) %>
+  <svg class="damga" viewBox="0 0 120 120" aria-hidden="true">
+    <defs><path id="daire" d="M60 60m-46 0a46 46 0 1 1 92 0a46 46 0 1 1-92 0"/></defs>
+    <text><textPath href="#daire">ORİJİNAL ALÜMİNYUM · <%= firma.belgeler.join(' · ') %> · </textPath></text>
+    <rect x="44" y="44" width="32" height="32" fill="none" stroke="currentColor" stroke-width="3"/>
+    <path d="M44 76 76 44" stroke="currentColor" stroke-width="2"/>
+  </svg>
+</section>
+
+<%# 2) Kayan bant: çalışılan fuarlar (Thunderbuns / Amici) %>
+<div class="bant" aria-label="Çalıştığımız fuarlardan bazıları">
+  <div class="bant-ic">
+    <% for (let i = 0; i < 2; i++) { %><span aria-hidden="<%= i === 1 %>"><% for (const f of fuarlar) { %><%= f %> <b>✕</b> <% } %></span><% } %>
+  </div>
+</div>
+
+<%# 3) Sayılar + kaydırdıkça kendini çizen truss kafesi (sayfanın tek büyük anı) %>
+<section class="bolum sayilar-bolum">
+  <div class="sayilar">
+    <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= new Date().getFullYear() - firma.kurulus %>">0</span><span class="mono">yıllık deneyim</span></div>
+    <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= firma.stokMetretul %>" data-on="~">0</span><span class="mono">metretül truss stoğu</span></div>
+    <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= sayilar.proje %>" data-son="+">0</span><span class="mono">arşivdeki proje</span></div>
+    <div class="sayi ortaya-cik"><span class="sayi-deger" data-say="<%= sayilar.fuar %>">0</span><span class="mono">farklı fuar</span></div>
+  </div>
+  <svg class="kafes" id="kafes" viewBox="0 0 1200 140" preserveAspectRatio="none" aria-hidden="true">
+    <path class="kafes-cizgi" pathLength="1" d="M0 20H1200M0 120H1200<% for (let x = 0; x <= 1200; x += 100) { %>M<%= x %> 20V120<% } %><% for (let x = 0; x < 1200; x += 100) { %>M<%= x %> 20L<%= x + 100 %> 120<% } %>"/>
+  </svg>
+  <div class="kafes-etiket mono"><span>Orijinal alüminyum · demir kaynatma değil</span><span>Avrupa standartlarında imal · <%= firma.belgeler.join(' · ') %></span></div>
+</section>
+
+<%# 4) Öne çıkan projeler %>
+<section class="bolum">
+  <div class="bolum-bas">
+    <h2 class="kelime-kelime">Son kurduklarımızdan</h2>
+    <a class="ok-link" href="/calismalar">Tüm çalışmalar (<%= sayilar.proje %>) →</a>
+  </div>
+  <div class="izgara">
+    <% for (const p of projeler) { %><%- include('partials/kart', { p }) %><% } %>
+  </div>
+</section>
+
+<%# 5) Nasıl çalışıyoruz: numaralı adımlar (Nettie's Bees) %>
+<section class="bolum adimlar-bolum">
+  <h2 class="kelime-kelime">Nasıl çalışıyoruz</h2>
+  <ol class="adimlar">
+    <li class="ortaya-cik"><span class="adim-no mono">01</span><h3>Proje bilgisi</h3><p>Tarih, mekân ve stand ölçüsünü formdan ya da telefonla iletirsiniz.</p></li>
+    <li class="ortaya-cik"><span class="adim-no mono">02</span><h3>Çözüm ve teklif</h3><p>İhtiyacınıza göre çözümü birlikte belirler, proje bazlı fiyat veririz.</p></li>
+    <li class="ortaya-cik"><span class="adim-no mono">03</span><h3>Uygulama</h3><p>Deneyimli teknik ekibimizle projenizi etkinlik gününe hazır ederiz.</p></li>
+    <li class="ortaya-cik"><span class="adim-no mono">04</span><h3>Etkinlik sonrası</h3><p>Sistemlerimiz özenle depolanır; ilk günkü alüminyum parlaklığıyla bir sonraki projeye hazırdır.</p></li>
+  </ol>
+</section>
+
+<%# 6) Metretül hesaplayıcı (değer katma) %>
+<section class="bolum hesap-bolum" id="hesapla">
+  <div>
+    <h2 class="kelime-kelime">Ne kadar truss lazım?</h2>
+    <p class="soluk">Stand ölçünüzü girin, yaklaşık metretülü hesaplayalım. Sonuç teklif formuna otomatik geçer. Kesin ölçü keşif ve çizimden sonra çıkar.</p>
+  </div>
+  <form class="hesap" id="hesap" action="/teklif" method="get">
+    <label>Yapı
+      <select name="yapi" id="hYapi">
+        <option value="cerceve">Çerçeve (4 ayak + üst kuşak)</option>
+        <option value="tavan">Çerçeve + tavan ara kirişleri</option>
+        <option value="kemer">Kemer / kapı (2 ayak + kiriş)</option>
+        <option value="kule">Kule (tek dikey)</option>
+      </select>
+    </label>
+    <div class="hesap-satir">
+      <label>En (m)<input type="number" id="hEn" min="1" max="60" step="0.5" value="6"></label>
+      <label>Boy (m)<input type="number" id="hBoy" min="1" max="60" step="0.5" value="4"></label>
+      <label>Yükseklik (m)<input type="number" id="hYuk" min="1" max="12" step="0.5" value="3"></label>
+      <label>Adet<input type="number" id="hAdet" min="1" max="50" step="1" value="1"></label>
+    </div>
+    <output class="hesap-sonuc" id="hSonuc" aria-live="polite"><b>0</b> <span class="mono">metretül</span></output>
+    <input type="hidden" name="metretul" id="hMetretul">
+    <button class="dugme" type="submit">Bu ölçüyle teklif iste</button>
+  </form>
+</section>
+
+<%# 7) Bölünmüş çağrı (Last Crumb) %>
+<section class="ikiye">
+  <a class="ikiye-yari" href="/teklif"><span class="mono">Yazılı teklif</span><span class="ikiye-buyuk">Formu doldurun</span><span>Bilgileri inceleyip size dönüş yapıyoruz.</span></a>
+  <a class="ikiye-yari koyu" href="tel:<%= firma.telefonLink %>"><span class="mono">Acil mi?</span><span class="ikiye-buyuk">Hemen arayın</span><span><%= firma.telefon %></span></a>
+</section>
+
+<%- include('partials/alt') %>

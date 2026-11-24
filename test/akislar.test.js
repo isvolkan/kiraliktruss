@@ -18,12 +18,18 @@ after(async () => {
 
 function yarin() { return new Date(Date.now() + 86400000).toISOString().slice(0, 10); }
 
+// Yönetim formları CSRF jetonu ister (lib/csrf.js): jeton sayfadaki gizli alandan okunur
+function jetonu(html) { return html.match(/name="_csrf" value="([0-9a-f]{64})"/)[1]; }
+
+// Giriş yapar; ajana girişten sonraki jetonu da iliştirir (ajan.jeton)
 async function girisYap() {
   const ajan = request.agent(app);
+  const sayfa = await ajan.get('/yonetim/giris');
   const r = await ajan.post('/yonetim/giris').type('form')
-    .send({ eposta: process.env.ADMIN_EMAIL, sifre: process.env.ADMIN_PASSWORD });
+    .send({ _csrf: jetonu(sayfa.text), eposta: process.env.ADMIN_EMAIL, sifre: process.env.ADMIN_PASSWORD });
   assert.strictEqual(r.status, 302);
   assert.strictEqual(r.headers.location, '/yonetim');
+  ajan.jeton = jetonu((await ajan.get('/yonetim')).text);
   return ajan;
 }
 
@@ -33,19 +39,19 @@ test('halka açık sayfalar açılıyor', async () => {
     assert.strictEqual(r.status, 200, yol);
   }
   const ana = await request(app).get('/');
-  assert.match(ana.text, /TRUSS/);
+  assert.match(ana.text, /Truss kiralıyoruz\./);
 });
 
 test('bilinmeyen sayfa 404 döner', async () => {
   const r = await request(app).get('/yok-boyle-bir-sayfa');
   assert.strictEqual(r.status, 404);
-  assert.match(r.text, /Bu truss burada kurulmadı/);
+  assert.match(r.text, /Bu sayfayı bulamadık\./);
 });
 
 test('çalışmalar süzgeci sonuçları daraltır ve SQL enjeksiyonuna dayanır', async () => {
   const hepsi = await request(app).get('/calismalar');
   const etkinlik = await request(app).get('/calismalar?tur=etkinlik');
-  const say = (html) => Number(html.match(/Arşiv · (\d+) proje/)[1]);
+  const say = (html) => Number(html.match(/class="sonuc-sayisi">(\d+) /)[1]);
   assert.ok(say(etkinlik.text) < say(hepsi.text));
   const kotu = await request(app).get("/calismalar?q=' OR 1=1 --");
   assert.strictEqual(kotu.status, 200);
@@ -82,10 +88,10 @@ test('teklif CRUD: ziyaretçi ekler, yönetici listeler, günceller, siler', asy
   const ajan = await girisYap();
   const liste = await ajan.get('/yonetim/teklifler');
   assert.match(liste.text, new RegExp(ETIKET));
-  await ajan.post('/yonetim/teklifler/' + id).type('form').send({ durum: 'arandi', yonetici_notu: 'Arandı, çizim bekleniyor' }).expect(302);
+  await ajan.post('/yonetim/teklifler/' + id).type('form').send({ _csrf: ajan.jeton, durum: 'arandi', yonetici_notu: 'Arandı, çizim bekleniyor' }).expect(302);
   const g = await pool.query('SELECT durum, yonetici_notu FROM teklifler WHERE id = $1', [id]);
   assert.strictEqual(g.rows[0].durum, 'arandi');
-  await ajan.post('/yonetim/teklifler/' + id + '/sil').expect(302);
+  await ajan.post('/yonetim/teklifler/' + id + '/sil').type('form').send({ _csrf: ajan.jeton }).expect(302);
   const s = await pool.query('SELECT 1 FROM teklifler WHERE id = $1', [id]);
   assert.strictEqual(s.rowCount, 0);
 });
@@ -100,7 +106,9 @@ test('yönetim paneli girişsiz açılmaz, yanlış parola reddedilir', async ()
   const r = await request(app).get('/yonetim/projeler');
   assert.strictEqual(r.status, 302);
   assert.strictEqual(r.headers.location, '/yonetim/giris');
-  const y = await request(app).post('/yonetim/giris').type('form').send({ eposta: process.env.ADMIN_EMAIL, sifre: 'yanlis-parola' });
+  const ziyaretci = request.agent(app);
+  const sayfa = await ziyaretci.get('/yonetim/giris');
+  const y = await ziyaretci.post('/yonetim/giris').type('form').send({ _csrf: jetonu(sayfa.text), eposta: process.env.ADMIN_EMAIL, sifre: 'yanlis-parola' });
   assert.strictEqual(y.status, 401);
 });
 
@@ -109,10 +117,10 @@ test('proje CRUD: ekle (fotoğraflı), listele, güncelle, sil', async () => {
   const foto = path.join(__dirname, '..', 'veri', 'eski-gorseller', '1543314354_ari-makina-foteg-2013.jpg');
 
   // Fotoğrafsız ekleme reddedilmeli (doğrulama)
-  const eksik = await ajan.post('/yonetim/projeler').field('musteri', ETIKET + ' Firma').field('etkinlik', 'Deneme Fuarı').field('tur', 'fuar');
+  const eksik = await ajan.post('/yonetim/projeler').field('_csrf', ajan.jeton).field('musteri', ETIKET + ' Firma').field('etkinlik', 'Deneme Fuarı').field('tur', 'fuar');
   assert.strictEqual(eksik.status, 422);
 
-  await ajan.post('/yonetim/projeler')
+  await ajan.post('/yonetim/projeler').field('_csrf', ajan.jeton)
     .field('musteri', ETIKET + ' Firma').field('etkinlik', 'Deneme Fuarı').field('sehir', 'İstanbul')
     .field('yil', '2026').field('tur', 'fuar').attach('gorsel', foto).expect(302);
   const { rows } = await pool.query('SELECT id FROM projeler WHERE musteri = $1', [ETIKET + ' Firma']);
@@ -123,7 +131,7 @@ test('proje CRUD: ekle (fotoğraflı), listele, güncelle, sil', async () => {
   assert.match(liste.text, new RegExp(ETIKET));
 
   // Fotoğraf göndermeden güncelle: eski fotoğraf korunmalı
-  await ajan.post('/yonetim/projeler/' + id)
+  await ajan.post('/yonetim/projeler/' + id).field('_csrf', ajan.jeton)
     .field('musteri', ETIKET + ' Firma').field('etkinlik', 'Güncel Fuar').field('yil', '2025').field('tur', 'etkinlik').expect(302);
   const g = await pool.query('SELECT etkinlik, yil, tur, gorsel IS NOT NULL AS foto FROM projeler WHERE id = $1', [id]);
   assert.deepStrictEqual(g.rows[0], { etkinlik: 'Güncel Fuar', yil: 2025, tur: 'etkinlik', foto: true });
@@ -132,7 +140,7 @@ test('proje CRUD: ekle (fotoğraflı), listele, güncelle, sil', async () => {
   const detay = await request(app).get('/calismalar/' + id);
   assert.match(detay.text, /Güncel Fuar/);
 
-  await ajan.post('/yonetim/projeler/' + id + '/sil').expect(302);
+  await ajan.post('/yonetim/projeler/' + id + '/sil').type('form').send({ _csrf: ajan.jeton }).expect(302);
   const s = await pool.query('SELECT 1 FROM projeler WHERE id = $1', [id]);
   assert.strictEqual(s.rowCount, 0);
 });
@@ -158,12 +166,12 @@ test('yönetim sayfaları ve teşekkür sayfası açılıyor', async () => {
 test('fotoğraf yükleme hataları form hatası olarak döner (500 değil)', async () => {
   const ajan = await girisYap();
   const buyuk = Buffer.alloc(3 * 1024 * 1024 + 10, 0xff);
-  const r1 = await ajan.post('/yonetim/projeler').field('musteri', ETIKET + ' Buyuk').field('tur', 'fuar')
+  const r1 = await ajan.post('/yonetim/projeler').field('_csrf', ajan.jeton).field('musteri', ETIKET + ' Buyuk').field('tur', 'fuar')
     .attach('gorsel', buyuk, { filename: 'buyuk.jpg', contentType: 'image/jpeg' });
   assert.strictEqual(r1.status, 422);
   assert.match(r1.text, /en fazla 3 MB/);
   const { rows } = await pool.query('SELECT id FROM projeler LIMIT 1');
-  const r2 = await ajan.post('/yonetim/projeler/' + rows[0].id).field('musteri', 'X Firma').field('tur', 'fuar')
+  const r2 = await ajan.post('/yonetim/projeler/' + rows[0].id).field('_csrf', ajan.jeton).field('musteri', 'X Firma').field('tur', 'fuar')
     .attach('gorsel', Buffer.from('merhaba'), { filename: 'not.txt', contentType: 'text/plain' });
   assert.strictEqual(r2.status, 422);
   assert.match(r2.text, /Yalnız JPEG, PNG ya da WebP/);

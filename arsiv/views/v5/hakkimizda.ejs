@@ -1,0 +1,43 @@
+<%- include('parca/bas') %>
+
+<section class="levha z-alu hakkinda">
+  <div class="ic">
+    <h1><%= firma.kurulus %>'dan beri truss kiralıyoruz.</h1>
+    <div class="uzun-metin">
+      <p>Stoğumuzda yaklaşık <%= firma.stokMetretul %> metretül orijinal alüminyum truss sistemi var. Deneyimli teknik ekibimizle, ihtiyacınıza göre projeniz için çözüm üretiyoruz.</p>
+      <p>Truss sistemlerimiz kesinlikle demir kaynatma değildir. Hepsi Avrupa standartlarında imal edilmiştir; TÜV, TSE ve CE belgelidir. Depolama ve nakliye yüzünden deforme olmamış, ilk günkü alüminyum parlaklığındadır.</p>
+    </div>
+  </div>
+</section>
+
+<section class="levha z-beyaz" aria-labelledby="nerede-baslik">
+  <div class="ic">
+    <h2 id="nerede-baslik">Nerede kullanılır?</h2>
+    <ul class="kullanim">
+      <% for (const k of ['Fuar', 'Stand', 'Kongre', 'Konser', 'Tanıtım', 'Düğün', 'Etkinlik']) { %><li><%= k %></li><% } %>
+    </ul>
+  </div>
+</section>
+
+<section class="levha z-murekkep" aria-labelledby="fiyat-baslik">
+  <div class="ic">
+    <h2 id="fiyat-baslik">Fiyatlandırmamız proje bazlıdır.</h2>
+    <p class="giris">Hazır fiyat listemiz yok; ölçüye, tarihe ve yere göre teklif hazırlıyoruz.</p>
+    <div class="dugmeler">
+      <a class="btn btn-1" href="<%= kok %>/teklif">Teklif iste <span class="ok" aria-hidden="true">→</span></a>
+      <a class="btn btn-2" href="<%= kok %>/#hesapla">Kaç metretül gerekir? <span class="ok ok-asagi" aria-hidden="true">↓</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="levha z-alu" aria-label="Belgeler">
+  <div class="ic">
+    <p class="etiket">Belgeler</p>
+    <ul class="belgeler belgeler-acik">
+      <% for (const belge of firma.belgeler) { %><li><span class="belge-ad"><%= belge %></span><span class="belge-et">belgeli</span></li><% } %>
+    </ul>
+  </div>
+</section>
+
+<%- include('parca/cagri') %>
+<%- include('parca/son') %>

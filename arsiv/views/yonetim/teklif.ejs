@@ -1,0 +1,27 @@
+<%- include('_ust') %>
+<a class="ok-link" href="/yonetim/teklifler">← Teklifler</a>
+<h1>Teklif No. <%= t.id %> <span class="durum durum-<%= t.durum %>"><%= DURUMLAR[t.durum] %></span></h1>
+<div class="hakkinda-iki">
+  <dl class="kunye-liste">
+    <div><dt class="mono">Kişi</dt><dd><%= t.ad_soyad %><% if (t.firma) { %> · <%= t.firma %><% } %></dd></div>
+    <div><dt class="mono">Telefon</dt><dd><a href="tel:<%= t.telefon %>"><%= t.telefon %></a></dd></div>
+    <div><dt class="mono">E-posta</dt><dd><a href="mailto:<%= t.eposta %>"><%= t.eposta %></a></dd></div>
+    <div><dt class="mono">Etkinlik</dt><dd><%= t.etkinlik_turu %> · <%= t.sehir %></dd></div>
+    <div><dt class="mono">Tarih</dt><dd><%= t.tarih.toLocaleDateString('tr-TR') %> · <%= t.gun_sayisi %> gün</dd></div>
+    <div><dt class="mono">Metretül</dt><dd><%= t.metretul || '-' %></dd></div>
+    <div><dt class="mono">Ekip desteği</dt><dd><%= t.kurulum ? 'İstiyor' : 'İstemiyor' %></dd></div>
+    <div><dt class="mono">Mesaj</dt><dd><%= t.mesaj || '-' %></dd></div>
+    <div><dt class="mono">Geliş</dt><dd><%= t.olusturma.toLocaleString('tr-TR') %></dd></div>
+  </dl>
+  <div>
+    <form class="form kart-form" method="post" action="/yonetim/teklifler/<%= t.id %>">
+      <label>Durum
+        <select name="durum"><% for (const [k, ad] of Object.entries(DURUMLAR)) { %><option value="<%= k %>"<%= t.durum === k ? ' selected' : '' %>><%= ad %></option><% } %></select>
+      </label>
+      <label>Not (yalnız yönetim görür)<textarea name="yonetici_notu" rows="4" maxlength="2000"><%= t.yonetici_notu || '' %></textarea></label>
+      <button class="dugme" type="submit">Kaydet</button>
+    </form>
+    <form method="post" action="/yonetim/teklifler/<%= t.id %>/sil" data-onay="Bu teklif kalıcı olarak silinsin mi?"><button class="hap tehlike" type="submit">Teklifi sil</button></form>
+  </div>
+</div>
+<%- include('_alt') %>

@@ -1,0 +1,170 @@
+<%- include('partials/ust', { sayfaCss: ['anasayfa'] }) %>
+<%
+  const sayiYaz = (n) => Number(n).toLocaleString('tr-TR');
+  const kapak = projeler[0];
+  const ayni = (a, b) => a && b && a.trim().toLocaleLowerCase('tr') === b.trim().toLocaleLowerCase('tr');
+  const kapakYer = kapak ? [ayni(kapak.etkinlik, kapak.sehir) ? '' : kapak.etkinlik, kapak.sehir].filter(Boolean).join(' · ') : '';
+  // Hesaplayıcının ilk hâli (JS kapalıyken de doğru sonuç ve çizim görünsün)
+  const h0 = { yapi: 'cerceve', en: 6, boy: 4, yuk: 3, adet: 1 };
+  const m0 = izo.metretul(h0);
+  const hizmetler = [
+    { ad: 'Fuar standı', metin: 'Stand iskeleti, tavan askıları ve grafik taşıyıcıları için orijinal alüminyum truss.' },
+    { ad: 'Konser ve sahne', metin: 'Sahne çatısı, ışık ve ses askıları için kule ve grid sistemleri.' },
+    { ad: 'Kongre ve kurumsal', metin: 'Lansman, toplantı ve tanıtım etkinliklerinde ekran, ışık ve sahne arkası taşıyıcıları.' },
+    { ad: 'Kurulum ve söküm ekibi', metin: 'Deneyimli teknik ekibimiz truss\'ı kurar, etkinlik bitince söker; alanı temiz teslim eder.' },
+  ];
+  const adimlar = [
+    ['Zemin ve platform', 'Kurulumun oturacağı düz zemin: podyum, kot ve ayak yerleri işaretlenir.'],
+    ['Truss kuleler', 'Kare kesitli kuleler ayak plakası ve bağlantı pimleriyle dikilir.'],
+    ['Tavan gridi', 'Kuleleri birleştiren kirişler tavan gridini oluşturur.'],
+    ['Işık ve ses', 'Hareketli kafalar ve hoparlörler gride asılır.'],
+    ['LED ekran', 'Arka duvardaki LED ekran modülleri truss taşıyıcıya kurulur.'],
+  ];
+  const N = 6, no = (i) => '<b>' + String(i).padStart(2, '0') + '</b> / ' + String(N).padStart(2, '0');
+%>
+
+<%# 01 — Açılış: başlık ilk boyamada görünür (animasyon yok), büyük gerçek fotoğraf, tek satır kapasite %>
+<section class="hero" aria-labelledby="hero-b">
+  <div class="kap hero-izgara">
+    <div class="hero-ust mono">
+      <span><%- no(1) %></span>
+      <span><%= firma.ilce %></span>
+    </div>
+    <h1 class="b-xl hero-b" id="hero-b">Fuar, sahne ve etkinlikler için orijinal alüminyum truss.</h1>
+    <% if (kapak) { %>
+    <figure class="hero-foto">
+      <div class="hero-foto-ic kose">
+        <img src="/gorsel/<%= kapak.id %>" alt="<%= kapak.musteri %> için kurulan truss sistemi" fetchpriority="high" width="1200" height="800">
+      </div>
+      <figcaption class="hero-kunye mono">
+        <a href="<%= kok %>/calismalar/<%= kapak.id %>"><b><%= kapak.musteri %></b><span><%= [kapakYer, kapak.yil].filter(Boolean).join(' · ') %></span></a>
+      </figcaption>
+    </figure>
+    <% } %>
+    <ul class="kapasite" aria-label="Kapasite">
+      <li><b>~<%= sayiYaz(firma.stokMetretul) %> mt</b><span>truss stoğu</span></li>
+      <li><b><%= firma.kurulus %></b><span>yılından beri</span></li>
+      <li><a href="<%= kok %>/calismalar"><b><%= sayiYaz(sayilar.proje) %> proje</b><span>arşivde</span></a></li>
+    </ul>
+    <p class="giris hero-giris">Truss kiralama ve deneyimli teknik ekip desteği. Fiyatlandırma proje bazlıdır.</p>
+    <div class="hero-dugmeler">
+      <a class="dugme ana" href="<%= kok %>/teklif">Teklif iste</a>
+      <a class="dugme" href="tel:<%= firma.telefonLink %>">Ara: <%= firma.telefon %></a>
+    </div>
+  </div>
+</section>
+
+<%# 02 — Metretül hesaplayıcı: ölçü girildikçe yanındaki izometrik çerçeve yeniden çizilir %>
+<section class="bolum hesap-bolum" id="hesapla" aria-labelledby="hesap-b">
+  <div class="kap hesap-izgara">
+    <div class="hesap-bas">
+      <span class="bolum-no mono"><%- no(2) %></span>
+      <h2 class="b-l" id="hesap-b">Ne kadar truss lazım?</h2>
+      <p class="soluk">Stand ölçünüzü girin, yaklaşık metretülü hesaplayalım. Sonuç teklif formuna otomatik geçer. Kesin ölçü keşif ve çizimden sonra çıkar.</p>
+    </div>
+    <form class="hesap kose" id="hesap" action="<%= kok %>/teklif" method="get">
+      <label class="alan">Yapı
+        <select name="yapi" id="hYapi">
+          <option value="cerceve">Çerçeve (4 ayak + üst kuşak)</option>
+          <option value="tavan">Çerçeve + tavan ara kirişleri</option>
+          <option value="kemer">Kemer / kapı (2 ayak + kiriş)</option>
+          <option value="kule">Kule (tek dikey)</option>
+        </select>
+      </label>
+      <div class="hesap-satir">
+        <label class="alan">En (m)<input type="number" id="hEn" min="1" max="60" step="0.5" value="<%= h0.en %>" inputmode="decimal"></label>
+        <label class="alan">Boy (m)<input type="number" id="hBoy" min="1" max="60" step="0.5" value="<%= h0.boy %>" inputmode="decimal"></label>
+        <label class="alan">Yükseklik (m)<input type="number" id="hYuk" min="1" max="12" step="0.5" value="<%= h0.yuk %>" inputmode="decimal"></label>
+        <label class="alan">Adet<input type="number" id="hAdet" min="1" max="50" step="1" value="<%= h0.adet %>" inputmode="numeric"></label>
+      </div>
+      <output class="hesap-sonuc" id="hSonuc" for="hYapi hEn hBoy hYuk hAdet" aria-live="polite"><b><%= sayiYaz(m0) %></b> <span class="mono">metretül</span></output>
+      <input type="hidden" name="metretul" id="hMetretul">
+      <button class="dugme ana" type="submit">Bu ölçüyle teklif iste</button>
+    </form>
+    <figure class="cizim kose" id="cizim" role="img" aria-label="<%= izo.tarif(h0) %>">
+      <%- izo.cerceve(h0) %>
+      <figcaption class="mono soluk">Şematik · ölçekli değildir</figcaption>
+    </figure>
+  </div>
+</section>
+
+<%# 03 — Son kurduklarımız (ada göre tekil) + çalışılan fuarlar %>
+<section class="bolum projeler" aria-labelledby="proje-b">
+  <div class="kap">
+    <div class="bolum-bas">
+      <div>
+        <span class="bolum-no mono"><%- no(3) %></span>
+        <h2 class="b-l" id="proje-b" data-belir>Son kurduklarımızdan</h2>
+      </div>
+      <a class="ok-link" href="<%= kok %>/calismalar">Bütün çalışmalar (<%= sayiYaz(sayilar.proje) %>) →</a>
+    </div>
+    <div class="izgara-kart ana-kartlar">
+      <% for (const p of projeler) { %><%- include('partials/kart', { p }) %><% } %>
+    </div>
+    <% if (fuarlar && fuarlar.length) { %>
+    <div class="fuarlar">
+      <h3 class="mono soluk">Çalıştığımız fuarlardan bazıları · <%= sayiYaz(sayilar.fuar) %> farklı fuar</h3>
+      <ul><% for (const f of fuarlar) { %><li><%= f %></li><% } %></ul>
+    </div>
+    <% } %>
+  </div>
+</section>
+
+<%# 04 — Kurulan izometrik sahne: sitenin tek büyük kaydırma sahnesi (çizim sunucuda; JS kapalıyken tamamlanmış hâli) %>
+<section class="k17" id="kurulum" aria-labelledby="k17-b">
+  <div class="k17-sabit">
+    <div class="k17-sol">
+      <span class="bolum-no mono"><%- no(4) %></span>
+      <h2 class="b-l" id="k17-b">Bir sahne böyle kurulur.</h2>
+      <ol class="k17-adimlar">
+        <% adimlar.forEach(function (a, i) { %>
+        <li><span class="mono">Adım <%= String(i + 1).padStart(2, '0') %> / <%= String(adimlar.length).padStart(2, '0') %></span><h3><%= a[0] %></h3><p><%= a[1] %></p></li>
+        <% }) %>
+      </ol>
+      <div class="k17-cizgi" aria-hidden="true"><% adimlar.forEach(function () { %><i></i><% }) %></div>
+    </div>
+    <div class="k17-model"><%- izo.sahne() %></div>
+  </div>
+</section>
+
+<%# 05 — Hizmetler: dördü aynı anda görünür %>
+<section class="bolum hizmetler" aria-labelledby="hiz-b">
+  <div class="kap">
+    <div class="bolum-bas">
+      <div>
+        <span class="bolum-no mono"><%- no(5) %></span>
+        <h2 class="b-l" id="hiz-b" data-belir>Ne için kiralıyoruz?</h2>
+      </div>
+      <p class="giris soluk">Her türlü fuar, etkinlik, kongre, konser ve tanıtım projesi.</p>
+    </div>
+    <ul class="hizmet-izgara">
+      <% hizmetler.forEach(function (h, i) { %>
+      <li class="hizmet" data-belir>
+        <span class="mono soluk"><%= String(i + 1).padStart(2, '0') %> / <%= String(hizmetler.length).padStart(2, '0') %></span>
+        <h3 class="b-m"><%= h.ad %></h3>
+        <p><%= h.metin %></p>
+      </li>
+      <% }) %>
+    </ul>
+  </div>
+</section>
+
+<%# 06 — Kısa tanıtım %>
+<section class="bolum hakkinda" aria-labelledby="hak-b">
+  <div class="kap hak-izgara">
+    <div>
+      <span class="bolum-no mono"><%- no(6) %></span>
+      <h2 class="sr-only" id="hak-b">Hakkımızda</h2>
+      <p class="hak-yazi" data-belir><%= firma.kurulus %>'dan beri İstanbul'da fuar, sahne ve etkinlikler için truss kiralıyoruz. Stoğumuzdaki yaklaşık <%= sayiYaz(firma.stokMetretul) %> metretül sistem kesinlikle demir kaynatma değil, Avrupa standartlarında imal edilmiş orijinal alüminyumdur; <%= firma.belgeler.join(', ') %> belgelidir. Kurulumu deneyimli teknik ekibimiz yapar, fiyatı proje bazlı veririz.</p>
+    </div>
+    <div class="hak-yan">
+      <ul class="hak-belgeler" aria-label="Belgeler"><% for (const b of firma.belgeler) { %><li class="kose"><%= b %></li><% } %></ul>
+      <div class="hak-dugmeler">
+        <a class="dugme ana" href="<%= kok %>/teklif">Teklif iste</a>
+        <a class="dugme" href="<%= kok %>/hakkimizda">Hakkımızda →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/alt', { sayfaJs: ['izo', 'anasayfa'] }) %>

@@ -1,0 +1,601 @@
+{
+  "1": {
+    "kodlar": {
+      "/calismalar?q=a&q=b": 200,
+      "/calismalar?q=a": 200,
+      "/calismalar?tur=fuar&tur=etkinlik": 200,
+      "/calismalar?sayfa=1&sayfa=2": 200,
+      "/calismalar?q[]=a": 200,
+      "/calismalar?q[x]=1": 200
+    },
+    "sonuc": "500 -> 200 (tum dizi/parametre bilesimleri)",
+    "kanit": "komut-ciktilari.txt"
+  },
+  "2": {
+    "genislik": 375,
+    "ust_teklif_gorunur": false,
+    "ust_tel_gorunur": false,
+    "not": "Ust cubuktaki Teklif/Tel dugmeleri 375 px de hala gizli (bilerek); yerine alta sabit mobil eylem cubugu geldi",
+    "mobil_eylem_cubugu": {
+      "display": "flex",
+      "gorunur": true,
+      "x": 0,
+      "y": 751,
+      "w": 375,
+      "h": 61,
+      "metin": "Ara Teklif iste"
+    },
+    "ara_dugmesi": {
+      "display": "flex",
+      "gorunur": true,
+      "x": 12,
+      "y": 760,
+      "w": 153,
+      "h": 44,
+      "metin": "Ara"
+    },
+    "teklif_dugmesi": {
+      "display": "flex",
+      "gorunur": true,
+      "x": 173,
+      "y": 760,
+      "w": 190,
+      "h": 44,
+      "metin": "Teklif iste"
+    },
+    "olcum": {
+      "/": {
+        "ust_teklif": {
+          "display": "none",
+          "gorunur": false,
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "metin": "Teklif iste"
+        },
+        "ust_tel": {
+          "display": "none",
+          "gorunur": false,
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "metin": "+90 212 222 96 95"
+        },
+        "mobil_eylem": {
+          "display": "flex",
+          "gorunur": true,
+          "x": 0,
+          "y": 751,
+          "w": 375,
+          "h": 61,
+          "metin": "Ara Teklif iste"
+        },
+        "eylem_ara": {
+          "display": "flex",
+          "gorunur": true,
+          "x": 12,
+          "y": 760,
+          "w": 153,
+          "h": 44,
+          "metin": "Ara"
+        },
+        "eylem_teklif": {
+          "display": "flex",
+          "gorunur": true,
+          "x": 173,
+          "y": 760,
+          "w": 190,
+          "h": 44,
+          "metin": "Teklif iste"
+        },
+        "pencere": [
+          375,
+          812
+        ]
+      },
+      "/calismalar": {
+        "ust_teklif": {
+          "display": "none",
+          "gorunur": false,
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "metin": "Teklif iste"
+        },
+        "ust_tel": {
+          "display": "none",
+          "gorunur": false,
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "metin": "+90 212 222 96 95"
+        },
+        "mobil_eylem": {
+          "display": "flex",
+          "gorunur": true,
+          "x": 0,
+          "y": 751,
+          "w": 375,
+          "h": 61,
+          "metin": "Ara Teklif iste"
+        },
+        "eylem_ara": {
+          "display": "flex",
+          "gorunur": true,
+          "x": 12,
+          "y": 760,
+          "w": 153,
+          "h": 44,
+          "metin": "Ara"
+        },
+        "eylem_teklif": {
+          "display": "flex",
+          "gorunur": true,
+          "x": 173,
+          "y": 760,
+          "w": 190,
+          "h": 44,
+          "metin": "Teklif iste"
+        },
+        "pencere": [
+          375,
+          812
+        ]
+      }
+    },
+    "kanit": [
+      "m02-eylem-cubugu-375.png",
+      "m02-ilk-ekran-375-v6.png",
+      "m02-ilk-ekran-375-v6-calismalar.png",
+      "m02-ust-cubuk-375-v6.png",
+      "m02-ust-cubuk-375-v6-calismalar.png"
+    ]
+  },
+  "3": {
+    "url": "/teklif",
+    "tema": "koyu",
+    "hata_rengi": "#FF7B72",
+    "zemin": "#0E1013",
+    "yuzey": "#171A1F",
+    "kontrast_hata_zemin": 7.56,
+    "kontrast_hata_yuzey": 6.92,
+    "hata_adedi": 7,
+    "esik_aa": 4.5,
+    "acik_tema_kontrast": 6.54,
+    "not_acik_tema": "acik tema degeri onceki olcumden (degismedi: --hata #B3261E acik temada ayni)",
+    "kanit": [
+      "m03-koyu-bos-post-1280.png",
+      "m03-koyu-bos-post-375.png"
+    ]
+  },
+  "4": {
+    "kvkk_sayfasi_var": true,
+    "http": 200,
+    "baslik": "KVKK Aydınlatma Metni",
+    "onay_metni_baglanti_sayisi": 1,
+    "onay_metni_href": [
+      "/kvkk"
+    ],
+    "sayfada_kvkk_baglanti": 2,
+    "onay_metni": "KVKK Aydınlatma Metni'ni okudum, kişisel verilerimin teklif hazırlanması amacıyla işlenmesini kabul ediyorum.",
+    "/gizlilik": 404,
+    "/aydinlatma": 404,
+    "/v6/kvkk": "301 -> /kvkk",
+    "kanit": [
+      "m04-kvkk-onay-kutusu-1280.png",
+      "m04-kvkk-onay-kutusu-375.png",
+      "g13-kvkk-1280.png",
+      "g13-kvkk-375.png"
+    ]
+  },
+  "5": {
+    "aciklama": "Chrome, onbellek kapali, gercek aga giden gorsel istekleri (encodedDataLength). ilk_yukleme = kaydirmadan; tum = sayfa sonuna kadar kaydirinca.",
+    "oncesi_referans": {
+      "/v6": {
+        "istek": 19,
+        "bayt": 3583371
+      },
+      "/v6/calismalar": {
+        "istek": 25,
+        "bayt": 4741019
+      }
+    },
+    "sonrasi": {
+      "/@1280": {
+        "html_bayt": 26026,
+        "img_etiketi": 44,
+        "eager": 12,
+        "lazy": 32,
+        "srcset_li": 36,
+        "ilk_yukleme": {
+          "istek_adedi": 16,
+          "toplam_bayt": 830063,
+          "en_buyuk_bayt": 197074
+        },
+        "tum_gorseller_kaydirinca": {
+          "istek_adedi": 16,
+          "toplam_bayt": 830063,
+          "en_buyuk_bayt": 197074,
+          "tipler": [
+            "image/png",
+            "image/webp",
+            "image/svg+xml"
+          ]
+        },
+        "yuklenen_img": 32,
+        "kirik_img": 5
+      },
+      "/calismalar@1280": {
+        "html_bayt": 29244,
+        "img_etiketi": 25,
+        "eager": 1,
+        "lazy": 24,
+        "srcset_li": 24,
+        "ilk_yukleme": {
+          "istek_adedi": 21,
+          "toplam_bayt": 802741,
+          "en_buyuk_bayt": 61237
+        },
+        "tum_gorseller_kaydirinca": {
+          "istek_adedi": 25,
+          "toplam_bayt": 966670,
+          "en_buyuk_bayt": 61237,
+          "tipler": [
+            "image/png",
+            "image/webp"
+          ]
+        },
+        "yuklenen_img": 25,
+        "kirik_img": 0
+      },
+      "/@375": {
+        "html_bayt": 26026,
+        "img_etiketi": 44,
+        "eager": 12,
+        "lazy": 32,
+        "srcset_li": 36,
+        "ilk_yukleme": {
+          "istek_adedi": 16,
+          "toplam_bayt": 830063,
+          "en_buyuk_bayt": 197074
+        },
+        "tum_gorseller_kaydirinca": {
+          "istek_adedi": 16,
+          "toplam_bayt": 830063,
+          "en_buyuk_bayt": 197074,
+          "tipler": [
+            "image/png",
+            "image/webp",
+            "image/svg+xml"
+          ]
+        },
+        "yuklenen_img": 31,
+        "kirik_img": 5
+      },
+      "/calismalar@375": {
+        "html_bayt": 29244,
+        "img_etiketi": 25,
+        "eager": 1,
+        "lazy": 24,
+        "srcset_li": 24,
+        "ilk_yukleme": {
+          "istek_adedi": 6,
+          "toplam_bayt": 221646,
+          "en_buyuk_bayt": 61237
+        },
+        "tum_gorseller_kaydirinca": {
+          "istek_adedi": 25,
+          "toplam_bayt": 966670,
+          "en_buyuk_bayt": 61237,
+          "tipler": [
+            "image/png",
+            "image/webp"
+          ]
+        },
+        "yuklenen_img": 25,
+        "kirik_img": 0
+      },
+      "/gorsel/96": {
+        "http": 200,
+        "bayt": 196042,
+        "tip": "image/webp",
+        "cache": "no-cache",
+        "etag": true,
+        "kosullu_istek": 200
+      },
+      "/gorsel/96?boy=kucuk": {
+        "http": 200,
+        "bayt": 60206,
+        "tip": "image/webp",
+        "cache": "no-cache",
+        "etag": true,
+        "kosullu_istek": 200
+      }
+    }
+  },
+  "6": {
+    "sayfalar": {
+      "/": {
+        "http": 200,
+        "title": "Truss kiralama · Kiralık Truss",
+        "description": "Truss kiralıyoruz. Yaklaşık 1000 metretül orijinal alüminyum truss stoğu; TÜV, TSE, CE belgeli. 2009&#39;dan beri fuar, stand, kongre ve konser kurulumları.",
+        "canonical": "http://localhost:3000/",
+        "og": [
+          "type",
+          "locale",
+          "site_name",
+          "title",
+          "description",
+          "url",
+          "image"
+        ],
+        "jsonld": [
+          "LocalBusiness"
+        ],
+        "robots_meta": "noindex, nofollow",
+        "x_robots_tag": "noindex, nofollow"
+      },
+      "/calismalar": {
+        "http": 200,
+        "title": "Örnek çalışmalar · Kiralık Truss",
+        "description": "Kiralık Truss örnek çalışmaları (96 kayıtlı çalışma). Fuar, stand, kongre, konser ve kurumsal alüminyum truss kurulumları.",
+        "canonical": "http://localhost:3000/calismalar",
+        "og": [
+          "type",
+          "locale",
+          "site_name",
+          "title",
+          "description",
+          "url",
+          "image"
+        ],
+        "jsonld": [],
+        "robots_meta": "noindex, nofollow",
+        "x_robots_tag": "noindex, nofollow"
+      },
+      "/calismalar/96": {
+        "http": 200,
+        "title": "İstanbul&#39;un Fethi Etkinlikleri — İstanbul · Kiralık Truss",
+        "description": "İstanbul&#39;un Fethi Etkinlikleri · İstanbul · 2019 alüminyum truss kurulumu. Kiralık Truss örnek çalışma ayrıntıları ve teklif talebi.",
+        "canonical": "http://localhost:3000/calismalar/96",
+        "og": [
+          "type",
+          "locale",
+          "site_name",
+          "title",
+          "description",
+          "url",
+          "image"
+        ],
+        "jsonld": [],
+        "robots_meta": "noindex, nofollow",
+        "x_robots_tag": "noindex, nofollow"
+      },
+      "/hakkimizda": {
+        "http": 200,
+        "title": "Hakkımızda · Kiralık Truss",
+        "description": "2009&#39;dan beri alüminyum truss kiralama ve teknik kurulum. Yaklaşık 1000 metretül, TÜV, TSE, CE belgeli orijinal alüminyum truss stoğu.",
+        "canonical": "http://localhost:3000/hakkimizda",
+        "og": [
+          "type",
+          "locale",
+          "site_name",
+          "title",
+          "description",
+          "url",
+          "image"
+        ],
+        "jsonld": [],
+        "robots_meta": "noindex, nofollow",
+        "x_robots_tag": "noindex, nofollow"
+      },
+      "/iletisim": {
+        "http": 200,
+        "title": "İletişim · Kiralık Truss",
+        "description": "Kiralık Truss iletişim bilgileri: +90 212 222 96 95, info@kiraliktruss.com. Beysan Sanayi Sitesi, Sinpaş İş Modern, Ambarlı Yakuplu Mah. Fuar Cd. Göçmen Sok. No:1/141, Beylikdüzü / İstanbul.",
+        "canonical": "http://localhost:3000/iletisim",
+        "og": [
+          "type",
+          "locale",
+          "site_name",
+          "title",
+          "description",
+          "url",
+          "image"
+        ],
+        "jsonld": [
+          "LocalBusiness"
+        ],
+        "robots_meta": "noindex, nofollow",
+        "x_robots_tag": "noindex, nofollow"
+      },
+      "/teklif": {
+        "http": 200,
+        "title": "Teklif iste · Kiralık Truss",
+        "description": "Etkinliğiniz için proje bazlı alüminyum truss kiralama teklifi isteyin. Fuar, stand, kongre, konser ve tanıtım kurulumları.",
+        "canonical": "http://localhost:3000/teklif",
+        "og": [
+          "type",
+          "locale",
+          "site_name",
+          "title",
+          "description",
+          "url",
+          "image"
+        ],
+        "jsonld": [],
+        "robots_meta": "noindex, nofollow",
+        "x_robots_tag": "noindex, nofollow"
+      },
+      "/kvkk": {
+        "http": 200,
+        "title": "KVKK Aydınlatma Metni · Kiralık Truss",
+        "description": "Kiralık Truss 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında kişisel verilerin işlenmesine ilişkin aydınlatma metni.",
+        "canonical": "http://localhost:3000/kvkk",
+        "og": [
+          "type",
+          "locale",
+          "site_name",
+          "title",
+          "description",
+          "url",
+          "image"
+        ],
+        "jsonld": [],
+        "robots_meta": "noindex, nofollow",
+        "x_robots_tag": "noindex, nofollow"
+      },
+      "/teklif-yok-sayfa": {
+        "http": 404,
+        "title": "Sayfa bulunamadı · Kiralık Truss",
+        "description": "Kiralık Truss — alüminyum truss kiralama ve teknik kurulum. Beylikdüzü / İstanbul.",
+        "canonical": false,
+        "og": [
+          "type",
+          "locale",
+          "site_name",
+          "title",
+          "description",
+          "image"
+        ],
+        "jsonld": [],
+        "robots_meta": "noindex",
+        "x_robots_tag": "noindex, nofollow"
+      }
+    },
+    "benzersiz_aciklama": "7 / 7 (200 donen sayfa)",
+    "robots": {
+      "http": 200,
+      "icerik": [
+        "User-agent: *",
+        "Disallow: /"
+      ],
+      "content_type": "text/plain; charset=utf-8"
+    },
+    "sitemap": {
+      "http": 200,
+      "url_adedi": 102,
+      "content_type": "application/xml; charset=utf-8",
+      "ilk3": [
+        "http://localhost:3000/",
+        "http://localhost:3000/calismalar",
+        "http://localhost:3000/hakkimizda"
+      ]
+    }
+  },
+  "7": {
+    "kok_css": [
+      "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap&subset=latin-ext",
+      "/css/site.css",
+      "/css/sayfa.css"
+    ],
+    "kanit": [
+      "m07-kok-eski-tasarim-1280.png",
+      "g01-v6-1280.png"
+    ],
+    "not": "Dosya adi onceki ile eslesmesi icin ayni; icerigi artik YENI tasarim (kok = v6)"
+  },
+  "8": {
+    "csrf": {
+      "formlar": {
+        "/yonetim/giris": {
+          "form": 1,
+          "post_form": 1,
+          "csrf_alani": 1
+        },
+        "/yonetim": {
+          "http": 200,
+          "form": 1,
+          "post_form": 1,
+          "csrf_alani": 1
+        },
+        "/yonetim/projeler": {
+          "http": 200,
+          "form": 22,
+          "post_form": 21,
+          "csrf_alani": 21
+        },
+        "/yonetim/projeler/96/duzenle": {
+          "http": 200,
+          "form": 3,
+          "post_form": 3,
+          "csrf_alani": 3
+        },
+        "/yonetim/teklifler": {
+          "http": 200,
+          "form": 2,
+          "post_form": 1,
+          "csrf_alani": 1
+        },
+        "/yonetim/teklifler/150": {
+          "http": 200,
+          "form": 4,
+          "post_form": 4,
+          "csrf_alani": 4
+        },
+        "/yonetim/hesap": {
+          "http": 200,
+          "form": 2,
+          "post_form": 2,
+          "csrf_alani": 2
+        }
+      },
+      "csrfsiz_giris_post": 403,
+      "tasarim": "yeni v6 tasarimi (yonetim.css, ortak tema)",
+      "csrfsiz_post_girisli": 403,
+      "yanlis_jeton_sil": 403
+    },
+    "kanit": [
+      "m08-yonetim-1-giris-1280.png",
+      "m08-yonetim-1-giris-375.png",
+      "m08-yonetim-2-pano-1280.png",
+      "m08-yonetim-2-pano-375.png",
+      "m08-yonetim-2-pano-koyu-1280.png",
+      "m08-yonetim-3-projeler-1280.png",
+      "m08-yonetim-3-projeler-375.png",
+      "m08-yonetim-4-proje-duzenle-1280.png",
+      "m08-yonetim-4-proje-duzenle-375.png",
+      "m08-yonetim-5-teklifler-1280.png",
+      "m08-yonetim-5-teklifler-375.png",
+      "m08-yonetim-6-teklif-detay-1280.png",
+      "m08-yonetim-6-teklif-detay-375.png",
+      "m08-yonetim-7-hesap-1280.png",
+      "m08-yonetim-7-hesap-375.png"
+    ]
+  },
+  "9": {
+    "sahte_jpg_post": 422,
+    "mesaj": "Yalnız JPEG, PNG ya da WebP fotoğraf yüklenebilir; dosyanın içeriği fotoğraf değil.",
+    "proje_sayisi_once_sonra": [
+      20,
+      20
+    ]
+  },
+  "10": {
+    "not": "routes/yonetim.js icinde `throw err` yok (grep: 0 sonuc; hata next(err) ile iletilir)"
+  },
+  "11": {
+    "not": "routes/site.js:286 INSERT sonrasi lib/bildirim.js yeniTeklif cagrilir (SMTP degiskenleri yoksa konsola yazar); yonetimde okunmamis rozeti",
+    "smtp_canli_deneme": "YAPILMADI (olculmedi)"
+  },
+  "12": {
+    "teklif_legend_icinde_h2": 0,
+    "hakkimizda_aria_live": "yalniz elle gezinilirken (gosteri.js:23-24); otomatik donerken yok; Duraklat dugmesi var"
+  },
+  "13": {
+    "komut": "npm test",
+    "toplam": 73,
+    "gecen": 73,
+    "kalan": 0,
+    "atlanan": 0,
+    "sure_ms": 2847,
+    "not": "Test DB: TEST_DATABASE_URL .env de tanimli degil, bu kosu gelistirme veritabaninda yapildi"
+  },
+  "tarih": "2026-11-24",
+  "arac": "Chrome headless (CDP, Node betigi); fetch/curl; npm test",
+  "ekran_goruntusu_adedi": 39
+}

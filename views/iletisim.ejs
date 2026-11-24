@@ -1,21 +1,47 @@
-<%- include('partials/ust') %>
-<% const h = firma.harita; const bbox = [h.lon - 0.02, h.lat - 0.012, h.lon + 0.02, h.lat + 0.012].join(','); %>
-<section class="sayfa-bas">
-  <p class="mono soluk"><%= firma.ilce %></p>
-  <h1 class="kelime-kelime">İletişim</h1>
-</section>
-<section class="bolum iletisim">
-  <dl class="kunye-liste">
-    <div><dt class="mono">Telefon</dt><dd><a class="iri" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></dd></div>
-    <div><dt class="mono">E-posta</dt><dd><a href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a></dd></div>
-    <div><dt class="mono">Faks</dt><dd><%= firma.faks %></dd></div>
-    <div><dt class="mono">Adres</dt><dd><%= firma.adres %><br><%= firma.ilce %></dd></div>
-  </dl>
-  <div class="harita">
-    <iframe title="Kiralık Truss konumu (yaklaşık)" loading="lazy"
-      src="https://www.openstreetmap.org/export/embed.html?bbox=<%= bbox %>&amp;layer=mapnik&amp;marker=<%= h.lat %>,<%= h.lon %>"></iframe>
-    <p class="mono soluk">Harita yaklaşık konumu gösterir; adres için yukarıdaki bilgiyi esas alın.</p>
-    <a class="ok-link mono" href="https://www.openstreetmap.org/?mlat=<%= h.lat %>&amp;mlon=<%= h.lon %>#map=15/<%= h.lat %>/<%= h.lon %>" target="_blank" rel="noopener">Büyük haritada aç →</a>
+<%- include('parca/bas', {
+  aciklama: `Kiralık Truss iletişim bilgileri: ${firma.telefon}, ${firma.eposta}. ${firma.adres}, ${firma.ilce}.`,
+  yerelIsletme: true,
+}) %>
+<%
+  // Google Maps gömme haritası: eski sitedeki iframe adresinin aynısı (pin: Beysan Sanayi Sitesi)
+  const { lat, lon, gomme: harita } = firma.harita;
+  const haritaBag = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+  const yonler = [
+    ['Teklif istiyorum', '/teklif', 'sag'],
+    ['Daha önce ne kurdunuz, görmek istiyorum', '/calismalar', 'sag'],
+    ['E-posta yazacağım', 'mailto:' + firma.eposta, 'capraz'],
+  ];
+%>
+
+<%# Masaüstünde tüm sayfa tek ekrana sığar: sol sütun başlık + künye + yönler, sağ sütun harita %>
+<section class="levha z-alu iletisim-tek" aria-label="İletişim">
+  <div class="ic iletisim-duzen">
+    <div class="iletisim-sol">
+      <h1 class="sayfa-baslik" data-sayfa-baslik>Bize ulaşın</h1>
+      <p class="dev-tel"><a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a> <span class="etiket">Telefon</span></p>
+
+      <dl class="kunye kunye-yan">
+        <div class="kunye-genis"><dt>Adres</dt><dd class="kunye-uzun"><%= firma.adres %>, <%= firma.ilce %></dd></div>
+        <div><dt>E-posta</dt><dd><a href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a></dd></div>
+        <div><dt>Faks</dt><dd><%= firma.faks %></dd></div>
+      </dl>
+
+      <nav class="yonler-kisa" aria-label="Ne yapmak istersiniz?">
+        <ul>
+          <% for (const [yazi, href, yon] of yonler) { %>
+            <li><a class="yon" href="<%= href %>"><span><%= yazi %></span><span class="yon-ok" aria-hidden="true"><%- include('parca/ok', { yon }) %></span></a></li>
+          <% } %>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="iletisim-harita">
+      <iframe class="harita" src="<%= harita %>" title="Kiralık Truss konumu haritası" loading="lazy" referrerpolicy="no-referrer-when-downgrade" width="800" height="600"></iframe>
+      <p class="kucuk harita-alt">
+        <a class="bag-ok" href="<%= haritaBag %>" target="_blank" rel="noopener">Google Maps'te aç <span class="ok" aria-hidden="true"><%- include('parca/ok', { yon: 'capraz' }) %></span><span class="gizli"> (yeni sekmede açılır)</span></a>
+      </p>
+    </div>
   </div>
 </section>
-<%- include('partials/alt') %>
+
+<%- include('parca/son') %>

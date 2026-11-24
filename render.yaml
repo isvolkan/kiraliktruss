@@ -5,7 +5,7 @@ services:
     runtime: node
     plan: free
     buildCommand: npm ci
-    # Her açılışta tabloları kontrol eder; proje tablosu boşsa eski site verisini yükler, sonra sunucuyu başlatır.
+    # Her açılışta: tablolar + göçler (eski şemalı veritabanında da çalışır), yönetici yalnız yoksa açılır, projeler yalnız tablo boşken yüklenir; sonra sunucu başlar.
     startCommand: npm run seed && npm start
     healthCheckPath: /
     envVars:
@@ -22,4 +22,17 @@ services:
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD
+        sync: false
+      # Yeni teklif e-postası (beşi de doluysa gönderilir; boşsa yalnız log). Değerler Render panelinden girilir.
+      - key: SITE_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: BILDIRIM_EPOSTA
         sync: false

@@ -1,0 +1,13 @@
+<%# v3 proje kartı: değişken p (id, musteri, etkinlik, sehir, yil, tur). Fotoğraf /gorsel/<id>.
+    Etkinlik adı şehirle aynıysa ("İstanbul / İstanbul") yalnız bir kez yazılır. %>
+<%
+  const kTur = { fuar: 'Fuar', etkinlik: 'Etkinlik', kurumsal: 'Kurumsal' };
+  const kAyni = p.etkinlik && p.sehir && p.etkinlik.trim().toLocaleLowerCase('tr') === p.sehir.trim().toLocaleLowerCase('tr');
+  const kAlt = p.etkinlik && !kAyni ? p.etkinlik : '';
+%>
+<a class="kart" href="<%= kok %>/calismalar/<%= p.id %>">
+  <span class="kart-gorsel kose"><img src="/gorsel/<%= p.id %>" alt="<%= p.musteri %><%= kAlt ? ' — ' + kAlt : '' %>" loading="lazy" width="600" height="400"></span>
+  <span class="kart-kunye mono"><%= [p.yil, p.sehir, kTur[p.tur]].filter(Boolean).join(' · ') || '—' %></span>
+  <span class="kart-baslik"><%= p.musteri %></span>
+  <% if (kAlt) { %><span class="kart-alt"><%= kAlt %></span><% } %>
+</a>

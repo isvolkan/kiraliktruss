@@ -1,27 +1,70 @@
 <%- include('_ust') %>
-<a class="ok-link" href="/yonetim/teklifler">← Teklifler</a>
-<h1>Teklif No. <%= t.id %> <span class="durum durum-<%= t.durum %>"><%= DURUMLAR[t.durum] %></span></h1>
-<div class="hakkinda-iki">
-  <dl class="kunye-liste">
-    <div><dt class="mono">Kişi</dt><dd><%= t.ad_soyad %><% if (t.firma) { %> · <%= t.firma %><% } %></dd></div>
-    <div><dt class="mono">Telefon</dt><dd><a href="tel:<%= t.telefon %>"><%= t.telefon %></a></dd></div>
-    <div><dt class="mono">E-posta</dt><dd><a href="mailto:<%= t.eposta %>"><%= t.eposta %></a></dd></div>
-    <div><dt class="mono">Etkinlik</dt><dd><%= t.etkinlik_turu %> · <%= t.sehir %></dd></div>
-    <div><dt class="mono">Tarih</dt><dd><%= t.tarih.toLocaleDateString('tr-TR') %> · <%= t.gun_sayisi %> gün</dd></div>
-    <div><dt class="mono">Metretül</dt><dd><%= t.metretul || '-' %></dd></div>
-    <div><dt class="mono">Ekip desteği</dt><dd><%= t.kurulum ? 'İstiyor' : 'İstemiyor' %></dd></div>
-    <div><dt class="mono">Mesaj</dt><dd><%= t.mesaj || '-' %></dd></div>
-    <div><dt class="mono">Geliş</dt><dd><%= t.olusturma.toLocaleString('tr-TR') %></dd></div>
-  </dl>
+<%
+  const h = hatalar;
+  const tarih = (d) => d.toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', year: 'numeric' });
+  const zaman = (d) => d.toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', dateStyle: 'medium', timeStyle: 'short' });
+  const kac = (s) => String(s).replace(/[&<>"']/g, (c) => '&#' + c.charCodeAt(0) + ';');
+  const hataSatiri = (ad) => (h[ad] ? `<p class="alan-hata" id="${ad}-hata">${kac(h[ad])}</p>` : '');
+  const aria = (ad) => (h[ad] ? ` aria-invalid="true" aria-describedby="${ad}-hata"` : '');
+  // 05321234567 → 0532 123 45 67 (okuması kolay); biçim tutmazsa olduğu gibi
+  const telefon = String(t.telefon).replace(/^(?:\+?90)?0?(\d{3})(\d{3})(\d{2})(\d{2})$/, '0$1 $2 $3 $4');
+%>
+<p class="geri"><a class="bag-ok" href="/yonetim/teklifler"><span class="ok ok-geri" aria-hidden="true"><%- include('../parca/ok', { yon: 'sol' }) %></span> Teklifler</a></p>
+<div class="y-bas">
   <div>
-    <form class="form kart-form" method="post" action="/yonetim/teklifler/<%= t.id %>">
-      <label>Durum
-        <select name="durum"><% for (const [k, ad] of Object.entries(DURUMLAR)) { %><option value="<%= k %>"<%= t.durum === k ? ' selected' : '' %>><%= ad %></option><% } %></select>
-      </label>
-      <label>Not (yalnız yönetim görür)<textarea name="yonetici_notu" rows="4" maxlength="2000"><%= t.yonetici_notu || '' %></textarea></label>
-      <button class="dugme" type="submit">Kaydet</button>
+    <p class="etiket">Teklif No. <%= t.id %> · <%= zaman(t.olusturma) %></p>
+    <h1><%= t.ad_soyad %></h1>
+  </div>
+  <div class="y-bas-dugmeler"><%- include('_durum', { durum: t.durum }) %></div>
+</div>
+
+<div class="y-iki y-iki-genis">
+  <section class="beyaz-kart" aria-labelledby="bilgi-baslik">
+    <h2 id="bilgi-baslik" class="h3">Talep</h2>
+    <dl class="kunye y-kunye">
+      <% if (t.firma) { %><div><dt>Firma</dt><dd><%= t.firma %></dd></div><% } %>
+      <div><dt>Telefon</dt><dd><a href="tel:<%= t.telefon %>"><%= telefon %></a></dd></div>
+      <div><dt>E-posta</dt><dd><a href="mailto:<%= t.eposta %>"><%= t.eposta %></a></dd></div>
+      <div><dt>Etkinlik</dt><dd><%= t.etkinlik_turu %> · <%= t.sehir %></dd></div>
+      <div><dt>Tarih</dt><dd><%= tarih(t.tarih) %> · <%= t.gun_sayisi %> gün</dd></div>
+      <div><dt>Tahmini metretül</dt><dd><%= t.metretul ? t.metretul + ' m' : 'Belirtilmedi' %></dd></div>
+      <div><dt>Kurulum ekibi</dt><dd><%= t.kurulum ? 'İstiyor' : 'İstemiyor' %></dd></div>
+      <div><dt>Mesaj</dt><dd class="y-uzun"><%= t.mesaj || '—' %></dd></div>
+    </dl>
+  </section>
+
+  <div>
+    <%- include('_hata-ozet', { hatalar }) %>
+    <form class="beyaz-kart y-form" method="post" action="/yonetim/teklifler/<%= t.id %>" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <h2 class="h3">Takip</h2>
+      <div class="alan<%= h.durum ? ' hatali' : '' %>">
+        <label for="durum">Durum</label>
+        <select id="durum" name="durum"<%- aria('durum') %>>
+          <% for (const [k, ad] of Object.entries(DURUMLAR)) { %><option value="<%= k %>"<%= form.durum === k ? ' selected' : '' %>><%= ad %></option><% } %>
+        </select>
+        <%- hataSatiri('durum') %>
+      </div>
+      <div class="alan<%= h.yonetici_notu ? ' hatali' : '' %>">
+        <label for="yonetici_notu">Yönetici notu</label>
+        <p class="yardim" id="not-yardim">Yalnız yönetim görür. Ör. “Arandı, çizim bekleniyor.”</p>
+        <textarea id="yonetici_notu" name="yonetici_notu" rows="5" maxlength="2000"<%- h.yonetici_notu ? aria('yonetici_notu') : ' aria-describedby="not-yardim"' %>><%= form.yonetici_notu || '' %></textarea>
+        <%- hataSatiri('yonetici_notu') %>
+      </div>
+      <button class="btn btn-1 y-tam" type="submit">Kaydet</button>
+      <% if (t.guncellendi) { %><p class="yardim y-not-zaman">Son güncelleme: <%= zaman(t.guncellendi) %></p><% } %>
     </form>
-    <form method="post" action="/yonetim/teklifler/<%= t.id %>/sil" data-onay="Bu teklif kalıcı olarak silinsin mi?"><button class="hap tehlike" type="submit">Teklifi sil</button></form>
+
+    <div class="y-yan-islemler">
+      <form method="post" action="/yonetim/teklifler/<%= t.id %>/okunmadi">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="y-kucuk-dugme" type="submit">Okunmadı olarak işaretle</button>
+      </form>
+      <form method="post" action="/yonetim/teklifler/<%= t.id %>/sil" data-onay="Bu teklif kalıcı olarak silinsin mi? Bu işlem geri alınamaz.">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="y-kucuk-dugme y-tehlike" type="submit">Teklifi sil</button>
+      </form>
+    </div>
   </div>
 </div>
 <%- include('_alt') %>

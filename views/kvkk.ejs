@@ -1,0 +1,56 @@
+<!-- Bu metin müşteri tarafından gözden geçirilmelidir -->
+<%- include('parca/bas', {
+  aciklama: 'Kiralık Truss 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında kişisel verilerin işlenmesine ilişkin aydınlatma metni.',
+}) %>
+
+<section class="levha z-alu kvkk">
+  <div class="ic">
+    <h1 class="sayfa-baslik" data-sayfa-baslik>KVKK Aydınlatma Metni</h1>
+    <div class="kvkk-metin">
+      <p class="giris">6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, kişisel verilerinizin veri sorumlusu sıfatıyla hangi amaçlarla işlendiği, kimlere aktarılabileceği ve haklarınız aşağıda özetlenmiştir.</p>
+
+      <h2 class="h3">1. Veri sorumlusu</h2>
+      <p><strong><%= firma.ad %></strong><br>
+        Adres: <%= firma.adres %>, <%= firma.ilce %><br>
+        E-posta: <a href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a><br>
+        Telefon: <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+      </p>
+
+      <h2 class="h3">2. İşlenen kişisel veriler</h2>
+      <p>Teklif formunu doldurmanız hâlinde yalnızca formu iletirken paylaştığınız aşağıdaki bilgiler işlenir:</p>
+      <ul class="metin-liste">
+        <li>Kimlik ve iletişim bilgileri: ad soyad, firma adı (isteğe bağlı), telefon numarası, e-posta adresi.</li>
+        <li>Etkinlik ve talep bilgileri: etkinlik türü, şehir, kurulum tarihi, gün sayısı, yaklaşık metretül, teknik ekip desteği tercihi ve eklediğiniz proje notları.</li>
+      </ul>
+
+      <h2 class="h3">3. Kişisel verilerin işlenme amacı</h2>
+      <p>Toplanan kişisel verileriniz; truss kiralama ve kurulum ihtiyaçlarınızın değerlendirilmesi, proje bazlı teklif hazırlanması ve talebinizle ilgili sizinle iletişime geçilmesi amaçlarıyla işlenir.</p>
+
+      <h2 class="h3">4. Hukuki sebep</h2>
+      <p>Kişisel verileriniz, KVKK'nın 5. maddesinin 2. fıkrasının (c) bendi uyarınca bir sözleşmenin kurulması veya ifasıyla doğrudan doğruya ilgili olması ve (f) bendi uyarınca veri sorumlusunun meşru menfaati hukuki sebeplerine dayanarak işlenir. Açık rıza gerektiren işlemlerde KVKK m.5/1 uyarınca açık rızanız alınır.</p>
+
+      <h2 class="h3">5. Kişisel verilerin aktarımı</h2>
+      <p>Kişisel verileriniz üçüncü kişilere pazarlama amacıyla aktarılmaz. Web sitesinin ve teklif kayıtlarının barındırılması için kullanılan yurt içi veya yurt dışı barındırma ve veritabanı altyapı hizmet sağlayıcılarıyla teknik gereklilik ölçüsünde, ayrıca yasal yükümlülük hâlinde yetkili kamu kurum ve kuruluşlarıyla paylaşılabilir.</p>
+
+      <h2 class="h3">6. Saklama süresi</h2>
+      <p>Teklif talebinize ilişkin veriler, teklif ve olası iş sürecinin yürütülmesi için makul süre boyunca (en fazla 2 yıl) saklanır. İlgili mevzuattan doğan daha uzun saklama yükümlülükleri saklı kalmak kaydıyla, sürenin sonunda veriler silinir veya yok edilir.</p>
+
+      <h2 class="h3">7. İlgili kişinin hakları (KVKK m.11)</h2>
+      <p>KVKK'nın 11. maddesi kapsamında veri sorumlusuna başvurarak aşağıdaki haklarınızı kullanabilirsiniz:</p>
+      <ul class="metin-liste">
+        <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme ve işlenmişse buna ilişkin bilgi talep etme,</li>
+        <li>İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme,</li>
+        <li>Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme,</li>
+        <li>Eksik veya yanlış işlenmişse düzeltilmesini, mevzuattaki şartlar çerçevesinde silinmesini veya yok edilmesini isteme,</li>
+        <li>Düzeltme, silme veya yok etme işlemlerinin aktarıldığı üçüncü kişilere bildirilmesini talep etme,</li>
+        <li>İşlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme,</li>
+        <li>Kanuna aykırı olarak işlenmesi sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme.</li>
+      </ul>
+
+      <h2 class="h3">8. Başvuru yolu</h2>
+      <p>Yukarıdaki haklarınıza ilişkin taleplerinizi <a href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a> adresine e-posta göndererek ya da <strong><%= firma.adres %>, <%= firma.ilce %></strong> adresine yazılı olarak iletebilirsiniz. Başvurularınız mevzuatta öngörülen süre içinde sonuçlandırılır.</p>
+    </div>
+  </div>
+</section>
+
+<%- include('parca/son') %>

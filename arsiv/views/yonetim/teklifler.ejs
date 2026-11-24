@@ -1,0 +1,25 @@
+<%- include('_ust') %>
+<h1>Teklif talepleri (<%= teklifler.length %>)</h1>
+<div class="gorunum-sec">
+  <a class="hap<%= !durum ? ' aktif' : '' %>" href="/yonetim/teklifler">Hepsi</a>
+  <% for (const [k, ad] of Object.entries(DURUMLAR)) { %><a class="hap<%= durum === k ? ' aktif' : '' %>" href="?durum=<%= k %>"><%= ad %></a><% } %>
+</div>
+<% if (!teklifler.length) { %><p class="soluk">Bu durumda teklif yok.</p><% } else { %>
+<div class="tablo-kap"><table class="tablo">
+  <thead><tr><th>No.</th><th>Geliş</th><th>Kişi / firma</th><th>Tür</th><th>Şehir</th><th>Etkinlik tarihi</th><th>Metretül</th><th>Durum</th><th></th></tr></thead>
+  <tbody><% for (const t of teklifler) { %>
+    <tr>
+      <td class="mono"><%= t.id %></td>
+      <td class="mono"><%= t.olusturma.toLocaleDateString('tr-TR') %></td>
+      <td><%= t.ad_soyad %><% if (t.firma) { %><br><small class="soluk"><%= t.firma %></small><% } %></td>
+      <td><%= t.etkinlik_turu %></td>
+      <td><%= t.sehir %></td>
+      <td class="mono"><%= t.tarih.toLocaleDateString('tr-TR') %></td>
+      <td class="mono"><%= t.metretul || '-' %></td>
+      <td><span class="durum durum-<%= t.durum %>"><%= DURUMLAR[t.durum] %></span></td>
+      <td><a class="hap" href="/yonetim/teklifler/<%= t.id %>">Aç</a></td>
+    </tr>
+  <% } %></tbody>
+</table></div>
+<% } %>
+<%- include('_alt') %>

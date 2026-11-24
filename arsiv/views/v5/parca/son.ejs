@@ -1,0 +1,51 @@
+<%
+  const altMenu = [
+    ['Çalışmalar', kok + '/calismalar'],
+    ['Hesaplayıcı', kok + '/#hesapla'],
+    ['Hakkımızda', kok + '/hakkimizda'],
+    ['İletişim', kok + '/iletisim'],
+  ];
+  const devYazi = 'kiralık truss';
+%>
+</main>
+
+<footer class="alt z-murekkep">
+  <div class="ic">
+    <%# Dev imza: her harf ayrı span (üstüne gelince beyaza döner); ekran okuyucu bütünü tek etiketle okur %>
+    <p class="dev-imza" role="img" aria-label="Kiralık Truss"><% for (const h of devYazi) { %><% if (h === ' ') { %> <% } else { %><span class="harf" aria-hidden="true" data-h="<%= h %>"><%= h %></span><% } %><% } %></p>
+
+    <div class="alt-sutunlar">
+      <div>
+        <p class="etiket">Adres</p>
+        <p><%= firma.adres %><br><%= firma.ilce %></p>
+      </div>
+      <div>
+        <p class="etiket">İletişim</p>
+        <ul class="alt-liste">
+          <li><a href="tel:<%= firma.telefonLink %>">Telefon: <%= firma.telefon %></a></li>
+          <li>Faks: <%= firma.faks %></li>
+          <li><a href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="etiket">Site</p>
+        <ul class="alt-liste">
+          <% for (const [ad, href] of altMenu) { %><li><a href="<%= href %>"><%= ad %></a></li><% } %>
+          <li><a href="<%= kok %>/teklif">Teklif iste</a></li>
+          <li><a href="/yonetim">Yönetim</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="telif">© <%= new Date().getFullYear() %> Kiralık Truss · <%= firma.kurulus %>'dan beri</p>
+  </div>
+</footer>
+
+<% if (!yol.startsWith('/teklif')) { %>
+<%# Telefonda ekranın altına sabit iki düğme %>
+<div class="alt-cubuk">
+  <a class="btn btn-2" href="tel:<%= firma.telefonLink %>">Ara <span class="ok" aria-hidden="true">↗</span></a>
+  <a class="btn btn-1" href="<%= kok %>/teklif">Teklif iste <span class="ok" aria-hidden="true">→</span></a>
+</div>
+<% } %>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<%- include('partials/ust', { sayfaCss: ['sayfalar'] }) %>
+<%
+  const sayiYaz = (n) => Number(n).toLocaleString('tr-TR');
+
+  // ---- K-20 patlatılmış görünüm: izometrik çizim burada üretilir (JS kapalıyken de açılmış hâliyle görünür) ----
+  const C = Math.cos(Math.PI / 6), S = Math.sin(Math.PI / 6);
+  const iz = (x, y, z) => [(x - y) * C, (x + y) * S - z];
+  const f1 = (v) => v.toFixed(1);
+  const nok = (a) => a.map((p) => iz(p[0], p[1], p[2]).map(f1).join(',')).join(' ');
+  const kutu = (x, y, z, w, d, h) =>
+    '<polygon class="u" points="' + nok([[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]]) + '"/>' +
+    '<polygon class="s" points="' + nok([[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]]) + '"/>' +
+    '<polygon class="l" points="' + nok([[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]]) + '"/>';
+  // Dikey (konik) silindir: alt yarıçap r1, üst yarıçap r2, delik: üstte boru ağzı
+  const silindir = (r1, r2, z, h, delik) => {
+    const a = iz(0, 0, z), u = iz(0, 0, z + h);
+    const rx1 = r1 * C * 1.41, ry1 = r1 * S * 1.41, rx2 = r2 * C * 1.41, ry2 = r2 * S * 1.41;
+    return '<path class="s" d="M' + f1(a[0] - rx1) + ' ' + f1(a[1]) + ' L' + f1(u[0] - rx2) + ' ' + f1(u[1]) +
+      ' A' + f1(rx2) + ' ' + f1(ry2) + ' 0 0 1 ' + f1(u[0] + rx2) + ' ' + f1(u[1]) + ' L' + f1(a[0] + rx1) + ' ' + f1(a[1]) +
+      ' A' + f1(rx1) + ' ' + f1(ry1) + ' 0 0 1 ' + f1(a[0] - rx1) + ' ' + f1(a[1]) + 'Z"/>' +
+      '<ellipse class="u" cx="' + f1(u[0]) + '" cy="' + f1(u[1]) + '" rx="' + f1(rx2) + '" ry="' + f1(ry2) + '"/>' +
+      (delik ? '<ellipse class="delik" cx="' + f1(u[0]) + '" cy="' + f1(u[1]) + '" rx="' + f1(rx2 * .72) + '" ry="' + f1(ry2 * .72) + '"/>' : '');
+  };
+  // Parçalar: ad, çizim, ayrılma mesafesi (px, + aşağı), etiketin bağlandığı nokta (ekran koordinatı)
+  const parcalar = [
+    { ad: 'Ayak plakası', sinif: 'plaka', dy: 100, cizim: kutu(-60, -60, 0, 120, 120, 10), uc: [104, -5] },
+    { ad: 'Konik yuva', sinif: 'yuva', dy: 40, cizim: silindir(26, 17, 10, 38, false), uc: [iz(0, 0, 29)[0] + 26 * C * 1.41 - 3, iz(0, 0, 29)[1]] },
+    { ad: 'Güvenlik pimi', sinif: 'pim', dy: -30, cizim: kutu(-40, -8, 56, 80, 16, 8), uc: [41.6, -44] },
+    { ad: 'Ana boru', sinif: 'boru', dy: -110, cizim: silindir(22, 22, 64, 120, true), uc: [22 * C * 1.41, -124] },
+  ];
+  const etiketX = 150;
+  // Kurulum gecesi (v2 ana sayfasından taşındı; burada durağan zaman çizelgesi)
+  const gece = [
+    { saat: '22:00', vakit: 'Gece · varış', olcu: '0,0 m', olcuAd: 'Grid yüksekliği', baslik: 'Ekip sahada', alt: 'Kapılar sabah açılır.' },
+    { saat: '23:30', vakit: 'Gece · zemin', olcu: '0,4 m', olcuAd: 'Podyum kotu', baslik: 'Podyum kuruldu', alt: '' },
+    { saat: '01:15', vakit: 'Gece · kule', olcu: '6,0 m', olcuAd: 'Kule yüksekliği', baslik: 'Kuleler dikildi', alt: '' },
+    { saat: '02:40', vakit: 'Gece · grid', olcu: '8,5 m', olcuAd: 'Grid yüksekliği', baslik: 'Grid kaldırıldı', alt: '' },
+    { saat: '05:40', vakit: 'Sabah · ışık', olcu: '8,5 m', olcuAd: 'Grid yüksekliği', baslik: 'Işıklar asıldı', alt: 'Son kontroller.' },
+    { saat: '09:00', vakit: 'Sabah · açılış', olcu: '12 m', olcuAd: 'Sahne genişliği', baslik: 'Kapılar açık', alt: 'Teslim edildi, etkinlik başlıyor.' },
+  ];
+  // Nasıl çalışıyoruz (v1 ana sayfasındaki onaylı metin)
+  const isAkisi = [
+    ['Proje bilgisi', 'Tarih, mekân ve stand ölçüsünü formdan ya da telefonla iletirsiniz.'],
+    ['Çözüm ve teklif', 'İhtiyacınıza göre çözümü birlikte belirler, proje bazlı fiyat veririz.'],
+    ['Uygulama', 'Deneyimli teknik ekibimizle projenizi etkinlik gününe hazır ederiz.'],
+    ['Etkinlik sonrası', 'Sistemlerimiz özenle depolanır; ilk günkü alüminyum parlaklığıyla bir sonraki projeye hazırdır.'],
+  ];
+%>
+
+<section class="sayfa-bas hk-bas">
+  <div class="kap">
+    <span class="mono"><span><%= firma.ilce %></span> · <%= firma.kurulus %>'dan beri</span>
+    <h1>Hakkımızda</h1>
+    <p class="giris soluk">Orijinal alüminyum truss, deneyimli teknik ekip, proje bazlı fiyat.</p>
+  </div>
+</section>
+
+<%# 01 — "2009'dan beri" (M-15) %>
+<section class="bolum hk-hikaye" aria-labelledby="hk-b">
+  <div class="kap">
+    <span class="bolum-no mono"><b>01</b> / 06</span>
+    <h2 class="sr-only" id="hk-b">Hikâyemiz</h2>
+    <p class="hk-yazi"><%= firma.kurulus %>'dan beri truss kiralama hizmeti veriyoruz. Stoklarımızdaki yaklaşık <%= sayiYaz(firma.stokMetretul) %> metretül sistem kesinlikle demir kaynatma değil, Avrupa standartlarında imal edilmiş orijinal alüminyumdur; <%= firma.belgeler.join(', ') %> belgelidir. Deneyimli teknik ekibimizle projeleriniz için çözüm üretir, fiyatı proje bazlı veririz.</p>
+  </div>
+</section>
+
+<%# 02 — Malzeme / Nerelerde %>
+<section class="bolum hk-iki-blok" aria-labelledby="hk-m">
+  <div class="kap">
+    <div class="bolum-bas">
+      <div>
+        <span class="bolum-no mono"><b>02</b> / 06</span>
+        <h2 class="b-l" id="hk-m" data-belir>Neyi, nerede kuruyoruz?</h2>
+      </div>
+    </div>
+    <div class="iki">
+      <article class="hk-blok">
+        <h3 class="mono">Malzeme</h3>
+        <p>Truss sistemlerimiz kesinlikle demir kaynatma değildir. Hepsi Avrupa standartlarında imal edilmiş ve <%= firma.belgeler.join(', ') %> belgelidir. Depolama ve nakliyede deforme olmamış, ilk günkü alüminyum parlaklığındadır.</p>
+      </article>
+      <article class="hk-blok">
+        <h3 class="mono">Nerelerde</h3>
+        <p>Her türlü event, fuar, etkinlik, kongre, stand, tanıtım, konser, düğün ve benzeri projede kullanılmak üzere truss sağlıyoruz. Fiyatlandırmamız proje bazlıdır.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<%# 03 — Nasıl çalışıyoruz %>
+<section class="bolum hk-akis" aria-labelledby="hk-a">
+  <div class="kap">
+    <span class="bolum-no mono"><b>03</b> / 06</span>
+    <h2 class="b-l" id="hk-a" data-belir>Nasıl çalışıyoruz</h2>
+    <ol class="hk-adimlar">
+      <% isAkisi.forEach(function (a, i) { %><li data-belir><span class="mono"><%= String(i + 1).padStart(2, '0') %></span><h3><%= a[0] %></h3><p><%= a[1] %></p></li>
+      <% }) %>
+    </ol>
+  </div>
+</section>
+
+<%# 04 — Bir kurulum gecesi (ana sayfadan taşındı; kaydırma sahnesi yok, durağan çizelge) %>
+<section class="bolum hk-gece" id="gece" aria-labelledby="hk-g">
+  <div class="kap">
+    <div class="bolum-bas">
+      <div>
+        <span class="bolum-no mono"><b>04</b> / 06</span>
+        <h2 class="b-l" id="hk-g" data-belir>Bir kurulum gecesi.</h2>
+      </div>
+      <p class="mono hk-gece-not">Örnek akış · süreler projeye göre değişir</p>
+    </div>
+    <ol class="hk-gece-liste">
+      <% gece.forEach(function (s) { %>
+      <li data-belir>
+        <time class="hk-saat"><%= s.saat %></time>
+        <span class="mono hk-vakit"><%= s.vakit %></span>
+        <strong><%= s.baslik %></strong>
+        <% if (s.alt) { %><span class="hk-alt"><%= s.alt %></span><% } %>
+        <span class="mono hk-olcu"><%= s.olcuAd %>: <b><%= s.olcu %></b></span>
+      </li>
+      <% }) %>
+    </ol>
+  </div>
+</section>
+
+<%# 05 — Kule bağlantı detayı (K-20, durağan patlatılmış çizim) %>
+<section class="k20" id="baglanti" aria-labelledby="k20-b">
+  <div class="k20-sabit">
+    <div class="k20-sol">
+      <span class="bolum-no mono"><b>05</b> / 06</span>
+      <h2 class="b-l" id="k20-b" data-belir>Bir kule bağlantısı böyle birleşir.</h2>
+      <p class="soluk">Kule ayağından ana boruya kadar bağlantıyı parça parça gösteren şematik çizim.</p>
+      <ol class="k20-liste mono">
+        <% parcalar.forEach(function (p, i) { %><li class="var" data-p="<%= i %>"><b><%= String(i + 1).padStart(2, '0') %></b> <%= p.ad %></li>
+        <% }) %>
+      </ol>
+      <div class="olcu k20-olcu" aria-hidden="true"><span>Patlatılmış görünüm</span></div>
+      <p class="mono soluk k20-not">Şematik çizim · ölçekli değildir</p>
+    </div>
+    <div class="k20-model">
+      <svg viewBox="-125 -345 515 545" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <line class="k20-eksen" x1="0" y1="-335" x2="0" y2="190"/>
+        <% parcalar.forEach(function (p, i) { %>
+        <g class="k20-p k20-<%= p.sinif %>" style="--dy:<%= p.dy %>px">
+          <%- p.cizim %>
+          <g class="k20-e">
+            <circle cx="<%= f1(p.uc[0]) %>" cy="<%= f1(p.uc[1]) %>" r="3"/>
+            <line x1="<%= f1(p.uc[0]) %>" y1="<%= f1(p.uc[1]) %>" x2="<%= etiketX %>" y2="<%= f1(p.uc[1]) %>" style="--l:<%= Math.ceil(etiketX - p.uc[0]) + 2 %>"/>
+            <text x="<%= etiketX + 8 %>" y="<%= f1(p.uc[1] + 5) %>"><%= String(i + 1).padStart(2, '0') %> · <%= p.ad.toLocaleUpperCase('tr') %></text>
+          </g>
+        </g>
+        <% }) %>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<%# 06 — Belgeler %>
+<section class="bolum hk-belge" aria-labelledby="hk-belge-b">
+  <div class="kap">
+    <div class="bolum-bas">
+      <div>
+        <span class="bolum-no mono"><b>06</b> / 06</span>
+        <h2 class="b-l" id="hk-belge-b" data-belir>Belgeli, orijinal alüminyum.</h2>
+      </div>
+      <p class="giris soluk">Truss sistemlerimiz Avrupa standartlarında imal edilmiştir.</p>
+    </div>
+    <ul class="hk-belgeler">
+      <% for (const b of firma.belgeler) { %><li class="kose"><span class="mono">Belge</span><b><%= b %></b></li>
+      <% } %>
+    </ul>
+    <div class="hk-eylem">
+      <a class="dugme ana" href="<%= kok %>/teklif">Projeniz için teklif isteyin</a>
+      <a class="dugme" href="<%= kok %>/calismalar">Çalışmalara bak →</a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/alt') %>

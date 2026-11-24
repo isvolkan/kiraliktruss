@@ -1,0 +1,156 @@
+<%- include('parca/bas') %>
+<% const vitrin = projeler[0]; %>
+
+<%# 1. Açılış: tek cümlelik vaat, iki çağrı, teknik çizim çerçevesinde bir gerçek iş %>
+<section class="acilis cizim-zemin">
+  <div class="kap acilis__ic">
+    <div class="acilis__metin">
+      <p class="ust-etiket mono"><span class="nokta" aria-hidden="true"></span>Alüminyum truss kiralama · <%= firma.ilce %></p>
+      <h1 class="acilis__baslik">
+        <span class="satir"><span>Standınızın,</span></span>
+        <span class="satir"><span>sahnenizin</span></span>
+        <span class="satir"><span><em>taşıyıcı iskeleti.</em></span></span>
+      </h1>
+      <p class="acilis__giris">
+        <%= firma.kurulus %>'dan beri fuar standı, sahne ve etkinlikler için alüminyum truss sistemleri kiralıyoruz.
+        Yaklaşık <%= firma.stokMetretul %> metretül stok, <%= firma.belgeler.join(', ') %> belgeli malzeme ve teknik ekip desteği.
+      </p>
+      <div class="acilis__eylem">
+        <a class="dugme dugme--sinyal dugme--buyuk" href="<%= kok %>/teklif">Teklif iste</a>
+        <a class="dugme dugme--cizgi dugme--buyuk" href="tel:<%= firma.telefonLink %>">
+          <svg class="ikon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z" fill="currentColor"/></svg>
+          <span><%= firma.telefon %></span>
+        </a>
+      </div>
+      <a class="acilis__hesap-bag" href="#hesap">Kaç metretül gerekir? <span aria-hidden="true">→</span> Hesaplayın</a>
+    </div>
+
+    <% if (vitrin) { %>
+    <figure class="acilis__gorsel">
+      <span class="olcu olcu--ust mono" aria-hidden="true"><span>N <%= firma.harita.lat.toFixed(4) %> · E <%= firma.harita.lon.toFixed(4) %></span></span>
+      <span class="olcu olcu--yan mono" aria-hidden="true"><span><%= vitrin.yil || firma.kurulus %></span></span>
+      <a class="acilis__foto" href="<%= kok %>/calismalar/<%= vitrin.id %>">
+        <img src="/gorsel/<%= vitrin.id %>" alt="<%= vitrin.musteri %><%= vitrin.etkinlik ? ' — ' + vitrin.etkinlik : '' %> için kurulan truss" width="720" height="540" fetchpriority="high">
+      </a>
+      <figcaption class="pafta">
+        <span class="pafta__no mono">Proje <%= String(vitrin.id).padStart(3, '0') %></span>
+        <span class="pafta__ad"><%= vitrin.musteri %></span>
+        <span class="pafta__meta mono"><%= [vitrin.etkinlik, vitrin.yil].filter(Boolean).join(' · ') %></span>
+      </figcaption>
+    </figure>
+    <% } %>
+  </div>
+</section>
+
+<%# 2. Rakamlar: hepsi veritabanından ya da firma bilgisinden %>
+<section class="rakamlar" aria-label="Rakamlarla Kiralık Truss">
+  <div class="kap">
+    <dl class="rakamlar__liste">
+      <div><dt class="mono">Kuruluş</dt><dd><%= firma.kurulus %></dd></div>
+      <div><dt class="mono">Stok</dt><dd>~<%= firma.stokMetretul %><small> mt</small></dd></div>
+      <div><dt class="mono">Arşivdeki proje</dt><dd><%= sayilar.proje %></dd></div>
+      <div><dt class="mono">Farklı fuar</dt><dd><%= sayilar.fuar %></dd></div>
+    </dl>
+  </div>
+</section>
+
+<%# 3. Kime / ne için: arşive süzülmüş bağlantılar %>
+<section class="bolum ne-icin" data-belir>
+  <div class="kap">
+    <header class="bolum__bas">
+      <p class="ust-etiket mono">01 — Kullanım</p>
+      <h2>Ne kuruyorsanız iskeleti burada</h2>
+    </header>
+    <ul class="ne-icin__liste">
+      <li>
+        <a href="<%= kok %>/calismalar?tur=fuar">
+          <span class="ne-icin__no mono">A</span>
+          <h3>Fuar standı</h3>
+          <p>Stand iskeleti, aydınlatma ve marka panosu taşıyıcıları. Arşivimizin büyük kısmı fuar işleri.</p>
+          <span class="ok mono">Fuar işlerini gör →</span>
+        </a>
+      </li>
+      <li>
+        <a href="<%= kok %>/calismalar?tur=etkinlik">
+          <span class="ne-icin__no mono">B</span>
+          <h3>Sahne ve etkinlik</h3>
+          <p>Sahne, açık hava etkinliği, roadshow ve yarış alanları için truss çerçeve, kule ve kemerler.</p>
+          <span class="ok mono">Etkinlik işlerini gör →</span>
+        </a>
+      </li>
+      <li>
+        <a href="<%= kok %>/calismalar?tur=kurumsal">
+          <span class="ne-icin__no mono">C</span>
+          <h3>Kurumsal</h3>
+          <p>Lansman, toplantı ve kurum içi organizasyonlar için truss taşıyıcılar ve çerçeveler.</p>
+          <span class="ok mono">Kurumsal işleri gör →</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<div class="truss-bant" aria-hidden="true"></div>
+
+<%# 4. Öne çıkan çalışmalar %>
+<section class="bolum" data-belir>
+  <div class="kap">
+    <header class="bolum__bas bolum__bas--yan">
+      <div>
+        <p class="ust-etiket mono">02 — Örnek çalışmalar</p>
+        <h2>Kurduğumuz işlerden seçmeler</h2>
+      </div>
+      <a class="dugme dugme--cizgi" href="<%= kok %>/calismalar">Tüm arşiv (<%= sayilar.proje %>)</a>
+    </header>
+    <div class="izgara izgara--vitrin">
+      <% projeler.slice(0, 8).forEach((p) => { %><%- include('parca/kart', { p }) %><% }) %>
+    </div>
+  </div>
+</section>
+
+<%# 5. Metretül hesaplayıcı: eski sitede yoktu %>
+<section class="bolum hesap-bolum" id="hesap" data-belir>
+  <div class="kap">
+    <header class="bolum__bas">
+      <p class="ust-etiket mono">03 — Hesaplayıcı</p>
+      <h2>Kaç metretül truss gerekir?</h2>
+      <p class="bolum__giris">Yapının biçimini seçip ölçüleri girin; tahmini metretülü görün ve teklif formuna tek dokunuşla taşıyın.</p>
+    </header>
+    <%- include('parca/hesaplayici') %>
+  </div>
+</section>
+
+<%# 6. Fuar adları: arşivde en çok geçen fuarlar %>
+<% if (fuarlar.length) { %>
+<section class="bolum fuarlar" data-belir>
+  <div class="kap">
+    <header class="bolum__bas">
+      <p class="ust-etiket mono">04 — Fuarlar</p>
+      <h2>Arşivimizde en çok geçen fuarlar</h2>
+    </header>
+    <ul class="fuarlar__liste">
+      <% fuarlar.forEach((f, i) => { %>
+        <li><a href="<%= kok %>/calismalar?q=<%= encodeURIComponent(f) %>"><span class="mono"><%= String(i + 1).padStart(2, '0') %></span><%= f %></a></li>
+      <% }) %>
+    </ul>
+  </div>
+</section>
+<% } %>
+
+<%# 7. Nasıl ilerler (süre ya da hizmet iddiası yok) %>
+<section class="bolum adimlar" data-belir>
+  <div class="kap">
+    <header class="bolum__bas">
+      <p class="ust-etiket mono">05 — Süreç</p>
+      <h2>Üç adımda teklif</h2>
+    </header>
+    <ol class="adimlar__liste">
+      <li><span class="adimlar__no mono">01</span><h3>Anlatın</h3><p>Formu doldurun ya da arayın: etkinlik türü, tarih, şehir ve biliyorsanız metretül.</p></li>
+      <li><span class="adimlar__no mono">02</span><h3>Netleştirelim</h3><p>İhtiyacınızı birlikte konuşalım; gerekirse kesin ölçü keşifle belirlenir.</p></li>
+      <li><span class="adimlar__no mono">03</span><h3>Teklifi alın</h3><p>Malzeme ve teknik ekip desteğiyle etkinliğinize hazırlanalım.</p></li>
+    </ol>
+  </div>
+</section>
+
+<%- include('parca/cagri') %>
+<%- include('parca/son') %>

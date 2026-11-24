@@ -1,8 +1,43 @@
-<%- include('../partials/ust', { govdeSinifi: 'yonetim-govde' }) %>
-<div class="yonetim">
-  <nav class="yonetim-menu" aria-label="Yönetim menüsü">
-    <a class="hap<%= yol === '/yonetim' ? ' aktif' : '' %>" href="/yonetim">Pano</a>
-    <a class="hap<%= yol.startsWith('/yonetim/projeler') ? ' aktif' : '' %>" href="/yonetim/projeler">Projeler</a>
-    <a class="hap<%= yol.startsWith('/yonetim/teklifler') ? ' aktif' : '' %>" href="/yonetim/teklifler">Teklifler</a>
-    <form method="post" action="/yonetim/cikis"><button class="hap" type="submit">Çıkış (<%= yonetici.eposta %>)</button></form>
-  </nav>
+<%# Girişli yönetim sayfalarının ortak üst kısmı: yan menü (masaüstü) / üst çubuk + açılır menü (telefon). _alt.ejs kapatır. -%>
+<%
+  // Menü kalemleri: [yazı, adres, etkin mi]
+  const menu = [
+    ['Pano', '/yonetim', yol === '/yonetim' || yol === '/yonetim/'],
+    ['Projeler', '/yonetim/projeler', yol.startsWith('/yonetim/projeler')],
+    ['Teklifler', '/yonetim/teklifler', yol.startsWith('/yonetim/teklifler')],
+    ['Hesap', '/yonetim/hesap', yol.startsWith('/yonetim/hesap')],
+  ];
+%>
+<%- include('_bas') %>
+<body class="yonetim-govde">
+<a class="atla" href="#icerik">İçeriğe geç</a>
+<div class="y-duzen">
+  <header class="y-yan">
+    <div class="y-yan-ust">
+      <a class="y-logo" href="/yonetim" aria-label="Kiralık Truss yönetim panosu"><img src="/img/logo.png" alt="" width="166" height="72"><span class="y-logo-et">Yönetim</span></a>
+      <%- include('_tema') %>
+      <button class="y-menu-ac" type="button" aria-expanded="false" aria-controls="y-menu">Menü</button>
+    </div>
+    <nav class="y-menu" id="y-menu" aria-label="Yönetim menüsü">
+      <ul>
+        <% for (const [ad, href, etkin] of menu) { %>
+          <li><a href="<%= href %>"<% if (etkin) { %> aria-current="page"<% } %>>
+            <span><%= ad %></span>
+            <% if (ad === 'Teklifler' && okunmamis) { %><span class="y-rozet" aria-label="<%= okunmamis %> okunmamış"><%= okunmamis %></span><% } %>
+          </a></li>
+        <% } %>
+      </ul>
+      <ul class="y-menu-alt">
+        <li><a href="/" target="_blank" rel="noopener">Siteyi gör <span class="ok" aria-hidden="true"><%- include('../parca/ok', { yon: 'capraz' }) %></span><span class="gizli"> (yeni sekmede açılır)</span></a></li>
+        <li>
+          <form method="post" action="/yonetim/cikis">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button type="submit">Çıkış</button>
+          </form>
+        </li>
+      </ul>
+      <p class="y-kim"><span class="gizli">Giriş yapan: </span><%= yonetici.eposta %></p>
+    </nav>
+  </header>
+  <main id="icerik" class="y-icerik" tabindex="-1">
+    <% if (bildirim) { %><div class="y-bildirim" role="status"><%= bildirim %></div><% } %>

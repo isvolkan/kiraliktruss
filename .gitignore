@@ -4,3 +4,6 @@ node_modules/
 *.log
 .project-map/index.html
 .project-map/.last.json
+
+# Emülatör/ekran deneme çıktıları (geliştirme)
+dev/emu/

@@ -1,0 +1,21 @@
+<%- include('partials/ust', { sayfaCss: ['sayfalar'] }) %>
+<section class="bolum tt">
+  <div class="kap tt-ic">
+    <div class="tt-metin">
+      <span class="mono tt-etiket"><b>OK</b> · Talebiniz alındı</span>
+      <h1 class="b-xl">Teşekkürler.</h1>
+      <p class="giris">Talebiniz bize ulaştı. Bilgileri inceleyip size telefon ya da e-postayla dönüş yapacağız. Acil durumda <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>.</p>
+      <div class="tt-dugmeler">
+        <a class="dugme ana" href="<%= kok %>/">Ana sayfaya dön</a>
+        <a class="dugme" href="<%= kok %>/calismalar">Örnek çalışmalara göz atın →</a>
+      </div>
+    </div>
+    <div class="kunye tt-kunye kose sinyal" aria-label="Talep durumu">
+      <span class="kunye-hucre"><small>Durum</small><b>Alındı</b></span>
+      <span class="kunye-hucre"><small>Sonraki adım</small><b>İnceleme</b></span>
+      <span class="kunye-hucre"><small>Dönüş</small><b>Telefon / e-posta</b></span>
+      <span class="kunye-hucre"><small>Fiyat</small><b>Proje bazlı</b></span>
+    </div>
+  </div>
+</section>
+<%- include('partials/alt') %>

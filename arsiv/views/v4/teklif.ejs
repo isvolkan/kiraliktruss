@@ -1,0 +1,164 @@
+<%- include('parca/bas', { aciklama: `${firma.ad} truss kiralama teklif formu.` }) %>
+<%
+  // Yardımcılar: alanın önceki değeri, hata var mı, aria öznitelikleri
+  const d = (ad) => (deger && deger[ad] != null ? deger[ad] : '');
+  const hataVar = (ad) => Boolean(hatalar[ad]);
+  const aria = (ad, ipucu) => {
+    const ids = [ipucu ? `${ad}-ipucu` : '', hataVar(ad) ? `${ad}-hata` : ''].filter(Boolean).join(' ');
+    return (ids ? ` aria-describedby="${ids}"` : '') + (hataVar(ad) ? ' aria-invalid="true"' : '');
+  };
+  const kacir = (m) => String(m).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const hataYaz = (ad) => hataVar(ad) ? `<p class="alan__hata" id="${ad}-hata">${kacir(hatalar[ad])}</p>` : '';
+  const alanAdlari = { ad_soyad: 'Ad soyad', firma: 'Firma', telefon: 'Telefon', eposta: 'E-posta', etkinlik_turu: 'Etkinlik türü',
+    sehir: 'Şehir', tarih: 'Tarih', gun_sayisi: 'Gün sayısı', metretul: 'Metretül', mesaj: 'Mesaj', kvkk: 'Onay' };
+  const hataListesi = Object.keys(hatalar).filter((k) => k !== 'genel');
+%>
+
+<section class="sayfa-bas cizim-zemin">
+  <div class="kap">
+    <p class="ust-etiket mono"><a href="<%= kok %>/">Ana sayfa</a> / Teklif iste</p>
+    <h1>Teklif iste</h1>
+    <p class="sayfa-bas__giris">Etkinliğinizi kısaca anlatın; size dönüp ihtiyacınızı birlikte netleştirelim. Acele işler için doğrudan arayın: <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>.</p>
+  </div>
+</section>
+
+<section class="bolum bolum--sik">
+  <div class="kap teklif">
+    <form class="form" action="<%= kok %>/teklif" method="post" novalidate data-form>
+      <% if (hatalar.genel || hataListesi.length) { %>
+        <div class="form__ozet" role="alert" tabindex="-1" data-hata-ozeti>
+          <% if (hatalar.genel) { %><p><b><%= hatalar.genel %></b></p><% } %>
+          <% if (hataListesi.length) { %>
+            <p><b>Formda <%= hataListesi.length %> alanı düzeltmeniz gerekiyor:</b></p>
+            <ul><% for (const k of hataListesi) { %><li><a href="#<%= k %>"><%= alanAdlari[k] || k %>: <%= hatalar[k] %></a></li><% } %></ul>
+          <% } %>
+        </div>
+      <% } %>
+      <% if (typeof referans !== 'undefined' && referans) { %>
+        <p class="form__ref">Referans proje: <a href="<%= kok %>/calismalar/<%= referans.id %>"><%= referans.musteri %></a>. Mesaj kutusuna not ettik, dilediğiniz gibi düzenleyin.</p>
+      <% } %>
+
+      <fieldset class="form__grup">
+        <legend><span class="mono">1</span> Size nasıl ulaşalım?</legend>
+        <div class="form__satir">
+          <div class="alan<%= hataVar('ad_soyad') ? ' alan--hata' : '' %>">
+            <label class="alan__ad" for="ad_soyad">Ad soyad <abbr title="zorunlu">*</abbr></label>
+            <input id="ad_soyad" name="ad_soyad" type="text" autocomplete="name" required minlength="3" maxlength="80" value="<%= d('ad_soyad') %>"<%- aria('ad_soyad') %>>
+            <%- hataYaz('ad_soyad') %>
+          </div>
+          <div class="alan<%= hataVar('firma') ? ' alan--hata' : '' %>">
+            <label class="alan__ad" for="firma">Firma <small>(isteğe bağlı)</small></label>
+            <input id="firma" name="firma" type="text" autocomplete="organization" maxlength="100" value="<%= d('firma') %>"<%- aria('firma') %>>
+            <%- hataYaz('firma') %>
+          </div>
+        </div>
+        <div class="form__satir">
+          <div class="alan<%= hataVar('telefon') ? ' alan--hata' : '' %>">
+            <label class="alan__ad" for="telefon">Telefon <abbr title="zorunlu">*</abbr></label>
+            <input id="telefon" name="telefon" type="tel" autocomplete="tel" inputmode="tel" required placeholder="0532 123 45 67" value="<%= d('telefon') %>"<%- aria('telefon') %>>
+            <%- hataYaz('telefon') %>
+          </div>
+          <div class="alan<%= hataVar('eposta') ? ' alan--hata' : '' %>">
+            <label class="alan__ad" for="eposta">E-posta <abbr title="zorunlu">*</abbr></label>
+            <input id="eposta" name="eposta" type="email" autocomplete="email" required value="<%= d('eposta') %>"<%- aria('eposta') %>>
+            <%- hataYaz('eposta') %>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="form__grup">
+        <legend><span class="mono">2</span> Etkinlik</legend>
+        <div class="alan<%= hataVar('etkinlik_turu') ? ' alan--hata' : '' %>">
+          <label class="alan__ad" for="etkinlik_turu">Etkinlik türü <abbr title="zorunlu">*</abbr></label>
+          <select id="etkinlik_turu" name="etkinlik_turu" required<%- aria('etkinlik_turu') %>>
+            <option value="">Seçin</option>
+            <% for (const t of turler) { %><option<% if (d('etkinlik_turu') === t) { %> selected<% } %>><%= t %></option><% } %>
+          </select>
+          <%- hataYaz('etkinlik_turu') %>
+        </div>
+        <div class="form__satir form__satir--uc">
+          <div class="alan<%= hataVar('sehir') ? ' alan--hata' : '' %>">
+            <label class="alan__ad" for="sehir">Şehir <abbr title="zorunlu">*</abbr></label>
+            <input id="sehir" name="sehir" type="text" autocomplete="address-level2" required minlength="2" maxlength="60" value="<%= d('sehir') %>"<%- aria('sehir') %>>
+            <%- hataYaz('sehir') %>
+          </div>
+          <div class="alan<%= hataVar('tarih') ? ' alan--hata' : '' %>">
+            <label class="alan__ad" for="tarih">Etkinlik tarihi <abbr title="zorunlu">*</abbr></label>
+            <input id="tarih" name="tarih" type="date" required min="<%= bugun %>" value="<%= d('tarih') %>"<%- aria('tarih') %>>
+            <%- hataYaz('tarih') %>
+          </div>
+          <div class="alan<%= hataVar('gun_sayisi') ? ' alan--hata' : '' %>">
+            <label class="alan__ad" for="gun_sayisi">Gün sayısı</label>
+            <input id="gun_sayisi" name="gun_sayisi" type="number" inputmode="numeric" min="1" max="60" value="<%= d('gun_sayisi') %>"<%- aria('gun_sayisi', true) %>>
+            <p class="alan__ipucu" id="gun_sayisi-ipucu">1–60 gün</p>
+            <%- hataYaz('gun_sayisi') %>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="form__grup">
+        <legend><span class="mono">3</span> Truss ihtiyacı</legend>
+        <div class="form__satir">
+          <div class="alan<%= hataVar('metretul') ? ' alan--hata' : '' %>">
+            <label class="alan__ad" for="metretul">Metretül <small>(isteğe bağlı)</small></label>
+            <input id="metretul" name="metretul" type="number" inputmode="numeric" min="1" max="5000" value="<%= d('metretul') %>"<%- aria('metretul', true) %>>
+            <p class="alan__ipucu" id="metretul-ipucu">Bilmiyorsanız boş bırakın ya da <a href="<%= kok %>/#hesap">hesaplayıcıyı</a> kullanın.</p>
+            <%- hataYaz('metretul') %>
+          </div>
+          <div class="alan alan--onay">
+            <label class="onay">
+              <input type="checkbox" name="kurulum" value="on"<% if (d('kurulum') === 'on') { %> checked<% } %>>
+              <span>Teknik ekip desteği de istiyorum</span>
+            </label>
+          </div>
+        </div>
+        <div class="alan<%= hataVar('mesaj') ? ' alan--hata' : '' %>">
+          <label class="alan__ad" for="mesaj">Mesaj <small>(isteğe bağlı)</small></label>
+          <textarea id="mesaj" name="mesaj" rows="5" maxlength="2000" data-sayac<%- aria('mesaj', true) %>><%= d('mesaj') %></textarea>
+          <p class="alan__ipucu" id="mesaj-ipucu">Ölçü, yer, kurulum saati gibi ayrıntılar. En fazla 2000 karakter<span data-sayac-yazi></span>.</p>
+          <%- hataYaz('mesaj') %>
+        </div>
+      </fieldset>
+
+      <%# Bal küpü: insan görmez (ekran dışında), botlar doldurur %>
+      <div class="bal-kupu" aria-hidden="true">
+        <label for="web_sitesi">Web siteniz (boş bırakın)</label>
+        <input id="web_sitesi" name="web_sitesi" type="text" tabindex="-1" autocomplete="off" value="">
+      </div>
+
+      <div class="form__son">
+        <div class="alan<%= hataVar('kvkk') ? ' alan--hata' : '' %>">
+          <label class="onay">
+            <input id="kvkk" type="checkbox" name="kvkk" value="on" required<% if (d('kvkk') === 'on') { %> checked<% } %><%- aria('kvkk') %>>
+            <span>Kişisel verilerimin teklif hazırlamak ve benimle iletişim kurmak amacıyla işlenmesini kabul ediyorum. <abbr title="zorunlu">*</abbr></span>
+          </label>
+          <%- hataYaz('kvkk') %>
+        </div>
+        <button class="dugme dugme--sinyal dugme--buyuk dugme--genis" type="submit">Teklif talebini gönder</button>
+        <p class="form__not"><abbr title="zorunlu">*</abbr> işaretli alanlar zorunlu.</p>
+      </div>
+    </form>
+
+    <aside class="teklif__yan" aria-label="Diğer iletişim yolları">
+      <div class="yan-kutu yan-kutu--koyu">
+        <p class="ust-etiket mono ust-etiket--acik">Formla uğraşmak istemiyor musunuz?</p>
+        <a class="yan-kutu__tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+        <a class="yan-kutu__bag" href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a>
+      </div>
+      <div class="yan-kutu">
+        <p class="ust-etiket mono">Sonra ne olur?</p>
+        <ol class="yan-kutu__adim">
+          <li>Talebiniz bize ulaşır.</li>
+          <li>Sizi arayıp ihtiyacı netleştiririz; gerekirse keşif yapılır.</li>
+          <li>Teklifinizi iletiriz.</li>
+        </ol>
+      </div>
+      <div class="yan-kutu">
+        <p class="ust-etiket mono">Malzeme</p>
+        <p><%= firma.belgeler.join(' · ') %> belgeli alüminyum truss, yaklaşık <%= firma.stokMetretul %> metretül stok.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<%- include('parca/son') %>

@@ -1,0 +1,17 @@
+<%- include('parca/bas') %>
+
+<section class="levha z-alu hata-sayfa">
+  <div class="ic">
+    <p class="etiket">404</p>
+    <h1>Bu sayfayı bulamadık.</h1>
+    <p class="giris">Aradığınız sayfa taşınmış ya da hiç olmamış olabilir. Buradan devam edin:</p>
+  </div>
+</section>
+
+<%- include('parca/yonler', { zemin: 'z-alu', yonler: [
+  ['Ana sayfa', kok + '/', '→'],
+  ['Çalışmalar', kok + '/calismalar', '→'],
+  ['Teklif iste', kok + '/teklif', '→'],
+] }) %>
+
+<%- include('parca/son') %>

@@ -1,12 +1,30 @@
-<%- include('../partials/ust', { govdeSinifi: 'yonetim-govde' }) %>
-<section class="sayfa-bas orta">
-  <p class="mono soluk">Yalnız firma yetkilileri</p>
-  <h1>Yönetim girişi</h1>
-  <form class="form kart-form dar-form" method="post" action="/yonetim/giris">
-    <% if (hata) { %><p class="hata-kutu" role="alert"><%= hata %></p><% } %>
-    <label>E-posta<input type="email" name="eposta" value="<%= eposta %>" required autocomplete="username"></label>
-    <label>Parola<input type="password" name="sifre" required autocomplete="current-password"></label>
-    <button class="dugme" type="submit">Giriş yap</button>
-  </form>
-</section>
-<%- include('../partials/alt') %>
+<%- include('_bas') %>
+<body class="yonetim-govde y-giris-govde">
+<a class="atla" href="#icerik">İçeriğe geç</a>
+<main id="icerik" class="y-giris" tabindex="-1">
+  <section class="y-giris-levha z-mavi" aria-hidden="true">
+    <p class="etiket">Kiralık Truss</p>
+    <p class="y-giris-dev">Yönetim <span class="ok"><%- include('../parca/ok', { yon: 'sag' }) %></span></p>
+  </section>
+  <section class="y-giris-form">
+    <a class="y-logo" href="/"><img src="/img/logo.png" alt="Kiralık Truss ana sayfa" width="166" height="72"></a>
+    <p class="etiket">Yalnız firma yetkilileri</p>
+    <h1>Yönetim girişi</h1>
+    <% if (hata) { %><div class="hata-ozet" role="alert" tabindex="-1" data-hata-ozet><p><%= hata %></p></div><% } %>
+    <form method="post" action="/yonetim/giris">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="alan<%= hata ? ' hatali' : '' %>">
+        <label for="eposta">E-posta</label>
+        <input id="eposta" type="email" name="eposta" value="<%= eposta %>" required autocomplete="username" autofocus>
+      </div>
+      <div class="alan<%= hata ? ' hatali' : '' %>">
+        <label for="sifre">Şifre</label>
+        <input id="sifre" type="password" name="sifre" required autocomplete="current-password">
+      </div>
+      <button class="btn btn-1 y-tam" type="submit">Giriş yap <span class="ok" aria-hidden="true"><%- include('../parca/ok', { yon: 'sag' }) %></span></button>
+    </form>
+    <p class="y-giris-alt"><a class="bag-ok" href="/"><span class="ok ok-geri" aria-hidden="true"><%- include('../parca/ok', { yon: 'sol' }) %></span> Siteye dön</a></p>
+  </section>
+</main>
+</body>
+</html>

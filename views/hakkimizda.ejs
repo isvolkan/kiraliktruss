@@ -1,23 +1,80 @@
-<%- include('partials/ust') %>
-<section class="sayfa-bas">
-  <p class="mono soluk"><%= firma.kurulus %>'dan beri · <%= firma.ilce %></p>
-  <h1 class="kelime-kelime">Hakkımızda</h1>
-</section>
-<section class="bolum hakkinda">
-  <p class="iri"><%= firma.kurulus %> yılından bu yana truss kiralama hizmeti veriyoruz. Stoklarımızdaki yaklaşık <%= firma.stokMetretul %> metretül orijinal alüminyum truss sistemi ve deneyimli teknik ekibimizle projeleriniz için çözüm üretiyoruz.</p>
-  <div class="hakkinda-iki">
-    <div class="ortaya-cik">
-      <h2 class="mono">Malzeme</h2>
-      <p>Truss sistemlerimiz kesinlikle demir kaynatma değildir. Hepsi Avrupa standartlarında imal edilmiş ve <%= firma.belgeler.join(', ') %> belgelidir. Depolama ve nakliyede deforme olmamış, ilk günkü alüminyum parlaklığındadır.</p>
-    </div>
-    <div class="ortaya-cik">
-      <h2 class="mono">Nerelerde</h2>
-      <p>Her türlü event, fuar, etkinlik, kongre, stand, tanıtım, konser, düğün ve benzeri projede kullanılmak üzere truss sağlıyoruz. Fiyatlandırmamız proje bazlıdır.</p>
+<%- include('parca/bas', {
+  aciklama: `${firma.kurulus}'dan beri alüminyum truss kiralama ve teknik kurulum. Yaklaşık ${firma.stokMetretul} metretül, ${firma.belgeler.join(', ')} belgeli orijinal alüminyum truss stoğu.`,
+  ogGorsel: (typeof gosteri !== 'undefined' && gosteri.length) ? gorselUrl(gosteri[0]) : '/img/logo.png',
+}) %>
+
+<section class="levha z-alu hakkinda">
+  <div class="ic">
+    <h1 class="sayfa-baslik" data-sayfa-baslik>Hakkımızda</h1>
+    <%# Masaüstünde metin solda, fotoğraf sağda; telefonda fotoğraf metnin altında %>
+    <div class="hakkinda-duzen">
+      <div>
+        <p class="sayfa-giris"><%= firma.kurulus %>'dan beri truss kiralıyoruz.</p>
+        <div class="uzun-metin">
+          <p>Stoğumuzda yaklaşık <%= firma.stokMetretul %> metretül orijinal alüminyum truss sistemi var. Deneyimli teknik ekibimizle, ihtiyacınıza göre projeniz için çözüm üretiyoruz.</p>
+          <p>Truss sistemlerimiz kesinlikle demir kaynatma değildir. Hepsi Avrupa standartlarında imal edilmiştir; TÜV, TSE ve CE belgelidir. Depolama ve nakliye yüzünden deforme olmamış, ilk günkü alüminyum parlaklığındadır.</p>
+        </div>
+      </div>
+      <% if (typeof gosteri !== 'undefined' && gosteri.length) { %>
+      <%# Dönen fotoğraf (JS: /js/gosteri.js). Kareler üst üste, yalnız aktif olan görünür. İlk iki karenin fotoğrafı hemen,
+          kalanlar sırası gelmeden hemen önce yüklenir (data-src). JS yoksa yalnız ilk kare görünür, düğmeler gizli. %>
+      <figure class="hakkinda-foto gosteri" data-gosteri aria-roledescription="fotoğraf gösterisi" aria-label="Kurulumlarımızdan fotoğraflar">
+        <div class="kart-foto gosteri-sahne">
+          <% gosteri.forEach((k, i) => { %>
+          <a class="gosteri-kare<%= i === 0 ? ' aktif' : '' %>" href="/calismalar/<%= k.id %>" data-isim="<%= k.musteri %>" data-alt="<%= k.alt %>"<% if (i) { %> aria-hidden="true" tabindex="-1"<% } %>><img <%= i < 2 ? 'src' : 'data-src' %>="<%= gorselUrl(k, true) %>" <%= i < 2 ? 'srcset' : 'data-srcset' %>="<%= gorselUrl(k, true) %> 600w, <%= gorselUrl(k) %> 1600w" sizes="(min-width: 900px) 520px, 92vw" alt="<%= k.musteri %><%= k.alt ? ', ' + k.alt : '' %>" width="520" height="390"<% if (i === 0) { %> fetchpriority="high"<% } %>></a>
+          <% }) %>
+        </div>
+        <div class="gosteri-alt">
+          <figcaption><b><%= gosteri[0].musteri %></b><span><%= gosteri[0].alt %></span></figcaption>
+          <% if (gosteri.length > 1) { %>
+          <div class="gosteri-oklar">
+            <span class="gosteri-sayac" aria-hidden="true">1 / <%= gosteri.length %></span>
+            <button class="kare-dugme gosteri-duraklat" type="button" data-duraklat aria-pressed="false" aria-label="Gösteriyi duraklat">
+              <svg class="ok-svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                <path class="ikon-duraklat" d="M5.5 3.5v9M10.5 3.5v9"/>
+                <path class="ikon-oynat" d="M5 3.5 12.5 8 5 12.5Z"/>
+              </svg>
+              <span class="duraklat-yazi">Duraklat</span>
+            </button>
+            <button class="kare-dugme" type="button" data-yon="-1" aria-label="Önceki fotoğraf"><%- include('parca/ok', { yon: 'sol' }) %></button>
+            <button class="kare-dugme" type="button" data-yon="1" aria-label="Sonraki fotoğraf"><%- include('parca/ok', { yon: 'sag' }) %></button>
+          </div>
+          <% } %>
+        </div>
+        <% if (gosteri.length > 1) { %><span class="gosteri-cizgi" aria-hidden="true"><span></span></span><% } %>
+      </figure>
+      <script src="/js/gosteri.js" defer></script>
+      <% } %>
     </div>
   </div>
-  <div class="belgeler">
-    <% for (const b of firma.belgeler) { %><span class="belge ortaya-cik"><%= b %></span><% } %>
-  </div>
-  <a class="dugme" href="/teklif">Projeniz için teklif isteyin</a>
 </section>
-<%- include('partials/alt') %>
+
+<section class="levha z-beyaz" aria-labelledby="nerede-baslik">
+  <div class="ic">
+    <h2 id="nerede-baslik">Nerede kullanılır?</h2>
+    <ul class="kullanim">
+      <% for (const k of ['Fuar', 'Stand', 'Kongre', 'Konser', 'Tanıtım', 'Düğün', 'Etkinlik']) { %><li><%= k %></li><% } %>
+    </ul>
+  </div>
+</section>
+
+<section class="levha z-murekkep" aria-labelledby="fiyat-baslik">
+  <div class="ic">
+    <h2 id="fiyat-baslik">Fiyatlandırmamız proje bazlıdır.</h2>
+    <p class="giris">Hazır fiyat listemiz yok; ölçüye, tarihe ve yere göre teklif hazırlıyoruz.</p>
+    <div class="dugmeler">
+      <a class="btn btn-1" href="/teklif">Teklif iste <span class="ok" aria-hidden="true"><%- include('parca/ok', { yon: 'sag' }) %></span></a>    </div>
+  </div>
+</section>
+
+<section class="levha z-alu" aria-label="Belgeler">
+  <div class="ic">
+    <p class="etiket">Belgeler</p>
+    <ul class="belgeler belgeler-acik">
+      <% for (const belge of firma.belgeler) { %><li><span class="belge-isim"><%= belge %></span><span class="belge-et">belgeli</span></li><% } %>
+    </ul>
+  </div>
+</section>
+
+<%- include('parca/cagri') %>
+<%- include('parca/son') %>

@@ -1,0 +1,18 @@
+<%- include('_ust') %>
+<h1>Pano</h1>
+<div class="pano-kartlar">
+  <a class="pano-kart" href="/yonetim/teklifler?durum=yeni"><b><%= s.yeni %></b><span class="mono">yeni teklif</span></a>
+  <a class="pano-kart" href="/yonetim/teklifler"><b><%= s.teklif %></b><span class="mono">toplam teklif</span></a>
+  <a class="pano-kart" href="/yonetim/projeler"><b><%= s.proje %></b><span class="mono">proje</span></a>
+</div>
+<h2>Son teklifler</h2>
+<% if (!teklifler.length) { %><p class="soluk">Henüz teklif yok.</p><% } else { %>
+<div class="tablo-kap"><table class="tablo">
+  <thead><tr><th>No.</th><th>Kişi</th><th>Şehir</th><th>Etkinlik tarihi</th><th>Durum</th></tr></thead>
+  <tbody><% for (const t of teklifler) { %>
+    <tr><td class="mono"><a href="/yonetim/teklifler/<%= t.id %>"><%= t.id %></a></td><td><%= t.ad_soyad %><% if (t.firma) { %> · <%= t.firma %><% } %></td><td><%= t.sehir %></td><td class="mono"><%= t.tarih.toLocaleDateString('tr-TR') %></td><td><span class="durum durum-<%= t.durum %>"><%= DURUMLAR[t.durum] %></span></td></tr>
+  <% } %></tbody>
+</table></div>
+<% } %>
+<a class="dugme" href="/yonetim/projeler/yeni">+ Yeni proje ekle</a>
+<%- include('_alt') %>

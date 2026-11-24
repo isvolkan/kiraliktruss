@@ -1,0 +1,13 @@
+<%- include('parca/bas') %>
+
+<section class="levha z-alu hata-sayfa">
+  <div class="ic">
+    <h1>Bir sorun oluştu.</h1>
+    <p class="giris">Hata bizden kaynaklandı. Biraz sonra yeniden deneyin ya da arayın: <a class="satir-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></p>
+    <div class="dugmeler">
+      <a class="btn btn-1" href="<%= kok %>/">Ana sayfa <span class="ok ok-geri" aria-hidden="true">←</span></a>
+    </div>
+  </div>
+</section>
+
+<%- include('parca/son') %>

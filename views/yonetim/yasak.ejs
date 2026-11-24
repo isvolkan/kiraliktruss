@@ -1,0 +1,16 @@
+<%# 403: CSRF jetonu tutmadığında (lib/csrf.js). Girişli olsun olmasın aynı sade sayfa. -%>
+<%- include('_bas') %>
+<body class="yonetim-govde y-giris-govde">
+<a class="atla" href="#icerik">İçeriğe geç</a>
+<main id="icerik" class="y-mesaj" tabindex="-1">
+  <p class="etiket">Hata 403</p>
+  <h1>İşlem reddedildi</h1>
+  <p class="giris">Form güvenlik jetonu eksik ya da süresi dolmuş. Sayfa uzun süre açık kaldıysa ya da başka bir sekmede çıkış yaptıysanız bu olur.
+    Sayfayı yenileyip işlemi yeniden deneyin.</p>
+  <div class="dugmeler">
+    <a class="btn btn-1" href="/yonetim">Yönetime dön <span class="ok" aria-hidden="true"><%- include('../parca/ok', { yon: 'sag' }) %></span></a>
+    <a class="btn btn-2" href="/">Siteye dön</a>
+  </div>
+</main>
+</body>
+</html>

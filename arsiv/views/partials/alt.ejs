@@ -1,0 +1,29 @@
+<%# Geçici: yalnız yönetim panelinde kullanılıyor (bkz. ust.ejs). -%>
+  </main>
+
+  <footer class="alt">
+    <div class="alt-ust">
+      <div>
+        <p class="mono soluk">Hemen arayın</p>
+        <a class="alt-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+        <p><a href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a></p>
+      </div>
+      <div>
+        <p class="mono soluk">Depo ve ofis</p>
+        <p><%= firma.adres %><br><%= firma.ilce %></p>
+      </div>
+      <div>
+        <p class="mono soluk">Sayfalar</p>
+        <p><a href="/calismalar">Örnek çalışmalar</a><br><a href="/hakkimizda">Hakkımızda</a><br><a href="/teklif">Teklif iste</a><br><a href="/iletisim">İletişim</a></p>
+      </div>
+    </div>
+    <p class="dev-yazi" aria-hidden="true">KİRALIK TRUSS</p>
+    <div class="alt-alt mono">
+      <span>© <%= new Date().getFullYear() %> <%= firma.ad %> · <%= firma.kurulus %>'dan beri</span>
+      <span><%= firma.belgeler.join(' · ') %></span>
+      <a href="/yonetim">Yönetim</a>
+    </div>
+  </footer>
+  <script src="/js/yonetim-eski.js" defer></script>
+</body>
+</html>

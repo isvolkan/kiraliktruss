@@ -1,0 +1,71 @@
+<%- include('partials/ust', { sayfaCss: ['sayfalar'] }) %>
+<%
+  const h = firma.harita;
+  const bbox = [h.lon - 0.02, h.lat - 0.012, h.lon + 0.02, h.lat + 0.012].join(',');
+  const buyukHarita = 'https://www.openstreetmap.org/?mlat=' + h.lat + '&mlon=' + h.lon + '#map=15/' + h.lat + '/' + h.lon;
+  const niyetler = [
+    { ad: 'Yeni teklif', alt: 'Etkinliğinizi anlatın, size dönelim.', ek: 'Formu aç', href: kok + '/teklif', dis: false },
+    { ad: 'Telefon', alt: firma.telefon, ek: 'Hemen ara', href: 'tel:' + firma.telefonLink, dis: false },
+    { ad: 'E-posta', alt: firma.eposta, ek: 'Yaz', href: 'mailto:' + firma.eposta, dis: false },
+    { ad: 'Depo adresi', alt: firma.adres + ', ' + firma.ilce, ek: 'Haritada aç', href: buyukHarita, dis: true },
+  ];
+%>
+<section class="sayfa-bas">
+  <div class="kap">
+    <span class="mono"><span><%= firma.ilce %></span></span>
+    <h1>İletişim</h1>
+    <a class="il-tel" href="tel:<%= firma.telefonLink %>" aria-label="Telefon: <%= firma.telefon %>"><%= firma.telefon %></a>
+    <p class="mono soluk il-faks">Faks <%= firma.faks %></p>
+  </div>
+</section>
+
+<%# Niyet satırları %>
+<section class="bolum il-niyet" aria-labelledby="il-b">
+  <div class="kap">
+    <div class="bolum-bas">
+      <div>
+        <span class="bolum-no mono"><b>01</b> / 02</span>
+        <h2 class="b-l" id="il-b" data-belir>Ne için yazıyorsunuz?</h2>
+      </div>
+    </div>
+    <ul class="il-liste">
+      <% niyetler.forEach(function (n, i) { %>
+      <li>
+        <a class="il-satir" href="<%= n.href %>"<% if (n.dis) { %> target="_blank" rel="noopener"<% } %>>
+          <span class="il-no mono"><%= String(i + 1).padStart(2, '0') %></span>
+          <span class="il-ad"><%= n.ad %></span>
+          <span class="il-alt"><%= n.alt %></span>
+          <span class="il-ok mono"><%= n.ek %> <i aria-hidden="true">→</i></span>
+        </a>
+      </li>
+      <% }) %>
+    </ul>
+  </div>
+</section>
+
+<%# Harita %>
+<section class="bolum il-konum" aria-labelledby="il-h">
+  <div class="kap iki">
+    <div>
+      <span class="bolum-no mono"><b>02</b> / 02</span>
+      <h2 class="b-l" id="il-h" data-belir>Depomuz</h2>
+      <address class="il-adres"><%= firma.adres %><br><%= firma.ilce %></address>
+      <div class="kunye il-kunye">
+        <span class="kunye-hucre"><small>Telefon</small><b><a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></b></span>
+        <span class="kunye-hucre"><small>Faks</small><b><%= firma.faks %></b></span>
+        <span class="kunye-hucre"><small>E-posta</small><b><a href="mailto:<%= firma.eposta %>"><%= firma.eposta %></a></b></span>
+        <span class="kunye-hucre"><small>Bölge</small><b><%= firma.ilce %></b></span>
+      </div>
+    </div>
+    <div class="il-harita-kap">
+      <div class="il-harita kose sinyal">
+        <iframe title="Kiralık Truss konumu (yaklaşık)" loading="lazy"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=<%= bbox %>&amp;layer=mapnik&amp;marker=<%= h.lat %>,<%= h.lon %>"></iframe>
+      </div>
+      <p class="mono soluk il-not">Harita yaklaşık konumu gösterir; adres için yukarıdaki bilgiyi esas alın.</p>
+      <a class="ok-link" href="<%= buyukHarita %>" target="_blank" rel="noopener">Büyük haritada aç →</a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/alt', { sayfaJs: [] }) %>

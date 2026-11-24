@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS projeler (
   aciklama    TEXT,
   one_cikan   BOOLEAN NOT NULL DEFAULT false,   -- ana sayfada gösterilsin mi
   gorsel      BYTEA,                     -- fotoğraf veritabanında (ücretsiz sunucunun diski kalıcı değil)
-  gorsel_tip  TEXT,                      -- ör. image/jpeg
+  gorsel_tip  TEXT,                      -- ör. image/jpeg (yüklemeler artık image/webp)
+  gorsel_kucuk BYTEA,                    -- küçük boy (≤600 px WebP); db/goc/001-gorsel.sql eski tablolara ekler
   olusturma   TIMESTAMPTZ NOT NULL DEFAULT now(),
   guncelleme  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -42,6 +43,9 @@ CREATE TABLE IF NOT EXISTS teklifler (
   mesaj          TEXT,
   kvkk_onay      BOOLEAN NOT NULL,
   durum          TEXT NOT NULL DEFAULT 'yeni' CHECK (durum IN ('yeni', 'arandi', 'teklif_verildi', 'kapandi')),
-  yonetici_notu  TEXT,
+  yonetici_notu  TEXT,                  -- yalnız yönetimin gördüğü not
+  okundu         BOOLEAN NOT NULL DEFAULT false,  -- yönetici ayrıntıyı açtı mı (db/goc/002-yonetim.sql eski tablolara ekler)
+  guncellendi    TIMESTAMPTZ,           -- durum / not en son ne zaman değişti
   olusturma      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+-- Not: okundu sütununa dayanan indeks burada değil, db/goc/002-yonetim.sql'de (eski tabloda sütun henüz yokken patlamasın).

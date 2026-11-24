@@ -1,0 +1,59 @@
+<%# Metretül hesaplayıcı. Hesabı public/v5/js/v5.js yapar; formüller veri/duzeltmeler.md ile aynı. %>
+<%
+  // [değer, ad, piktogram çizgileri (SVG path), vurgu çizgileri]
+  const bicimler = [
+    ['cerceve', 'Çerçeve', 'M10 24V56M46 24V56M56 14V46M10 24H46M20 14H56M10 24L20 14M46 24L56 14', 'M4 59H60'],
+    ['tavan', 'Çerçeve + tavan', 'M10 24V56M46 24V56M56 14V46M10 24H46M20 14H56M10 24L20 14M46 24L56 14', 'M22 24L32 14M34 24L44 14'],
+    ['kemer', 'Kemer / kapı', 'M14 20V56M50 20V56M11 20H53', 'M4 59H60'],
+    ['kule', 'Kule', 'M32 8V54', 'M18 57H46'],
+  ];
+%>
+<section class="levha z-alu hesap" id="hesapla" aria-labelledby="hesap-baslik">
+  <div class="ic">
+    <h2 id="hesap-baslik">Kaç metretül gerekir?</h2>
+    <p class="giris">Kurulumun biçimini seçin, ölçüleri girin; yaklaşık metretülü hesaplayalım.</p>
+
+    <div class="hesap-js">
+      <fieldset class="bicimler">
+        <legend class="gizli">Kurulumun biçimi</legend>
+        <% bicimler.forEach(([deger, ad, cizgi, vurgu], i) => { %>
+          <label class="bicim">
+            <input type="radio" name="bicim" value="<%= deger %>"<% if (i === 0) { %> checked<% } %>>
+            <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true" focusable="false">
+              <path d="<%= cizgi %>" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="square"/>
+              <path class="vurgu" d="<%= vurgu %>" fill="none" stroke-width="6" stroke-linecap="square"/>
+            </svg>
+            <span><%= ad %></span>
+          </label>
+        <% }) %>
+      </fieldset>
+
+      <div class="hesap-govde">
+        <div class="olculer">
+          <% for (const [ad, yazi, birim] of [['en', 'En', 'm'], ['boy', 'Boy', 'm'], ['yukseklik', 'Yükseklik', 'm'], ['adet', 'Adet', '']]) { %>
+            <div class="alan olcu" data-olcu="<%= ad %>">
+              <label for="h-<%= ad %>"><%= yazi %></label>
+              <span class="birimli">
+                <input id="h-<%= ad %>" type="text" inputmode="decimal" autocomplete="off"<% if (ad === 'adet') { %> value="1"<% } %>>
+                <% if (birim) { %><span class="birim" aria-hidden="true"><%= birim %></span><% } %>
+              </span>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="sonuc beyaz-kart" aria-live="polite">
+          <p class="etiket">Yaklaşık</p>
+          <p class="sonuc-sayi"><span class="dev-rakam" data-sonuc>0</span> <span class="sonuc-birim">metretül</span></p>
+          <p class="sonuc-uyari" data-sonuc-uyari hidden>Bu ölçü için lütfen arayın.</p>
+          <p class="kucuk">Bu tahmini bir hesaptır. Kesin ölçü keşiften sonra belirlenir.</p>
+          <a class="btn btn-1" href="<%= kok %>/teklif" data-sonuc-dugme data-kok="<%= kok %>">Teklif iste <span class="ok" aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hesap-yok">
+      <p>Hesaplayıcı için tarayıcınızda JavaScript açık olmalı. Ölçülerinizi teklif formuna yazabilirsiniz.</p>
+      <a class="btn btn-1" href="<%= kok %>/teklif">Teklif iste <span class="ok" aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>

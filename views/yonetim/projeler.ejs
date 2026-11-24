@@ -1,18 +1,68 @@
 <%- include('_ust') %>
-<div class="bolum-bas"><h1>Projeler (<%= projeler.length %>)</h1><a class="dugme" href="/yonetim/projeler/yeni">+ Yeni proje</a></div>
-<form class="suzgec" method="get" role="search"><label class="suzgec-ara">Ara<input type="search" name="q" value="<%= q %>" placeholder="Firma ya da etkinlik"></label><button class="dugme" type="submit">Ara</button><% if (q) { %><a class="ok-link" href="/yonetim/projeler">Temizle</a><% } %></form>
-<div class="tablo-kap"><table class="tablo">
-  <thead><tr><th></th><th>No.</th><th>Müşteri</th><th>Etkinlik</th><th>Şehir</th><th>Yıl</th><th>Ana sayfa</th><th></th></tr></thead>
-  <tbody><% for (const p of projeler) { %>
-    <tr>
-      <td><img class="kucuk" src="/gorsel/<%= p.id %>" alt="" loading="lazy" width="64" height="44"></td>
-      <td class="mono"><%= p.id %></td><td><%= p.musteri %></td><td><%= p.etkinlik %></td><td><%= p.sehir || '—' %></td><td class="mono"><%= p.yil || '—' %></td>
-      <td><%= p.one_cikan ? '✓' : '' %></td>
-      <td class="islemler">
-        <a class="hap" href="/yonetim/projeler/<%= p.id %>/duzenle">Düzenle</a>
-        <form method="post" action="/yonetim/projeler/<%= p.id %>/sil" data-onay="<%= p.musteri %> projesi silinsin mi? Bu işlem geri alınamaz."><button class="hap tehlike" type="submit">Sil</button></form>
-      </td>
-    </tr>
-  <% } %></tbody>
-</table></div>
+<% const suzgecVar = suzgec.q || suzgec.yil || suzgec.tur; %>
+<div class="y-bas">
+  <div>
+    <p class="etiket">Örnek çalışmalar</p>
+    <h1>Projeler</h1>
+  </div>
+  <div class="y-bas-dugmeler">
+    <a class="btn btn-1" href="/yonetim/projeler/yeni">Yeni proje <span class="ok" aria-hidden="true"><%- include('../parca/ok', { yon: 'sag' }) %></span></a>
+  </div>
+</div>
+
+<form class="y-suzgec" method="get" action="/yonetim/projeler" role="search" aria-label="Projelerde ara">
+  <div class="alan y-suzgec-ara">
+    <label for="q">Ara</label>
+    <input id="q" type="search" name="q" value="<%= suzgec.q %>" placeholder="Müşteri, etkinlik ya da şehir">
+  </div>
+  <div class="alan">
+    <label for="yil">Yıl</label>
+    <select id="yil" name="yil">
+      <option value="">Tümü</option>
+      <% for (const y of yillar) { %><option value="<%= y %>"<%= Number(suzgec.yil) === y ? ' selected' : '' %>><%= y %></option><% } %>
+    </select>
+  </div>
+  <div class="alan">
+    <label for="tur">Tür</label>
+    <select id="tur" name="tur">
+      <option value="">Tümü</option>
+      <% for (const [k, ad] of Object.entries(TURLER)) { %><option value="<%= k %>"<%= suzgec.tur === k ? ' selected' : '' %>><%= ad %></option><% } %>
+    </select>
+  </div>
+  <div class="y-suzgec-dugmeler">
+    <button class="btn btn-1" type="submit">Süz</button>
+    <% if (suzgecVar) { %><a class="btn btn-2" href="/yonetim/projeler">Temizle</a><% } %>
+  </div>
+</form>
+
+<p class="y-sonuc"><b><%= toplam %></b> proje<%= suzgecVar ? ' bulundu' : '' %></p>
+
+<% if (!projeler.length) { %>
+  <p class="y-bos">Bu süzgece uyan proje yok.</p>
+<% } else { %>
+  <table class="y-tablo">
+    <caption class="gizli">Projeler, en yeni üstte</caption>
+    <thead><tr><th scope="col"><span class="gizli">Fotoğraf</span></th><th scope="col">Müşteri / etkinlik</th><th scope="col">Şehir</th><th scope="col">Yıl</th><th scope="col">Tür</th><th scope="col">Ana sayfa</th><th scope="col"><span class="gizli">İşlemler</span></th></tr></thead>
+    <tbody>
+      <% for (const p of projeler) { %>
+        <tr>
+          <td class="y-t-foto"><% if (p.foto) { %><img src="/gorsel/<%= p.id %>?boy=kucuk&amp;v=<%= p.guncelleme.getTime() %>" alt="" width="72" height="54" loading="lazy"><% } else { %><span class="y-foto-yok" aria-hidden="true"></span><% } %></td>
+          <th scope="row" class="y-t-ana"><%= p.musteri %><span class="y-satir-ek">No. <%= p.id %><% if (p.etkinlik) { %> · <%= p.etkinlik %><% } %></span></th>
+          <td data-etiket="Şehir"><%= p.sehir || '—' %></td>
+          <td data-etiket="Yıl" class="y-sayi"><%= p.yil || '—' %></td>
+          <td data-etiket="Tür"><%= TURLER[p.tur] %></td>
+          <td data-etiket="Ana sayfa"><%= p.one_cikan ? 'Evet' : 'Hayır' %></td>
+          <td class="y-t-islem">
+            <a class="y-kucuk-dugme" href="/yonetim/projeler/<%= p.id %>/duzenle">Düzenle<span class="gizli">: <%= p.musteri %></span></a>
+            <form method="post" action="/yonetim/projeler/<%= p.id %>/sil" data-onay="“<%= p.musteri %>” projesi silinsin mi? Bu işlem geri alınamaz.">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button class="y-kucuk-dugme y-tehlike" type="submit">Sil<span class="gizli">: <%= p.musteri %></span></button>
+            </form>
+          </td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+  <%- include('_sayfalama', { taban: '/yonetim/projeler' }) %>
+<% } %>
 <%- include('_alt') %>

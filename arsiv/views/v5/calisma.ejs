@@ -1,0 +1,44 @@
+<%- include('parca/bas') %>
+<%
+  const turAdlari = { fuar: 'Fuar', etkinlik: 'Etkinlik', kurumsal: 'Kurumsal' };
+  // Künye satırları: boş olan çizilmez
+  const kunye = [['Etkinlik', p.etkinlik !== p.sehir ? p.etkinlik : ''], ['Şehir', p.sehir], ['Yıl', p.yil], ['Tür', turAdlari[p.tur]]].filter(([, v]) => v);
+%>
+
+<section class="levha z-alu calisma">
+  <div class="ic">
+    <a class="bag-ok geri" href="<%= kok %>/calismalar"><span class="ok" aria-hidden="true">←</span> Tüm çalışmalar</a>
+    <h1><%= p.musteri %></h1>
+    <div class="calisma-duzen">
+      <div class="calisma-foto">
+        <img src="/gorsel/<%= p.id %>" alt="<%= p.musteri %> kurulumu" loading="eager" width="800" height="600">
+      </div>
+      <div class="calisma-yan">
+        <% if (kunye.length) { %>
+          <dl class="kunye">
+            <% for (const [et, v] of kunye) { %><div><dt><%= et %></dt><dd><%= v %></dd></div><% } %>
+          </dl>
+        <% } %>
+        <% if (p.aciklama) { %><p class="aciklama"><%= p.aciklama %></p><% } %>
+        <div class="beyaz-kart benzer-kart">
+          <h2 class="h3">Benzer bir kurulum mu gerekiyor?</h2>
+          <a class="btn btn-1" href="<%= kok %>/teklif?ref=<%= p.id %>">Bu işi örnek göstererek teklif iste <span class="ok" aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% if (benzer.length) { %>
+<section class="levha z-beyaz benzerler" aria-labelledby="benzer-baslik">
+  <div class="ic">
+    <h2 id="benzer-baslik">Benzer çalışmalar</h2>
+    <ul class="izgara izgara-benzer">
+      <% for (const b of benzer) { %><li><%- include('parca/kart', { p: b }) %></li><% } %>
+    </ul>
+  </div>
+</section>
+<% } %>
+
+<%- include('parca/cagri') %>
+<%- include('parca/son') %>

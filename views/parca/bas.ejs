@@ -1,0 +1,129 @@
+<%
+  const aktifYol = typeof yol !== 'undefined' && yol ? yol : '';
+  // Üst menü kalemleri: [yazı, bağlantı, etkin mi]
+  const menu = [
+    ['Çalışmalar', '/calismalar', aktifYol.startsWith('/calismalar')],
+    ['Hakkımızda', '/hakkimizda', aktifYol === '/hakkimizda'],
+    ['İletişim', '/iletisim', aktifYol === '/iletisim'],
+  ];
+  const tamBaslik = baslik + ' · Kiralık Truss';
+  const metaAciklama = (typeof aciklama !== 'undefined' && aciklama)
+    ? aciklama
+    : `Kiralık Truss — alüminyum truss kiralama ve teknik kurulum. ${firma.ilce}.`;
+  // siteUrl başka katmandan gelir; tanımsızsa canonical ve og:url basılmaz
+  const tabanUrl = (typeof siteUrl !== 'undefined' && siteUrl) ? String(siteUrl).replace(/\/+$/, '') : '';
+  // Hata sayfaları (404, 500): canonical / og:url basılmaz, arama motorlarına kapalı (hataSayfasi: true ile çağrılır)
+  const hataSayfasi = (typeof hataSayfasi_ !== 'undefined' && hataSayfasi_);
+  const tamUrl = (tabanUrl && aktifYol && !hataSayfasi) ? tabanUrl + aktifYol : '';
+  const gorselYol = (typeof ogGorsel !== 'undefined' && ogGorsel) ? ogGorsel : '/img/logo.png';
+  const tamGorsel = tabanUrl ? tabanUrl + gorselYol : gorselYol;
+  let isletmeJson = '';
+  if (typeof yerelIsletme !== 'undefined' && yerelIsletme) {
+    const [ilce, il] = String(firma.ilce || '').split('/').map(s => s.trim());
+    const isletme = {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: firma.ad,
+      telephone: firma.telefon,
+      email: firma.eposta,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: firma.adres,
+        addressLocality: ilce || firma.ilce,
+        ...(il ? { addressRegion: il } : {}),
+        addressCountry: 'TR',
+      },
+    };
+    if (tabanUrl) {
+      isletme.url = tabanUrl;
+      isletme.image = tabanUrl + '/img/logo.png';
+    }
+    if (firma.harita) {
+      isletme.geo = { '@type': 'GeoCoordinates', latitude: firma.harita.lat, longitude: firma.harita.lon };
+    }
+    // XSS koruması: script etiketi kapanmasın diye < karakteri kaçırılır
+    isletmeJson = JSON.stringify(isletme).replace(/</g, '\\u003c');
+  }
+%><!doctype html>
+<html lang="tr">
+<head>
+  <script src="/js/erken.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title><%= tamBaslik %></title>
+  <meta name="description" content="<%= metaAciklama %>">
+  <% if (tamUrl) { %><link rel="canonical" href="<%= tamUrl %>"><% } %>
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="tr_TR">
+  <meta property="og:site_name" content="<%= firma.ad %>">
+  <meta property="og:title" content="<%= tamBaslik %>">
+  <meta property="og:description" content="<%= metaAciklama %>">
+  <% if (tamUrl) { %><meta property="og:url" content="<%= tamUrl %>"><% } %>
+  <meta property="og:image" content="<%= tamGorsel %>">
+  <meta name="twitter:card" content="<%= gorselYol.startsWith('/gorsel/') ? 'summary_large_image' : 'summary' %>">
+  <meta name="twitter:title" content="<%= tamBaslik %>">
+  <meta name="twitter:description" content="<%= metaAciklama %>">
+  <meta name="twitter:image" content="<%= tamGorsel %>">
+  <% if (hataSayfasi) { %><meta name="robots" content="noindex"><% } else if (demo) { %><meta name="robots" content="noindex, nofollow"><% } %>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap&subset=latin-ext">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/sayfa.css">
+  <script src="/js/site.js" defer></script>
+  <script src="/js/sayfa.js" defer></script>
+  <% if (isletmeJson) { %><script type="application/ld+json"><%- isletmeJson %></script><% } %>
+</head>
+<body>
+<a class="atla" href="#icerik">İçeriğe geç</a>
+
+<header class="ust">
+  <div class="ic ust-ic">
+    <a class="logo" href="/"><img src="/img/logo.png" alt="Kiralık Truss" width="166" height="72"></a>
+    <nav class="ust-menu" aria-label="Ana menü">
+      <ul>
+        <% for (const [ad, href, etkin] of menu) { %>
+          <li><a href="<%= href %>"<% if (etkin) { %> aria-current="page"<% } %>><%= ad %></a></li>
+        <% } %>
+      </ul>
+    </nav>
+    <a class="ust-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+    <a class="btn btn-1 ust-teklif" href="/teklif">Teklif iste <span class="ok" aria-hidden="true"><%- include('ok', { yon: 'sag' }) %></span></a>
+    <%# Açık / karanlık mod: seçim tarayıcıda saklanır; JS yoksa düğme görünmez (CSS: html:not(.js)) %>
+    <button class="tema-dugme" type="button" aria-label="Karanlık moda geç" aria-pressed="false" title="Açık / karanlık mod">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <mask id="tema-maske"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><circle class="kesik" cx="30" cy="-6" r="7" fill="#000"/></mask>
+        <g mask="url(#tema-maske)"><circle class="gunes-govde" cx="12" cy="12" r="5" fill="currentColor"/></g>
+        <g class="isinlar" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="12" y1="1.5" x2="12" y2="3.5"/><line x1="12" y1="20.5" x2="12" y2="22.5"/>
+          <line x1="1.5" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22.5" y2="12"/>
+          <line x1="4.6" y1="4.6" x2="6" y2="6"/><line x1="18" y1="18" x2="19.4" y2="19.4"/>
+          <line x1="4.6" y1="19.4" x2="6" y2="18"/><line x1="18" y1="6" x2="19.4" y2="4.6"/>
+        </g>
+      </svg>
+    </button>
+    <button class="menu-ac" type="button" aria-expanded="false" aria-controls="mobil-menu">Menü</button>
+  </div>
+</header>
+
+<%# Telefon ve tablet menüsü: JS açar/kapatır; JS yoksa hiç görünmez (menü üst çubukta kalır) %>
+<div class="menu-panel z-mavi" id="mobil-menu" role="dialog" aria-modal="true" aria-label="Menü">
+  <div class="ic">
+    <div class="panel-ust">
+      <button class="menu-kapat" type="button">Kapat</button>
+    </div>
+    <ul class="panel-menu">
+      <% for (const [ad, href, etkin] of menu) { %>
+        <li><a href="<%= href %>"<% if (etkin) { %> aria-current="page"<% } %>><span><%= ad %></span><span class="ok" aria-hidden="true"><%- include('ok', { yon: 'sag' }) %></span></a></li>
+      <% } %>
+    </ul>
+    <div class="panel-alt">
+      <a class="panel-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+      <a class="btn btn-1" href="/teklif">Teklif iste <span class="ok" aria-hidden="true"><%- include('ok', { yon: 'sag' }) %></span></a>
+    </div>
+  </div>
+</div>
+
+<main id="icerik" tabindex="-1">

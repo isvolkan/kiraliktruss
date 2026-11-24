@@ -1,0 +1,10 @@
+<%# Form hata özeti: her hata ilgili alana bağlantı. Sayfa açılınca odak buraya gelir (yonetim.js). Kullanım:
+    include('_hata-ozet', { hatalar }) — hatalar: { alanAdi: mesaj }, alan id'leri alan adıyla aynı. -%>
+<% const liste = Object.entries(hatalar); if (liste.length) { %>
+  <div class="hata-ozet" role="alert" tabindex="-1" data-hata-ozet>
+    <h2 class="h3"><%= liste.length === 1 ? 'Formda 1 alan düzeltilmeli' : `Formda ${liste.length} alan düzeltilmeli` %></h2>
+    <ul>
+      <% for (const [ad, mesaj] of liste) { %><li><a href="#<%= ad %>"><%= mesaj %></a></li><% } %>
+    </ul>
+  </div>
+<% } %>

@@ -1,0 +1,106 @@
+<%- include('parca/bas') %>
+<%
+  // Bugünün tarihi (YYYY-AA-GG): tarih alanında geçmiş gün seçilmesin
+  const b = new Date();
+  const bugun = b.getFullYear() + '-' + String(b.getMonth() + 1).padStart(2, '0') + '-' + String(b.getDate()).padStart(2, '0');
+  const donenler = ['Fuar için.', 'Stand için.', 'Kongre için.', 'Konser için.', 'Düğün için.', 'Tanıtım için.'];
+%>
+
+<%# a. Hero: mavi levha, dönen kelime, mini teklif formu %>
+<section class="levha z-mavi hero">
+  <div class="ic">
+    <p class="etiket yukselen"><span>Beylikdüzü, İstanbul · <%= firma.kurulus %>'dan beri</span></p>
+    <h1 class="hero-baslik">
+      <span class="yukselen"><span>Truss kiralıyoruz.</span></span>
+      <span class="donen" aria-hidden="true">
+        <% donenler.forEach((k, i) => { %><span class="donen-k<%= i === 0 ? ' aktif' : '' %>"><%= k %></span><% }) %>
+      </span>
+      <span class="gizli donen-okuyucu">Fuar, stand, kongre, konser, düğün ve tanıtım için.</span>
+      <span class="donen-sabit">Fuar, stand, kongre ve konser için.</span>
+    </h1>
+    <p class="hero-metin">Yaklaşık <%= firma.stokMetretul %> metretül orijinal alüminyum truss stoğumuz var. Hepsi TÜV, TSE ve CE belgeli.</p>
+
+    <form class="mini-form beyaz-kart" method="get" action="<%= kok %>/teklif">
+      <p class="etiket">Üç soruyla teklife başlayın</p>
+      <div class="mini-alanlar">
+        <div class="alan">
+          <label for="m-tur">Ne için?</label>
+          <select id="m-tur" name="etkinlik_turu">
+            <option value="">Seçin</option>
+            <% for (const t of turler) { %><option><%= t %></option><% } %>
+          </select>
+        </div>
+        <div class="alan">
+          <label for="m-tarih">Ne zaman?</label>
+          <input id="m-tarih" type="date" name="tarih" min="<%= bugun %>">
+        </div>
+        <div class="alan">
+          <label for="m-sehir">Hangi şehirde?</label>
+          <input id="m-sehir" name="sehir" autocomplete="address-level2">
+        </div>
+        <button class="btn btn-1" type="submit">Teklife devam et <span class="ok" aria-hidden="true">→</span></button>
+      </div>
+    </form>
+
+    <p class="hero-ara">ya da hemen arayın: <a href="tel:<%= firma.telefonLink %>"><%= firma.telefon %> <span aria-hidden="true">↗</span></a></p>
+  </div>
+</section>
+
+<%# b. Son kurulumlar: yatay kaydırılan şerit %>
+<section class="levha z-alu son-kurulum" aria-labelledby="son-baslik">
+  <div class="ic">
+    <div class="bolum-bas">
+      <h2 id="son-baslik">Son kurulumlardan</h2>
+      <a class="bag-ok" href="<%= kok %>/calismalar">Tüm çalışmalar (<%= sayilar.proje %>) <span class="ok" aria-hidden="true">→</span></a>
+    </div>
+    <div class="serit-oklar">
+      <button class="kare-dugme" type="button" data-serit="-1" aria-label="Önceki çalışma" aria-controls="serit"><span aria-hidden="true">←</span></button>
+      <button class="kare-dugme" type="button" data-serit="1" aria-label="Sonraki çalışma" aria-controls="serit"><span aria-hidden="true">→</span></button>
+    </div>
+    <ul class="serit" id="serit">
+      <% for (const p of projeler) { %><li><%- include('parca/kart', { p }) %></li><% } %>
+    </ul>
+  </div>
+</section>
+
+<%# c. Üç sayı: rakamlar görünüme girince basamak basamak döner (JS); DOM'da gerçek sayı yazılı %>
+<section class="levha z-beyaz sayilar" aria-label="Sayılarla Kiralık Truss">
+  <div class="ic">
+    <ul class="uc-sayi">
+      <li><span class="dev-rakam" data-rulo><%= firma.kurulus %></span><span class="sayi-etiket">yılından beri truss kiralıyoruz</span></li>
+      <li><span class="dev-rakam" data-rulo>~<%= firma.stokMetretul %></span><span class="sayi-etiket">metretül alüminyum truss stoğu</span></li>
+      <li><span class="dev-rakam" data-rulo><%= sayilar.proje %></span><span class="sayi-etiket">kayıtlı çalışma, <%= sayilar.fuar %> ayrı fuar</span></li>
+    </ul>
+  </div>
+</section>
+
+<%# d. Malzeme %>
+<section class="levha z-murekkep malzeme" aria-labelledby="malzeme-baslik">
+  <div class="ic">
+    <h2 id="malzeme-baslik">Demir kaynatma değil. Orijinal alüminyum.</h2>
+    <p class="giris">Truss sistemlerimizin hepsi Avrupa standartlarında imal edilmiştir. Depolama ve nakliye yüzünden deforme olmamış, ilk günkü alüminyum parlaklığındadır.</p>
+    <ul class="belgeler">
+      <% for (const belge of firma.belgeler) { %><li><span class="belge-ad"><%= belge %></span><span class="belge-et">belgeli</span></li><% } %>
+    </ul>
+  </div>
+</section>
+
+<%# e. Hesaplayıcı %>
+<%- include('parca/hesaplayici') %>
+
+<%# f. Kimler için kurduk %>
+<section class="levha z-beyaz kimler" aria-labelledby="kimler-baslik">
+  <div class="ic">
+    <h2 id="kimler-baslik">Kurulum yaptığımız işlerden</h2>
+    <ul class="musteriler">
+      <% musteriler.forEach((m, i) => { %><li><a href="<%= kok %>/calismalar?q=<%= encodeURIComponent(m.ad) %>" data-onizleme="/gorsel/<%= m.id %>"><%= m.ad %></a><% if (i < musteriler.length - 1) { %><span class="ayrac" aria-hidden="true">·</span><% } %></li><% }) %>
+    </ul>
+    <% if (fuarlar.length) { %>
+      <p class="etiket fuar-etiket">Bulunduğumuz fuarlardan</p>
+      <p class="fuarlar"><%= fuarlar.join(', ') %></p>
+    <% } %>
+  </div>
+</section>
+
+<%- include('parca/cagri') %>
+<%- include('parca/son') %>

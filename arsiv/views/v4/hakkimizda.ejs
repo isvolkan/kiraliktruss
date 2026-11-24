@@ -1,0 +1,46 @@
+<%- include('parca/bas') %>
+
+<section class="sayfa-bas cizim-zemin">
+  <div class="kap">
+    <p class="ust-etiket mono"><a href="<%= kok %>/">Ana sayfa</a> / Hakkımızda</p>
+    <h1><%= firma.kurulus %>'dan beri truss kiralıyoruz</h1>
+    <p class="sayfa-bas__giris"><%= firma.ad %>, <%= firma.ilce %>'nde fuar standı, sahne ve etkinlikler için alüminyum truss sistemleri kiralayan bir firmadır.</p>
+  </div>
+</section>
+
+<section class="bolum">
+  <div class="kap hakkinda">
+    <div class="hakkinda__metin metin">
+      <h2>Kimiz</h2>
+      <p><%= firma.kurulus %> yılından bu yana fuar standı kuran ajanslara, etkinlik organizatörlerine ve kurumlara alüminyum truss kiralıyoruz. Deneyimli teknik ekibimizle her etkinliğin ihtiyacına göre çözüm üretiyoruz.</p>
+      <p>Örnek çalışmalar arşivimizde fuar standlarından açık hava etkinliklerine, kurumsal toplantılardan yarış alanlarına uzanan işler var. Arşive göz atıp kendi etkinliğinize benzeyen bir işi referans gösterebilirsiniz.</p>
+      <p><a class="dugme dugme--cizgi" href="<%= kok %>/calismalar">Örnek çalışmaları incele</a></p>
+    </div>
+
+    <ul class="degerler">
+      <li>
+        <span class="degerler__sayi">~<%= firma.stokMetretul %><small> mt</small></span>
+        <h3>Stok</h3>
+        <p>Yaklaşık <%= firma.stokMetretul %> metretül alüminyum truss stoku.</p>
+      </li>
+      <li>
+        <span class="degerler__sayi degerler__sayi--yazi"><%= firma.belgeler.join(' · ') %></span>
+        <h3>Belgeli malzeme</h3>
+        <p>Kiraladığımız truss sistemleri <%= firma.belgeler.join(', ') %> belgelidir.</p>
+      </li>
+      <li>
+        <span class="degerler__sayi"><%= new Date().getFullYear() - firma.kurulus %><small> yıl</small></span>
+        <h3>Deneyim</h3>
+        <p><%= firma.kurulus %>'dan bu yana fuar, sahne ve kurumsal etkinlikler.</p>
+      </li>
+      <li>
+        <span class="degerler__sayi degerler__sayi--yazi">Teknik ekip</span>
+        <h3>Destek</h3>
+        <p>İhtiyacınızı birlikte netleştirir, teknik ekip desteği sunarız.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<%- include('parca/cagri') %>
+<%- include('parca/son') %>

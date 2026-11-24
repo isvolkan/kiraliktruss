@@ -1,0 +1,16 @@
+<%# Sayfalama: mevcut süzgeçleri koruyarak önceki / sonraki sayfa bağlantısı. Parametreler: taban, suzgec, sayfa, sayfaSayisi -%>
+<% if (sayfaSayisi > 1) {
+  const adres = (n) => {
+    const p = new URLSearchParams();
+    for (const [k, v] of Object.entries(suzgec)) if (v) p.set(k, v);
+    if (n > 1) p.set('sayfa', n);
+    const s = p.toString();
+    return taban + (s ? '?' + s : '');
+  };
+%>
+  <nav class="sayfalama" aria-label="Sayfalar">
+    <% if (sayfa > 1) { %><a href="<%= adres(sayfa - 1) %>" rel="prev"><span class="ok" aria-hidden="true"><%- include('../parca/ok', { yon: 'sol' }) %></span> Önceki</a><% } else { %><span class="pasif" aria-hidden="true">Önceki</span><% } %>
+    <span>Sayfa <%= sayfa %> / <%= sayfaSayisi %></span>
+    <% if (sayfa < sayfaSayisi) { %><a href="<%= adres(sayfa + 1) %>" rel="next">Sonraki <span class="ok" aria-hidden="true"><%- include('../parca/ok', { yon: 'sag' }) %></span></a><% } else { %><span class="pasif" aria-hidden="true">Sonraki</span><% } %>
+  </nav>
+<% } %>

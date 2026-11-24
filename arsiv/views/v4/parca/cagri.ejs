@@ -1,0 +1,13 @@
+<%# Sayfa sonundaki koyu çağrı bandı: teklif ve telefon %>
+<section class="cagri" aria-labelledby="cagri-baslik">
+  <div class="kap cagri__ic">
+    <div>
+      <p class="ust-etiket mono ust-etiket--acik">Etkinlik tarihiniz belli mi?</p>
+      <h2 id="cagri-baslik">Ölçüyü, tarihi ve şehri yazın; gerisini konuşalım.</h2>
+    </div>
+    <div class="cagri__eylem">
+      <a class="dugme dugme--sinyal dugme--buyuk" href="<%= kok %>/teklif">Teklif iste</a>
+      <a class="dugme dugme--acik dugme--buyuk" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+    </div>
+  </div>
+</section>

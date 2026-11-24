@@ -1,22 +1,99 @@
 <%- include('_ust') %>
-<% const hata = (k) => hatalar[k] ? `<span class="hata">${hatalar[k]}</span>` : ''; %>
-<a class="ok-link" href="/yonetim/projeler">← Projeler</a>
-<h1><%= baslik %></h1>
-<form class="form kart-form" method="post" action="<%= yeni ? '/yonetim/projeler' : '/yonetim/projeler/' + p.id %>" enctype="multipart/form-data" novalidate>
-  <% if (Object.keys(hatalar).length) { %><p class="hata-kutu" role="alert">Lütfen işaretli alanları düzeltin.</p><% } %>
-  <label>Müşteri *<input name="musteri" value="<%= p.musteri || '' %>" required maxlength="100"><%- hata('musteri') %></label>
-  <label>Etkinlik / fuar<input name="etkinlik" value="<%= p.etkinlik || '' %>" maxlength="120"><%- hata('etkinlik') %></label>
-  <div class="form-satir">
-    <label>Şehir<input name="sehir" value="<%= p.sehir || '' %>" maxlength="60"><%- hata('sehir') %></label>
-    <label>Yıl<input name="yil" type="number" min="2000" max="2100" value="<%= p.yil || '' %>"><%- hata('yil') %></label>
-    <label>Tür *
-      <select name="tur"><% for (const [k, ad] of [['fuar', 'Fuar'], ['etkinlik', 'Etkinlik'], ['kurumsal', 'Kurumsal']]) { %><option value="<%= k %>"<%= p.tur === k ? ' selected' : '' %>><%= ad %></option><% } %></select><%- hata('tur') %>
-    </label>
+<%
+  // Alan yardımcıları: hatalı alana sınıf, aria-invalid ve hata satırına bağlantı
+  const h = hatalar;
+  const sinif = (ad) => 'alan' + (h[ad] ? ' hatali' : '');
+  const aria = (ad) => (h[ad] ? ` aria-invalid="true" aria-describedby="${ad}-hata"` : '');
+  const kac = (s) => String(s).replace(/[&<>"']/g, (c) => '&#' + c.charCodeAt(0) + ';');
+  const hataSatiri = (ad) => (h[ad] ? `<p class="alan-hata" id="${ad}-hata">${kac(h[ad])}</p>` : '');
+  const deger = (ad) => (p[ad] === null || p[ad] === undefined ? '' : p[ad]);
+  const oneCikan = p.one_cikan === true || p.one_cikan === 'on';
+  const fotoAdres = !yeni && p.foto ? `/gorsel/${p.id}?boy=kucuk&v=${p.guncelleme ? new Date(p.guncelleme).getTime() : ''}` : '';
+%>
+<p class="geri"><a class="bag-ok" href="/yonetim/projeler"><span class="ok ok-geri" aria-hidden="true"><%- include('../parca/ok', { yon: 'sol' }) %></span> Projeler</a></p>
+<div class="y-bas">
+  <div>
+    <p class="etiket"><%= yeni ? 'Örnek çalışma ekle' : 'Proje No. ' + p.id %></p>
+    <h1><%= baslik %></h1>
   </div>
-  <label>Açıklama<textarea name="aciklama" rows="4" maxlength="1000"><%= p.aciklama || '' %></textarea></label>
-  <label>Fotoğraf <%= yeni ? '*' : '(boş bırakırsanız mevcut fotoğraf kalır)' %><input type="file" name="gorsel" accept="image/jpeg,image/png,image/webp"><%- hata('gorsel') %></label>
-  <% if (!yeni) { %><img class="onizleme" src="/gorsel/<%= p.id %>" alt="Mevcut fotoğraf"><% } %>
-  <label class="onay"><input type="checkbox" name="one_cikan"<%= p.one_cikan === true || p.one_cikan === 'on' ? ' checked' : '' %>> Ana sayfada göster</label>
-  <button class="dugme" type="submit"><%= yeni ? 'Projeyi ekle' : 'Değişiklikleri kaydet' %></button>
+</div>
+
+<%- include('_hata-ozet', { hatalar }) %>
+
+<form class="y-form beyaz-kart" method="post" action="<%= yeni ? '/yonetim/projeler' : '/yonetim/projeler/' + p.id %>" enctype="multipart/form-data" novalidate>
+  <%# Jeton dosyadan önce gelmeli: dosya 3 MB'ı aşıp yükleme kesilse de jeton okunmuş olur %>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="y-form-iki">
+    <div class="<%= sinif('musteri') %>">
+      <label for="musteri">Müşteri <span aria-hidden="true">*</span><span class="gizli">(zorunlu)</span></label>
+      <input id="musteri" name="musteri" value="<%= deger('musteri') %>" required maxlength="100"<%- aria('musteri') %>>
+      <%- hataSatiri('musteri') %>
+    </div>
+    <div class="<%= sinif('etkinlik') %>">
+      <label for="etkinlik">Etkinlik / fuar</label>
+      <input id="etkinlik" name="etkinlik" value="<%= deger('etkinlik') %>" maxlength="120"<%- aria('etkinlik') %>>
+      <%- hataSatiri('etkinlik') %>
+    </div>
+  </div>
+  <div class="y-form-uc">
+    <div class="<%= sinif('sehir') %>">
+      <label for="sehir">Şehir</label>
+      <input id="sehir" name="sehir" value="<%= deger('sehir') %>" maxlength="60"<%- aria('sehir') %>>
+      <%- hataSatiri('sehir') %>
+    </div>
+    <div class="<%= sinif('yil') %>">
+      <label for="yil">Yıl</label>
+      <input id="yil" name="yil" type="number" inputmode="numeric" min="2000" max="2100" value="<%= deger('yil') %>"<%- aria('yil') %>>
+      <%- hataSatiri('yil') %>
+    </div>
+    <div class="<%= sinif('tur') %>">
+      <label for="tur">Tür <span aria-hidden="true">*</span><span class="gizli">(zorunlu)</span></label>
+      <select id="tur" name="tur"<%- aria('tur') %>>
+        <% for (const [k, ad] of Object.entries(TURLER)) { %><option value="<%= k %>"<%= p.tur === k ? ' selected' : '' %>><%= ad %></option><% } %>
+      </select>
+      <%- hataSatiri('tur') %>
+    </div>
+  </div>
+  <div class="<%= sinif('aciklama') %>">
+    <label for="aciklama">Açıklama</label>
+    <textarea id="aciklama" name="aciklama" rows="4" maxlength="1000"<%- aria('aciklama') %>><%= deger('aciklama') %></textarea>
+    <%- hataSatiri('aciklama') %>
+  </div>
+
+  <div class="y-foto-alan">
+    <div class="<%= sinif('gorsel') %>">
+      <label for="gorsel">Fotoğraf<% if (yeni) { %> <span aria-hidden="true">*</span><span class="gizli">(zorunlu)</span><% } %></label>
+      <p class="yardim" id="gorsel-yardim">JPEG, PNG ya da WebP, en fazla 3 MB. Sunucu WebP'ye çevirir ve küçük boyunu da üretir.<% if (!yeni) { %> Boş bırakırsanız mevcut fotoğraf kalır.<% } %><% if (Object.keys(h).length && !h.gorsel) { %> Formda hata olduğu için dosyayı yeniden seçin.<% } %></p>
+      <input id="gorsel" type="file" name="gorsel" accept="image/jpeg,image/png,image/webp" aria-describedby="gorsel-yardim<%= h.gorsel ? ' gorsel-hata' : '' %>"<%- h.gorsel ? ' aria-invalid="true"' : '' %>>
+      <%- hataSatiri('gorsel') %>
+    </div>
+    <%# Önizleme: düzenlemede mevcut fotoğraf; yeni dosya seçilince yonetim.js onu gösterir %>
+    <figure class="y-onizleme" data-onizleme<%= fotoAdres ? '' : ' hidden' %>>
+      <img src="<%= fotoAdres %>" alt="<%= yeni ? 'Seçilen fotoğraf' : 'Projenin fotoğrafı' %>" width="300" height="225">
+      <figcaption data-onizleme-yazi><%= yeni ? 'Seçilen fotoğraf' : 'Mevcut fotoğraf' %></figcaption>
+    </figure>
+  </div>
+
+  <div class="alan alan-onay">
+    <input id="one_cikan" type="checkbox" name="one_cikan"<%= oneCikan ? ' checked' : '' %>>
+    <label for="one_cikan">Ana sayfada göster (öne çıkan çalışma)</label>
+  </div>
+
+  <div class="dugmeler">
+    <button class="btn btn-1" type="submit"><%= yeni ? 'Projeyi ekle' : 'Değişiklikleri kaydet' %></button>
+    <a class="btn btn-2" href="/yonetim/projeler">Vazgeç</a>
+    <% if (!yeni) { %><a class="bag-ok" href="/calismalar/<%= p.id %>" target="_blank" rel="noopener">Sitede gör <span class="ok" aria-hidden="true"><%- include('../parca/ok', { yon: 'capraz' }) %></span><span class="gizli"> (yeni sekmede açılır)</span></a><% } %>
+  </div>
 </form>
+
+<% if (!yeni) { %>
+  <section class="y-tehlike-alan" aria-labelledby="sil-baslik">
+    <h2 id="sil-baslik" class="h3">Projeyi sil</h2>
+    <p>Proje ve fotoğrafı kalıcı olarak silinir; sitedeki sayfası da kalkar.</p>
+    <form method="post" action="/yonetim/projeler/<%= p.id %>/sil" data-onay="Bu proje silinsin mi? Bu işlem geri alınamaz.">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button class="btn y-btn-tehlike" type="submit">Projeyi sil</button>
+    </form>
+  </section>
+<% } %>
 <%- include('_alt') %>

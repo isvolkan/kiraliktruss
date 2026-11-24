@@ -1,0 +1,22 @@
+<%- include('_ust') %>
+<% const hata = (k) => hatalar[k] ? `<span class="hata">${hatalar[k]}</span>` : ''; %>
+<a class="ok-link" href="/yonetim/projeler">← Projeler</a>
+<h1><%= baslik %></h1>
+<form class="form kart-form" method="post" action="<%= yeni ? '/yonetim/projeler' : '/yonetim/projeler/' + p.id %>" enctype="multipart/form-data" novalidate>
+  <% if (Object.keys(hatalar).length) { %><p class="hata-kutu" role="alert">Lütfen işaretli alanları düzeltin.</p><% } %>
+  <label>Müşteri *<input name="musteri" value="<%= p.musteri || '' %>" required maxlength="100"><%- hata('musteri') %></label>
+  <label>Etkinlik / fuar<input name="etkinlik" value="<%= p.etkinlik || '' %>" maxlength="120"><%- hata('etkinlik') %></label>
+  <div class="form-satir">
+    <label>Şehir<input name="sehir" value="<%= p.sehir || '' %>" maxlength="60"><%- hata('sehir') %></label>
+    <label>Yıl<input name="yil" type="number" min="2000" max="2100" value="<%= p.yil || '' %>"><%- hata('yil') %></label>
+    <label>Tür *
+      <select name="tur"><% for (const [k, ad] of [['fuar', 'Fuar'], ['etkinlik', 'Etkinlik'], ['kurumsal', 'Kurumsal']]) { %><option value="<%= k %>"<%= p.tur === k ? ' selected' : '' %>><%= ad %></option><% } %></select><%- hata('tur') %>
+    </label>
+  </div>
+  <label>Açıklama<textarea name="aciklama" rows="4" maxlength="1000"><%= p.aciklama || '' %></textarea></label>
+  <label>Fotoğraf <%= yeni ? '*' : '(boş bırakırsanız mevcut fotoğraf kalır)' %><input type="file" name="gorsel" accept="image/jpeg,image/png,image/webp"><%- hata('gorsel') %></label>
+  <% if (!yeni) { %><img class="onizleme" src="/gorsel/<%= p.id %>" alt="Mevcut fotoğraf"><% } %>
+  <label class="onay"><input type="checkbox" name="one_cikan"<%= p.one_cikan === true || p.one_cikan === 'on' ? ' checked' : '' %>> Ana sayfada göster</label>
+  <button class="dugme" type="submit"><%= yeni ? 'Projeyi ekle' : 'Değişiklikleri kaydet' %></button>
+</form>
+<%- include('_alt') %>

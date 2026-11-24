@@ -1,0 +1,9 @@
+GET /v6/calismalar?q=a&q=b -> 500
+GET /v6/calismalar?q=a -> 200
+GET /v6/kvkk -> 404
+GET /v6/gizlilik -> 404
+GET /v6/aydinlatma -> 404
+GET /kvkk -> 404
+GET /robots.txt -> 404
+GET /sitemap.xml -> 404
+X-Robots-Tag: noindex, nofollow

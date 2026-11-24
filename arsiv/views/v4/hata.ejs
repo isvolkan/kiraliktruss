@@ -1,0 +1,15 @@
+<%- include('parca/bas') %>
+
+<section class="sayfa-bas sayfa-bas--ortada cizim-zemin">
+  <div class="kap dar">
+    <p class="ust-etiket mono">Hata 500</p>
+    <h1>Bir sorun oluştu</h1>
+    <p class="sayfa-bas__giris">İşleminizi şu an tamamlayamadık. Biraz sonra yeniden deneyin ya da bizi arayın.</p>
+    <p class="ortada-eylem">
+      <a class="dugme dugme--sinyal dugme--buyuk" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+      <a class="dugme dugme--cizgi dugme--buyuk" href="<%= kok %>/">Ana sayfa</a>
+    </p>
+  </div>
+</section>
+
+<%- include('parca/son') %>

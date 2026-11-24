@@ -1,0 +1,197 @@
+<%- include('partials/ust', { sayfaCss: ['sayfalar'] }) %>
+<%
+  const sayiYaz = (n) => Number(n).toLocaleString('tr-TR');
+
+  // ---- K-20 patlatılmış görünüm: izometrik çizim burada üretilir (JS kapalıyken de açılmış hâliyle görünür) ----
+  const C = Math.cos(Math.PI / 6), S = Math.sin(Math.PI / 6);
+  const iz = (x, y, z) => [(x - y) * C, (x + y) * S - z];
+  const f1 = (v) => v.toFixed(1);
+  const nok = (a) => a.map((p) => iz(p[0], p[1], p[2]).map(f1).join(',')).join(' ');
+  const kutu = (x, y, z, w, d, h) =>
+    '<polygon class="u" points="' + nok([[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]]) + '"/>' +
+    '<polygon class="s" points="' + nok([[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]]) + '"/>' +
+    '<polygon class="l" points="' + nok([[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]]) + '"/>';
+  // Dikey (konik) silindir: alt yarıçap r1, üst yarıçap r2, delik: üstte boru ağzı
+  const silindir = (r1, r2, z, h, delik) => {
+    const a = iz(0, 0, z), u = iz(0, 0, z + h);
+    const rx1 = r1 * C * 1.41, ry1 = r1 * S * 1.41, rx2 = r2 * C * 1.41, ry2 = r2 * S * 1.41;
+    return '<path class="s" d="M' + f1(a[0] - rx1) + ' ' + f1(a[1]) + ' L' + f1(u[0] - rx2) + ' ' + f1(u[1]) +
+      ' A' + f1(rx2) + ' ' + f1(ry2) + ' 0 0 1 ' + f1(u[0] + rx2) + ' ' + f1(u[1]) + ' L' + f1(a[0] + rx1) + ' ' + f1(a[1]) +
+      ' A' + f1(rx1) + ' ' + f1(ry1) + ' 0 0 1 ' + f1(a[0] - rx1) + ' ' + f1(a[1]) + 'Z"/>' +
+      '<ellipse class="u" cx="' + f1(u[0]) + '" cy="' + f1(u[1]) + '" rx="' + f1(rx2) + '" ry="' + f1(ry2) + '"/>' +
+      (delik ? '<ellipse class="delik" cx="' + f1(u[0]) + '" cy="' + f1(u[1]) + '" rx="' + f1(rx2 * .72) + '" ry="' + f1(ry2 * .72) + '"/>' : '');
+  };
+  // Parçalar: ad, çizim, ayrılma mesafesi (px, + aşağı), etiketin bağlandığı nokta (ekran koordinatı)
+  const parcalar = [
+    { ad: 'Ayak plakası', sinif: 'plaka', dy: 100, cizim: kutu(-60, -60, 0, 120, 120, 10), uc: [104, -5] },
+    { ad: 'Konik yuva', sinif: 'yuva', dy: 40, cizim: silindir(26, 17, 10, 38, false), uc: [iz(0, 0, 29)[0] + 26 * C * 1.41 - 3, iz(0, 0, 29)[1]] },
+    { ad: 'Güvenlik pimi', sinif: 'pim', dy: -30, cizim: kutu(-40, -8, 56, 80, 16, 8), uc: [41.6, -44] },
+    { ad: 'Ana boru', sinif: 'boru', dy: -110, cizim: silindir(22, 22, 64, 120, true), uc: [22 * C * 1.41, -124] },
+  ];
+  const etiketX = 150;
+%>
+
+<section class="sayfa-bas hk-bas">
+  <div class="kap">
+    <span class="mono"><span data-karistir><%= firma.ilce %></span> · <%= firma.kurulus %>'dan beri</span>
+    <h1 data-yuksel>Hakkımızda</h1>
+    <p class="giris soluk">Orijinal alüminyum truss, deneyimli teknik ekip, proje bazlı fiyat.</p>
+  </div>
+</section>
+
+<%# 01 — "2009'dan beri" (M-15) %>
+<section class="bolum hk-hikaye" aria-labelledby="hk-b">
+  <div class="kap">
+    <span class="bolum-no mono"><b>01</b> / 05</span>
+    <h2 class="sr-only" id="hk-b">Hikâyemiz</h2>
+    <p class="hk-yazi" id="hakYazi"><%= firma.kurulus %>'dan beri truss kiralama hizmeti veriyoruz. Stoklarımızdaki yaklaşık <%= sayiYaz(firma.stokMetretul) %> metretül sistem kesinlikle demir kaynatma değil, Avrupa standartlarında imal edilmiş orijinal alüminyumdur; <%= firma.belgeler.join(', ') %> belgelidir. Deneyimli teknik ekibimizle projeleriniz için çözüm üretir, fiyatı proje bazlı veririz.</p>
+  </div>
+</section>
+
+<%# 02 — Malzeme / Nerelerde %>
+<section class="bolum hk-iki-blok" aria-labelledby="hk-m">
+  <div class="kap">
+    <div class="bolum-bas">
+      <div>
+        <span class="bolum-no mono"><b>02</b> / 05</span>
+        <h2 class="b-l" id="hk-m" data-yuksel>Neyi, nerede kuruyoruz?</h2>
+      </div>
+    </div>
+    <div class="iki">
+      <article class="hk-blok">
+        <h3 class="mono">Malzeme</h3>
+        <p>Truss sistemlerimiz kesinlikle demir kaynatma değildir. Hepsi Avrupa standartlarında imal edilmiş ve <%= firma.belgeler.join(', ') %> belgelidir. Depolama ve nakliyede deforme olmamış, ilk günkü alüminyum parlaklığındadır.</p>
+      </article>
+      <article class="hk-blok">
+        <h3 class="mono">Nerelerde</h3>
+        <p>Her türlü event, fuar, etkinlik, kongre, stand, tanıtım, konser, düğün ve benzeri projede kullanılmak üzere truss sağlıyoruz. Fiyatlandırmamız proje bazlıdır.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<%# 03 — Kule bağlantı detayı (K-20) %>
+<section class="k20" id="baglanti" aria-labelledby="k20-b">
+  <div class="k20-sabit">
+    <div class="k20-sol">
+      <span class="bolum-no mono"><b>03</b> / 05</span>
+      <h2 class="b-l" id="k20-b" data-yuksel>Bir kule bağlantısı böyle birleşir.</h2>
+      <p class="soluk">Kule ayağından ana boruya kadar bağlantıyı parça parça gösteren şematik çizim. Kaydırdıkça parçalar ayrılır.</p>
+      <ol class="k20-liste mono">
+        <% parcalar.forEach(function (p, i) { %><li data-p="<%= i %>"><b><%= String(i + 1).padStart(2, '0') %></b> <%= p.ad %></li>
+        <% }) %>
+      </ol>
+      <div class="olcu k20-olcu" aria-hidden="true"><span id="k20Yuzde">Açılım %100</span></div>
+      <p class="mono soluk k20-not">Şematik çizim · ölçekli değildir</p>
+    </div>
+    <div class="k20-model">
+      <svg viewBox="-125 -345 515 545" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <line class="k20-eksen" x1="0" y1="-335" x2="0" y2="190"/>
+        <% parcalar.forEach(function (p, i) { %>
+        <g class="k20-p k20-<%= p.sinif %>" style="--dy:<%= p.dy %>px">
+          <%- p.cizim %>
+          <g class="k20-e">
+            <circle cx="<%= f1(p.uc[0]) %>" cy="<%= f1(p.uc[1]) %>" r="3"/>
+            <line x1="<%= f1(p.uc[0]) %>" y1="<%= f1(p.uc[1]) %>" x2="<%= etiketX %>" y2="<%= f1(p.uc[1]) %>" style="--l:<%= Math.ceil(etiketX - p.uc[0]) + 2 %>"/>
+            <text x="<%= etiketX + 8 %>" y="<%= f1(p.uc[1] + 5) %>"><%= String(i + 1).padStart(2, '0') %> · <%= p.ad.toLocaleUpperCase('tr') %></text>
+          </g>
+        </g>
+        <% }) %>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<%# 04 — Boş salon → çizim → kurulmuş sahne (G-11) %>
+<section class="g11" id="cizimden-sahneye" aria-labelledby="g11-b">
+  <div class="g11-sabit">
+    <div class="g11-sol">
+      <span class="bolum-no mono"><b>04</b> / 05</span>
+      <h2 class="b-l" id="g11-b" data-yuksel>Çizimle başlar, sahnede biter.</h2>
+      <ol class="g11-adimlar">
+        <li data-a="0"><span class="mono">01 / 03</span><strong>Boş salon</strong></li>
+        <li data-a="1"><span class="mono">02 / 03</span><strong>Truss çizimi</strong></li>
+        <li data-a="2"><span class="mono">03 / 03</span><strong>Kurulmuş sahne</strong></li>
+      </ol>
+      <p class="mono soluk">Şematik gösterim · gerçek kurulumlar için <a href="<%= kok %>/calismalar">çalışmalarımıza</a> bakın</p>
+    </div>
+    <figure class="g11-sahne kose sinyal" id="g11" aria-label="Boş salon, truss çizimi ve kurulmuş sahne">
+      <svg class="g11-kat g11-a" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="g11duvar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8d9195"/><stop offset="1" stop-color="#5f6367"/></linearGradient>
+          <linearGradient id="g11zemin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6b6259"/><stop offset="1" stop-color="#3b352f"/></linearGradient>
+        </defs>
+        <rect width="1200" height="800" fill="#4b4f53"/>
+        <polygon points="0,0 1200,0 860,250 340,250" fill="#3e4245"/>
+        <polygon points="0,0 340,250 340,560 0,800" fill="#575b5f"/>
+        <polygon points="1200,0 860,250 860,560 1200,800" fill="#53575b"/>
+        <rect x="340" y="250" width="520" height="310" fill="url(#g11duvar)"/>
+        <polygon points="0,800 340,560 860,560 1200,800" fill="url(#g11zemin)"/>
+        <rect x="520" y="330" width="160" height="230" fill="#2c2f31"/>
+        <g fill="#2f2a25" opacity=".55"><ellipse cx="300" cy="700" rx="120" ry="18"/><ellipse cx="900" cy="690" rx="90" ry="14"/></g>
+        <g stroke="#8a8f94" stroke-width="10"><line x1="420" y1="250" x2="420" y2="600"/><line x1="780" y1="250" x2="780" y2="600"/></g>
+      </svg>
+      <svg class="g11-kat g11-c" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+        <g class="oda">
+          <line data-g="0" x1="340" y1="560" x2="0" y2="800"/><line data-g="0" x1="860" y1="560" x2="1200" y2="800"/>
+          <line data-g=".05" x1="470" y1="560" x2="300" y2="800"/><line data-g=".05" x1="600" y1="560" x2="600" y2="800"/><line data-g=".05" x1="730" y1="560" x2="900" y2="800"/>
+          <line data-g=".1" x1="260" y1="616" x2="940" y2="616"/><line data-g=".15" x1="150" y1="694" x2="1050" y2="694"/>
+          <polyline data-g=".1" points="0,0 340,250 340,560 0,800"/>
+          <polyline data-g=".1" points="1200,0 860,250 860,560 1200,800"/>
+          <rect data-g=".2" x="340" y="250" width="520" height="310"/>
+          <rect data-g=".3" x="520" y="330" width="160" height="230"/>
+        </g>
+        <g class="tr">
+          <path data-g=".45" d="M430 560 V300 M462 560 V300 M430 560 L462 520 L430 480 L462 440 L430 400 L462 360 L430 320"/>
+          <path data-g=".5" d="M738 560 V300 M770 560 V300 M738 560 L770 520 L738 480 L770 440 L738 400 L770 360 L738 320"/>
+          <path data-g=".6" d="M430 300 H770 M430 268 H770 M430 300 L460 268 L490 300 L520 268 L550 300 L580 268 L610 300 L640 268 L670 300 L700 268 L730 300 L760 268"/>
+          <path data-g=".8" d="M500 300 v18 M600 300 v18 M700 300 v18"/>
+        </g>
+      </svg>
+      <svg class="g11-kat g11-b" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="g11isik" cx=".5" cy=".35" r=".6"><stop offset="0" stop-color="#3a2f63"/><stop offset="1" stop-color="#0d0d16"/></radialGradient>
+          <linearGradient id="g11huzme" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9b0" stop-opacity=".55"/><stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/></linearGradient>
+        </defs>
+        <rect width="1200" height="800" fill="url(#g11isik)"/>
+        <polygon points="0,800 340,560 860,560 1200,800" fill="#141218"/>
+        <rect x="480" y="320" width="240" height="140" fill="#2a7de1" opacity=".85"/>
+        <rect x="480" y="320" width="240" height="140" fill="none" stroke="#9cc7ff" stroke-width="2"/>
+        <g stroke="#c9ced3" stroke-width="5" fill="none">
+          <path d="M430 560 V300 M462 560 V300 M738 560 V300 M770 560 V300 M430 300 H770 M430 268 H770"/>
+          <path d="M430 560 L462 520 L430 480 L462 440 L430 400 L462 360 L430 320 M738 560 L770 520 L738 480 L770 440 L738 400 L770 360 L738 320" stroke-width="3"/>
+          <path d="M430 300 L460 268 L490 300 L520 268 L550 300 L580 268 L610 300 L640 268 L670 300 L700 268 L730 300 L760 268" stroke-width="3"/>
+        </g>
+        <polygon points="490,318 510,318 620,560 380,560" fill="url(#g11huzme)"/>
+        <polygon points="590,318 610,318 760,560 470,560" fill="url(#g11huzme)"/>
+        <polygon points="690,318 710,318 860,560 600,560" fill="url(#g11huzme)"/>
+        <rect x="360" y="540" width="480" height="24" fill="#26222c"/>
+        <g fill="#08070b"><circle cx="250" cy="760" r="40"/><circle cx="380" cy="770" r="36"/><circle cx="820" cy="770" r="38"/><circle cx="960" cy="758" r="42"/><circle cx="600" cy="780" r="34"/></g>
+      </svg>
+      <figcaption class="g11-etiket mono" id="g11Etiket">03 / 03 · Kurulmuş sahne</figcaption>
+    </figure>
+  </div>
+</section>
+
+<%# 05 — Belgeler %>
+<section class="bolum hk-belge" aria-labelledby="hk-belge-b">
+  <div class="kap">
+    <div class="bolum-bas">
+      <div>
+        <span class="bolum-no mono"><b>05</b> / 05</span>
+        <h2 class="b-l" id="hk-belge-b" data-yuksel>Belgeli, orijinal alüminyum.</h2>
+      </div>
+      <p class="giris soluk">Truss sistemlerimiz Avrupa standartlarında imal edilmiştir.</p>
+    </div>
+    <ul class="hk-belgeler">
+      <% for (const b of firma.belgeler) { %><li class="kose"><span class="mono">Belge</span><b><%= b %></b></li>
+      <% } %>
+    </ul>
+    <div class="hk-eylem">
+      <a class="dugme ana" href="<%= kok %>/teklif">Projeniz için teklif isteyin</a>
+      <a class="dugme" href="<%= kok %>/calismalar">Çalışmalara bak →</a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/alt', { sayfaJs: ['hakkimizda'] }) %>

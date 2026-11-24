@@ -1,0 +1,63 @@
+<%
+  // Üst menü kalemleri: [yazı, bağlantı, etkin mi]
+  const menu = [
+    ['Çalışmalar', kok + '/calismalar', yol.startsWith('/calismalar')],
+    ['Hesaplayıcı', kok + '/#hesapla', false],
+    ['Hakkımızda', kok + '/hakkimizda', yol === '/hakkimizda'],
+    ['İletişim', kok + '/iletisim', yol === '/iletisim'],
+  ];
+  const altCubuk = !yol.startsWith('/teklif'); // teklif sayfalarında alt çubuk yok
+%><!doctype html>
+<html lang="tr">
+<head>
+  <script src="/v5/js/erken.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title><%= baslik %> · Kiralık Truss</title>
+  <meta name="description" content="Truss kiralıyoruz. Yaklaşık <%= firma.stokMetretul %> metretül orijinal alüminyum truss stoğu; hepsi <%= firma.belgeler.join(', ') %> belgeli. <%= firma.ilce %>.">
+  <% if (demo) { %><meta name="robots" content="noindex, nofollow"><% } %>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap&subset=latin-ext">
+  <link rel="stylesheet" href="/v5/css/v5.css">
+  <script src="/v5/js/v5.js" defer></script>
+</head>
+<body class="<%= altCubuk ? 'alt-var' : '' %>">
+<a class="atla" href="#icerik">İçeriğe geç</a>
+
+<header class="ust">
+  <div class="ic ust-ic">
+    <a class="logo" href="<%= kok %>/"><span class="logo-1">kiralık</span> <span class="logo-2">truss</span></a>
+    <nav class="ust-menu" aria-label="Ana menü">
+      <ul>
+        <% for (const [ad, href, etkin] of menu) { %>
+          <li><a href="<%= href %>"<% if (etkin) { %> aria-current="page"<% } %>><%= ad %></a></li>
+        <% } %>
+      </ul>
+    </nav>
+    <a class="ust-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+    <a class="btn btn-1 ust-teklif" href="<%= kok %>/teklif">Teklif iste <span class="ok" aria-hidden="true">→</span></a>
+    <button class="menu-ac" type="button" aria-expanded="false" aria-controls="mobil-menu">Menü</button>
+  </div>
+</header>
+
+<%# Telefon ve tablet menüsü: JS açar/kapatır; JS yoksa hiç görünmez (menü üst çubukta kalır) %>
+<div class="menu-panel z-mavi" id="mobil-menu" role="dialog" aria-modal="true" aria-label="Menü">
+  <div class="ic">
+    <div class="panel-ust">
+      <button class="menu-kapat" type="button">Kapat</button>
+    </div>
+    <ul class="panel-menu">
+      <% for (const [ad, href, etkin] of menu) { %>
+        <li><a href="<%= href %>"<% if (etkin) { %> aria-current="page"<% } %>><span><%= ad %></span><span class="ok" aria-hidden="true">→</span></a></li>
+      <% } %>
+    </ul>
+    <div class="panel-alt">
+      <a class="panel-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a>
+      <a class="btn btn-1" href="<%= kok %>/teklif">Teklif iste <span class="ok" aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</div>
+
+<main id="icerik" tabindex="-1">

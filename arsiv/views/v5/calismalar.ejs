@@ -1,0 +1,98 @@
+<%- include('parca/bas') %>
+<%
+  // Süzgeç bağlantısı: mevcut parametreleri korur, "ek" ile değiştirir; sayfa yalnız açıkça verilirse eklenir
+  const liste = filtre.gorunum === 'liste';
+  const adres = (ek) => {
+    const o = Object.assign({ tur: filtre.tur, sehir: filtre.sehir, yil: filtre.yil, q: filtre.q, gorunum: liste ? 'liste' : '' }, ek);
+    const s = new URLSearchParams(Object.entries(o).filter(([, v]) => v !== '' && v != null)).toString();
+    return kok + '/calismalar' + (s ? '?' + s : '');
+  };
+  const suzgecli = filtre.tur || filtre.sehir || filtre.yil || filtre.q;
+  const turAdlari = { fuar: 'Fuar', etkinlik: 'Etkinlik', kurumsal: 'Kurumsal' };
+  const turLevhalari = [['', 'Tümü', turSayilari.tumu], ['fuar', 'Fuar', turSayilari.fuar], ['etkinlik', 'Etkinlik', turSayilari.etkinlik], ['kurumsal', 'Kurumsal', turSayilari.kurumsal]];
+  const seciliTur = ['fuar', 'etkinlik', 'kurumsal'].includes(filtre.tur) ? filtre.tur : '';
+%>
+
+<section class="levha z-alu calismalar">
+  <div class="ic">
+    <h1>Çalışmalar</h1>
+    <p class="sonuc-sayisi"><%= toplam %> <%= suzgecli ? 'sonuç' : 'kayıtlı çalışma' %></p>
+
+    <form class="suzgec" method="get" action="<%= kok %>/calismalar" data-suzgec>
+      <ul class="tur-levhalari" aria-label="Tür">
+        <% for (const [deger, ad, n] of turLevhalari) { %>
+          <li><a class="tur-levha" href="<%= adres({ tur: deger }) %>"<% if (seciliTur === deger) { %> aria-current="true"<% } %>><%= ad %> (<%= n %>)</a></li>
+        <% } %>
+      </ul>
+      <% if (seciliTur) { %><input type="hidden" name="tur" value="<%= seciliTur %>"><% } %>
+      <% if (liste) { %><input type="hidden" name="gorunum" value="liste"><% } %>
+      <div class="suzgec-alanlar">
+        <div class="alan">
+          <label for="s-sehir">Şehir</label>
+          <select id="s-sehir" name="sehir">
+            <option value="">Tüm şehirler</option>
+            <% for (const s of sehirler) { %><option<% if (s === filtre.sehir) { %> selected<% } %>><%= s %></option><% } %>
+          </select>
+        </div>
+        <div class="alan">
+          <label for="s-yil">Yıl</label>
+          <select id="s-yil" name="yil">
+            <option value="">Tüm yıllar</option>
+            <% for (const y of yillar) { %><option<% if (String(y) === filtre.yil) { %> selected<% } %>><%= y %></option><% } %>
+          </select>
+        </div>
+        <div class="alan alan-ara">
+          <label for="s-q">Ara</label>
+          <input id="s-q" type="search" name="q" value="<%= filtre.q %>" placeholder="Müşteri ya da etkinlik adı">
+        </div>
+        <button class="btn btn-1" type="submit">Süz <span class="ok" aria-hidden="true">→</span></button>
+      </div>
+      <div class="suzgec-alt">
+        <p class="gorunum">
+          <a href="<%= adres({ gorunum: '' }) %>"<% if (!liste) { %> aria-current="true"<% } %>>Izgara</a>
+          <span aria-hidden="true">|</span>
+          <a href="<%= adres({ gorunum: 'liste' }) %>"<% if (liste) { %> aria-current="true"<% } %>>Liste</a>
+        </p>
+        <% if (suzgecli) { %><a class="bag-ok" href="<%= kok %>/calismalar<%= liste ? '?gorunum=liste' : '' %>">Süzgeçleri temizle <span class="ok" aria-hidden="true">←</span></a><% } %>
+      </div>
+    </form>
+
+    <% if (!projeler.length) { %>
+      <div class="bos-sonuc">
+        <h2>Bu süzgeçle çalışma bulunamadı.</h2>
+        <a class="bag-ok" href="<%= kok %>/calismalar">Süzgeçleri temizle <span class="ok" aria-hidden="true">←</span></a>
+      </div>
+    <% } else if (liste) { %>
+      <table class="liste-tablo">
+        <caption class="gizli">Çalışmalar listesi</caption>
+        <thead><tr><th scope="col">Müşteri</th><th scope="col">Etkinlik</th><th scope="col">Şehir</th><th scope="col">Yıl</th><th scope="col">Tür</th></tr></thead>
+        <tbody>
+          <% for (const p of projeler) { %>
+            <tr>
+              <td class="lt-musteri"><a href="<%= kok %>/calismalar/<%= p.id %>"><%= p.musteri %></a></td>
+              <td class="lt-ek"><%= p.etkinlik && p.etkinlik !== p.sehir ? p.etkinlik : '' %></td>
+              <td class="lt-ek"><%= p.sehir || '' %></td>
+              <td class="lt-ek"><%= p.yil || '' %></td>
+              <td class="lt-tur"><%= turAdlari[p.tur] || '' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <ul class="izgara">
+        <% for (const p of projeler) { %><li><%- include('parca/kart', { p }) %></li><% } %>
+      </ul>
+    <% } %>
+
+    <% if (sayfaSayisi > 1) { %>
+      <nav class="sayfalama" aria-label="Sayfalar">
+        <% if (sayfa > 1) { %><a href="<%= adres({ sayfa: sayfa - 1 }) %>"><span aria-hidden="true">←</span> Önceki</a><% } else { %><span class="pasif" aria-disabled="true"><span aria-hidden="true">←</span> Önceki</span><% } %>
+        <span class="sayfa-no">Sayfa <%= sayfa %> / <%= sayfaSayisi %></span>
+        <% if (sayfa < sayfaSayisi) { %><a href="<%= adres({ sayfa: sayfa + 1 }) %>">Sonraki <span aria-hidden="true">→</span></a><% } else { %><span class="pasif" aria-disabled="true">Sonraki <span aria-hidden="true">→</span></span><% } %>
+      </nav>
+    <% } %>
+  </div>
+</section>
+
+<%- include('parca/cagri') %>
+<%- include('parca/son') %>

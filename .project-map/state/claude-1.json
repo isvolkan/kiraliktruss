@@ -3,49 +3,67 @@
   "label": "A · Opus (hesap 1)",
   "role": "plan · inceleme · birleştirme",
   "account": "~/.claude",
-  "updated": "2026-11-14T14:12:51.034Z",
-  "milestone": {
-    "name": "M1 · Yerelde çalışan site (CRUD + form + responsive)"
-  },
-  "next": "Neon veritabanı adresi gelince seed + test, ardından Render yayını; Hakan Bey brief imzası",
+  "updated": "2026-11-23T21:18:06.112Z",
+  "next": "Kullanıcı onayıyla commit + push, sonra Render + Neon deploy (SITE_URL, SMTP_*, BILDIRIM_EPOSTA, SESSION_SECRET); Hakan Bey'den belge/stok teyidi ve brief",
   "parts": [
     {
-      "name": "Express + EJS + PostgreSQL iskeleti",
-      "status": "done"
+      "name": "Temel site ve v2–v5 sürümleri",
+      "status": "done",
+      "note": "Express + EJS + PostgreSQL iskeleti, CRUD, teklif formu, duman testleri, GitHub push ve v2–v5 sürümleri tamam",
+      "files": [
+        "app.js",
+        "routes/site.js",
+        "routes/v3.js",
+        "routes/v4.js",
+        "routes/v5.js"
+      ]
     },
     {
-      "name": "Vitrin sayfaları ve animasyonlar",
-      "status": "done"
+      "name": "v6 ana siteye taşındı",
+      "status": "done",
+      "note": "v6 kökte, eski kök ve v2-v5 arsiv/ altında, /v2../v6 301; npm test 73/73; görsel ağırlığı 3,42 -> 0,79 MB",
+      "files": [
+        "app.js",
+        "routes/site.js",
+        "views/",
+        "public/css/site.css"
+      ]
     },
     {
-      "name": "Teklif formu + doğrulama",
-      "status": "done"
+      "name": "yönetim paneli yenilendi",
+      "status": "done",
+      "note": "v6 diliyle pano, proje CRUD, teklifler (durum, not, CSV), şifre değiştirme, CSRF, dosya imza kontrolü",
+      "files": [
+        "routes/yonetim.js",
+        "views/yonetim/",
+        "lib/csrf.js"
+      ]
     },
     {
-      "name": "Yönetim paneli: projeler + teklifler CRUD",
-      "status": "done"
+      "name": "review hataları düzeltildi",
+      "status": "done",
+      "note": "5 modelli review (H1-H18): 12 çözüldü, 3 kısmen, 2 müşteri kararı, 1 bilerek bırakıldı; ikinci incelemenin D1-D11 sorunları düzeltildi",
+      "files": [
+        "docs/ai/review-v6-bulgular.md",
+        "docs/karsilastirma/index.html"
+      ]
     },
     {
-      "name": "Duman testleri (9)",
-      "status": "done"
-    },
-    {
-      "name": "Brief kanıtı (Hakan Bey imzası)",
-      "status": "todo"
-    },
-    {
-      "name": "GitHub push (özel repo)",
-      "status": "done"
-    },
-    {
-      "name": "Render + Neon yayını",
-      "status": "todo"
+      "name": "commit/push + Render deploy",
+      "status": "todo",
+      "note": "v6 ve sonrası commit edilmedi (dal v6-tasarim); Render env anahtarları, Neon'da göç denemesi, SMTP portu, brief kanıtı, sunum"
     }
   ],
   "asks": [
     {
+      "q": "v6 ve sonrası commit + push edilsin mi?",
+      "default": "Kullanıcı söyleyene kadar bekle; commit yok",
+      "answer": null
+    },
+    {
       "q": "Teslimden önce repo açık mı yapılsın, hoca mı davet edilsin?",
-      "default": "Teslimden önce açık yap"
+      "default": "Teslimden önce açık yap",
+      "answer": null
     }
   ]
 }
