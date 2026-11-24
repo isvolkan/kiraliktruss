@@ -4,8 +4,17 @@
 
 <section class="levha z-mavi tesekkur">
   <div class="ic">
-    <h1 class="yukselen"><span>İsteğiniz bize ulaştı.</span></h1>
-    <p class="giris">Bilgilerinizi aldık; teklif için sizinle iletişime geçeceğiz. Aceleniz varsa arayın: <a class="satir-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></p>
+    <%# Başlık ilk boyamada görünür; yalnız küçük bir süs animasyonu var (hareket azaltmada kapalı, bkz. site.css) %>
+    <h1 class="tesekkur-baslik">İsteğiniz bize ulaştı.</h1>
+    <p class="giris">En geç <%= firma.donusSuresi %> sizi arayacağız.</p>
+    <% if (typeof ozet !== 'undefined' && ozet) { %>
+      <dl class="tesekkur-ozet" aria-label="Gönderdiğiniz talebin özeti">
+        <% if (ozet.tur) { %><div><dt>Etkinlik</dt><dd><%= ozet.tur %></dd></div><% } %>
+        <% if (ozet.tarih) { %><div><dt>Kurulum tarihi</dt><dd><%= ozet.tarih %></dd></div><% } %>
+        <% if (ozet.sehir) { %><div><dt>Şehir</dt><dd><%= ozet.sehir %></dd></div><% } %>
+      </dl>
+    <% } %>
+    <p class="tesekkur-acil">Acil mi? Hemen arayın: <a class="satir-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a></p>
     <div class="dugmeler">
       <a class="btn btn-1" href="/calismalar">Çalışmalara bak <span class="ok" aria-hidden="true"><%- include('parca/ok', { yon: 'sag' }) %></span></a>
       <a class="btn btn-2" href="/">Ana sayfa <span class="ok ok-geri" aria-hidden="true"><%- include('parca/ok', { yon: 'sol' }) %></span></a>

@@ -6,6 +6,8 @@ module.exports = {
   belgeler: ['TÜV', 'TSE', 'CE'],
   telefon: '+90 212 222 96 95',
   telefonLink: '+902122229695',
+  // Teklif sonrası verilen söz (teşekkür sayfası); değişirse yalnız burası güncellenir. Cümle: 'En geç <donusSuresi> sizi arayacağız.'
+  donusSuresi: '1 iş günü içinde',
   faks: '+90 212 222 58 26',
   eposta: 'info@kiraliktruss.com',
   adres: 'Beysan Sanayi Sitesi, Sinpaş İş Modern, Ambarlı Yakuplu Mah. Fuar Cd. Göçmen Sok. No:1/141',

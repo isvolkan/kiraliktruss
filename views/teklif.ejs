@@ -27,8 +27,8 @@
       <div class="teklif-ana">
         <% if (Object.keys(h).length) { %>
           <%# Görsel özet kutusu yok; yalnız ekran okuyucuya tek cümle. Hatalar alanların altında. %>
-          <p class="gizli" role="alert"><% if (alanHatalari.length) { %>Formda <%= alanHatalari.length %> alan düzeltilmeli.<% } %><% if (h.genel) { %> <%= h.genel %><% } %></p>
-          <% if (h.genel) { %><p class="alan-hata genel-hata"><%= h.genel %></p><% } %>
+          <p class="gizli" role="alert"><% if (alanHatalari.length) { %>Formda <%= alanHatalari.length %> alan düzeltilmeli.<% } %><% if (h.genel) { %> <%= h.genel %><% if (typeof aramaLinki !== 'undefined' && aramaLinki) { %> <%= firma.telefon %><% } %><% } %></p>
+          <% if (h.genel) { %><p class="alan-hata genel-hata" id="genel-hata" tabindex="-1"><span><%= h.genel %><% if (typeof aramaLinki !== 'undefined' && aramaLinki) { %> <a class="satir-tel" href="tel:<%= firma.telefonLink %>"><%= firma.telefon %></a><% } %></span></p><% } %>
         <% } %>
 
         <form class="teklif-form" method="post" action="/teklif"<%- alanHatalari.length ? ' data-hatali' : '' %>>
@@ -44,7 +44,7 @@
             </div>
             <div class="alan<%= h.sehir ? ' hatali' : '' %>">
               <label for="sehir">Şehir</label>
-              <input id="sehir" name="sehir" value="<%= d.sehir || '' %>" required maxlength="60" autocomplete="address-level2"<%- hataNit('sehir') %>>
+              <input id="sehir" name="sehir" value="<%= d.sehir || '' %>" required maxlength="60" autocomplete="address-level2" enterkeyhint="next"<%- hataNit('sehir') %>>
               <%- hataSatiri('sehir') %>
             </div>
             <div class="alan<%= h.tarih ? ' hatali' : '' %>">
@@ -54,7 +54,7 @@
             </div>
             <div class="alan<%= h.gun_sayisi ? ' hatali' : '' %>">
               <label for="gun_sayisi">Kaç gün?</label>
-              <input id="gun_sayisi" type="number" name="gun_sayisi" min="1" max="60" step="1" value="<%= d.gun_sayisi || '' %>" required<%- hataNit('gun_sayisi') %>>
+              <input id="gun_sayisi" type="number" name="gun_sayisi" min="1" max="60" step="1" inputmode="numeric" enterkeyhint="next" value="<%= d.gun_sayisi || '' %>" required<%- hataNit('gun_sayisi') %>>
               <%- hataSatiri('gun_sayisi') %>
             </div>
           </fieldset>
@@ -63,7 +63,7 @@
             <legend><span class="fs-no" aria-hidden="true">2</span><span>Ölçü</span></legend>
             <div class="alan<%= h.metretul ? ' hatali' : '' %>">
               <label for="metretul">Yaklaşık metretül (isteğe bağlı)</label>
-              <input id="metretul" type="number" name="metretul" min="1" max="5000" step="1" inputmode="numeric" value="<%= d.metretul || '' %>" aria-describedby="metretul-yardim<%= h.metretul ? ' metretul-hata' : '' %>"<%- h.metretul ? ' aria-invalid="true"' : '' %>>
+              <input id="metretul" type="number" name="metretul" min="1" max="5000" step="1" inputmode="numeric" enterkeyhint="next" value="<%= d.metretul || '' %>" aria-describedby="metretul-yardim<%= h.metretul ? ' metretul-hata' : '' %>"<%- h.metretul ? ' aria-invalid="true"' : '' %>>
               <p class="yardim" id="metretul-yardim">Bilmiyorsanız boş bırakın; ölçüye göre biz hesaplarız.</p>
               <%- hataSatiri('metretul') %>
             </div>
@@ -82,22 +82,22 @@
             <legend><span class="fs-no" aria-hidden="true">3</span><span>İletişim</span></legend>
             <div class="alan<%= h.ad_soyad ? ' hatali' : '' %>">
               <label for="ad_soyad">Ad soyad</label>
-              <input id="ad_soyad" name="ad_soyad" value="<%= d.ad_soyad || '' %>" autocomplete="name" required maxlength="80"<%- hataNit('ad_soyad') %>>
+              <input id="ad_soyad" name="ad_soyad" value="<%= d.ad_soyad || '' %>" autocomplete="name" enterkeyhint="next" required maxlength="80"<%- hataNit('ad_soyad') %>>
               <%- hataSatiri('ad_soyad') %>
             </div>
             <div class="alan<%= h.firma ? ' hatali' : '' %>">
               <label for="firma">Firma (isteğe bağlı)</label>
-              <input id="firma" name="firma" value="<%= d.firma || '' %>" autocomplete="organization" maxlength="100"<%- hataNit('firma') %>>
+              <input id="firma" name="firma" value="<%= d.firma || '' %>" autocomplete="organization" enterkeyhint="next" maxlength="100"<%- hataNit('firma') %>>
               <%- hataSatiri('firma') %>
             </div>
             <div class="alan<%= h.telefon ? ' hatali' : '' %>">
               <label for="telefon">Telefon</label>
-              <input id="telefon" type="tel" name="telefon" value="<%= d.telefon || '' %>" autocomplete="tel" required<%- hataNit('telefon') %>>
+              <input id="telefon" type="tel" name="telefon" value="<%= d.telefon || '' %>" autocomplete="tel" inputmode="tel" enterkeyhint="next" required<% if (typeof telefonDeseni !== 'undefined') { %> pattern="<%= telefonDeseni %>" title="Geçerli bir telefon numarası girin (ör. 0532 123 45 67)."<% } %><%- hataNit('telefon') %>>
               <%- hataSatiri('telefon') %>
             </div>
             <div class="alan<%= h.eposta ? ' hatali' : '' %>">
               <label for="eposta">E-posta</label>
-              <input id="eposta" type="email" name="eposta" value="<%= d.eposta || '' %>" autocomplete="email" required<%- hataNit('eposta') %>>
+              <input id="eposta" type="email" name="eposta" value="<%= d.eposta || '' %>" autocomplete="email" inputmode="email" enterkeyhint="send" required<%- hataNit('eposta') %>>
               <%- hataSatiri('eposta') %>
             </div>
             <div class="alan alan-onay<%= h.kvkk ? ' hatali' : '' %>">

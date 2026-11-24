@@ -49,3 +49,14 @@ CREATE TABLE IF NOT EXISTS teklifler (
   olusturma      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 -- Not: okundu sütununa dayanan indeks burada değil, db/goc/002-yonetim.sql'de (eski tabloda sütun henüz yokken patlamasın).
+
+-- İşlem günlüğü: panodaki "Son işlemler" akışı (db/goc/003-islem-kaydi.sql eski veritabanlarına ekler; indeksler orada)
+CREATE TABLE IF NOT EXISTS islem_kayitlari (
+  id            SERIAL PRIMARY KEY,
+  tur           TEXT NOT NULL,           -- teklif_geldi, teklif_durum, giris ... (lib/kayit.js)
+  mesaj         TEXT NOT NULL,           -- okunur özet; telefon / e-posta / şifre içermez
+  kullanici_id  INTEGER REFERENCES kullanicilar (id) ON DELETE SET NULL,
+  teklif_id     INTEGER REFERENCES teklifler (id) ON DELETE SET NULL,
+  proje_id      INTEGER REFERENCES projeler (id) ON DELETE SET NULL,
+  olusturuldu   TIMESTAMPTZ NOT NULL DEFAULT now()
+);

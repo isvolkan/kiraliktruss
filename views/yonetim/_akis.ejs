@@ -1,0 +1,22 @@
+<%# İşlem günlüğü akışı. Parametreler: satirlar (kayıtlar), ayrintili (true: tam tarih + yapan kişi görünür; pano akışında göreli zaman yeter) -%>
+<%
+  const tamTarih = (d) => d.toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+%>
+<ol class="y-akis">
+  <% for (const k of satirlar) {
+    const tur = kayit.TURLER[k.tur] || { etiket: k.tur, simge: 'arti', renk: 'gri' };
+    const href = kayit.adres(k);
+  %>
+    <li class="y-akis-oge y-tur-<%= tur.renk %>">
+      <span class="y-nokta"><%- include('_simge', { ad: tur.simge }) %></span>
+      <div class="y-akis-metin">
+        <p class="y-akis-ust">
+          <b><%= tur.etiket %></b>
+          <time datetime="<%= k.olusturuldu.toISOString() %>" title="<%= tamTarih(k.olusturuldu) %>" data-goreli><%= ayrintili ? tamTarih(k.olusturuldu) : kayit.goreli(k.olusturuldu) %></time>
+        </p>
+        <p class="y-akis-mesaj"><% if (href) { %><a href="<%= href %>"><%= k.mesaj %></a><% } else { %><%= k.mesaj %><% } %></p>
+        <% if (ayrintili && k.kullanici) { %><p class="y-akis-kim"><%= k.kullanici %></p><% } %>
+      </div>
+    </li>
+  <% } %>
+</ol>

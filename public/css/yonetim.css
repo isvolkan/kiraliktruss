@@ -267,3 +267,63 @@ html[data-tema="koyu"] .y-durum-teklif_verildi { background: #10301E; color: #8F
 .y-giris-alt { margin: 16px 0 0; }
 .y-mesaj { max-width: 760px; margin: 0 auto; padding: 15vh var(--yan) 64px; }
 .y-mesaj h1 { margin-bottom: 16px; }
+
+/* ---------- Pano: geniş ekranda sağda "Son işlemler" akışı ---------- */
+.y-pano-yan { margin-top: 48px; }
+.y-pano-yan .y-bolum-bas { margin-bottom: 12px; }
+@media (min-width: 1280px) {
+  /* Pano sayfasında içerik sınırı kalkar; sol sütun esner, sağ sütun sabit genişlikte akış olur */
+  .y-icerik-genis { max-width: 1760px; }
+  .y-pano { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 0 48px; align-items: start; }
+  .y-pano-yan { margin-top: 0; padding-left: 32px; border-left: 1px solid var(--cizgi); }
+  /* Sol sütun dar kalırsa iki sütunlu "son teklifler / projeler" alt alta durur; yeterince genişse yan yana */
+  .y-pano-ana .y-iki { grid-template-columns: minmax(0, 1fr); }
+  .y-pano-ana .y-durumlar { grid-template-columns: repeat(2, 1fr); } /* sol sütun dar: 4 durum kutusu taşmasın */
+}
+@media (min-width: 1700px) {
+  .y-pano-ana .y-iki { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .y-pano-ana .y-durumlar { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ---------- İşlem günlüğü akışı (pano + /yonetim/islemler) ---------- */
+.y-akis { border-top: 1px solid var(--cizgi); }
+.y-akis-oge { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--cizgi); }
+.y-nokta {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;
+  border-radius: 50%; background: var(--nokta-zemin); color: var(--nokta-yazi);
+}
+.y-simge { display: block; }
+.y-akis-metin { min-width: 0; flex: 1; }
+.y-akis-ust { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 12px; margin: 0; }
+.y-akis-ust b { font-weight: 600; }
+.y-akis-ust time { font-size: 14px; color: var(--gri); white-space: nowrap; }
+.y-akis-mesaj { margin: 2px 0 0; font-size: 15px; color: var(--gri); overflow-wrap: anywhere; }
+.y-akis-mesaj a { color: inherit; text-decoration: underline; text-decoration-color: var(--cizgi); text-underline-offset: 3px; }
+.y-akis-mesaj a:hover { color: var(--mavi-yazi); text-decoration-color: currentColor; }
+.y-akis-kim { margin: 2px 0 0; font-size: 14px; color: var(--gri); overflow-wrap: anywhere; }
+
+/* Tür renkleri (yalnız renk değil: simge ve etiket de var). Açık / koyu tema ayrı ayrı */
+.y-tur-mavi   { --nokta-zemin: var(--mavi);  --nokta-yazi: var(--beyaz); }
+.y-tur-gri    { --nokta-zemin: var(--cizgi); --nokta-yazi: var(--yazi); }
+.y-tur-sari   { --nokta-zemin: #FFE6A8;      --nokta-yazi: #5C3B00; }
+.y-tur-yesil  { --nokta-zemin: #CFEBD9;      --nokta-yazi: #0D4A2B; }
+.y-tur-kirmizi { --nokta-zemin: color-mix(in srgb, var(--hata) 16%, var(--yuzey)); --nokta-yazi: var(--hata); }
+html[data-tema="koyu"] .y-tur-sari  { --nokta-zemin: #3B2C08; --nokta-yazi: #FFD27A; }
+html[data-tema="koyu"] .y-tur-yesil { --nokta-zemin: #10301E; --nokta-yazi: #8FE0AE; }
+
+/* Tam liste sayfasında akış geniş ekranda çok uzamasın */
+@media (min-width: 720px) { .y-suzgec-sol { grid-template-columns: minmax(0, 420px) auto; justify-content: start; } }
+.y-liste-dar { max-width: 880px; }
+
+/* Teklif sayfası: o teklifin geçmişi (küçük zaman çizelgesi) */
+.y-gecmis { margin-top: 24px; }
+.y-gecmis .h3 { margin-bottom: 12px; }
+.y-zaman { position: relative; margin: 0; padding: 0 0 0 20px; border-left: 2px solid var(--cizgi); }
+.y-zaman li { position: relative; display: flex; flex-wrap: wrap; gap: 0 10px; padding: 0 0 14px; font-size: 15px; }
+.y-zaman li::before {
+  content: ''; position: absolute; left: -27px; top: 6px; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--mavi-yazi); box-shadow: 0 0 0 3px var(--zemin);
+}
+.y-zaman-ad { font-weight: 600; }
+.y-zaman time, .y-zaman-not { color: var(--gri); }
+.y-zaman-not { flex-basis: 100%; }

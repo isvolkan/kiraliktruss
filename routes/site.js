@@ -4,8 +4,9 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const { validationResult, matchedData } = require('express-validator');
 const pool = require('../db/pool');
-const { teklifKurallari, ETKINLIK_TURLERI } = require('../validators');
+const { teklifKurallari, ETKINLIK_TURLERI, TELEFON_HTML_DESENI } = require('../validators');
 const bildirim = require('../lib/bildirim');
+const istemciIp = require('../lib/istemci-ip');
 const { kucukUret } = require('../lib/gorsel-uret');
 const onbellek = require('../lib/gorsel-onbellek');
 
@@ -250,6 +251,9 @@ async function gorselYukle(id, kucuk) {
 
 // ---------- Teklif formu ----------
 
+// Projenin türü (projeler.tur) → formdaki etkinlik türü; eşleşmeyen tür boş kalır
+const PROJE_TURU_ESLEMESI = { fuar: 'Fuar standı' };
+
 // Form; ana sayfadaki mini formdan ya da bir çalışmadan (?ref=id) gelen değerlerle ön doldurulur.
 // Yalnız geçerli görünen değerler alınır, geri kalanı sessizce yok sayılır.
 router.get('/teklif', async (req, res) => {
@@ -267,41 +271,65 @@ router.get('/teklif', async (req, res) => {
   let ornek = null;
   const ref = sayi(q.ref);
   if (ref) {
-    const { rows } = await pool.query('SELECT musteri, etkinlik FROM projeler WHERE id = $1', [ref]);
+    const { rows } = await pool.query('SELECT musteri, etkinlik, sehir, tur FROM projeler WHERE id = $1', [ref]);
     if (rows[0]) {
       ornek = rows[0];
       deger.mesaj = 'Örnek gösterdiğim iş: ' + ornek.musteri + (ornek.etkinlik ? ' — ' + ornek.etkinlik : '');
+      // Projeden ön seçim; adreste açıkça verilen etkinlik_turu / sehir (yukarıda dolduruldu) her zaman önceliklidir.
+      // Yalnız kesin eşleşme: proje türü 'fuar' → "Fuar standı". 'etkinlik' / 'kurumsal' birden çok seçeneğe düşer, boş kalır.
+      if (!deger.etkinlik_turu && PROJE_TURU_ESLEMESI[rows[0].tur]) deger.etkinlik_turu = PROJE_TURU_ESLEMESI[rows[0].tur];
+      if (!deger.sehir && rows[0].sehir) deger.sehir = String(rows[0].sehir).trim().slice(0, 60);
     }
   }
-  res.render('teklif', { baslik: 'Teklif iste', turler: ETKINLIK_TURLERI, hatalar: {}, deger, ornek });
+  res.render('teklif', { baslik: 'Teklif iste', turler: ETKINLIK_TURLERI, hatalar: {}, deger, ornek, telefonDeseni: TELEFON_HTML_DESENI });
 });
 
-// Aynı IP'den 15 dakikada en fazla 5 teklif (sahte/otomatik gönderime karşı)
+// Hız sınırı: aynı istemciden 15 dakikada en fazla 5 GEÇERLİ teklif. Sayaç anahtarı lib/istemci-ip.js'ten gelir
+// (Cloudflare'in CF-Connecting-IP başlığı; yoksa req.ip). Limiter yalnız doğrulamayı geçen gönderime uygulanır: doğrulama hatası (422)
+// ve bal küpü yanıtı limiter'dan ÖNCE döner, sayaca girmez; hatasını düzeltip yeniden gönderen gerçek kullanıcı cezalandırılmaz.
+// skipFailedRequests KULLANILMAZ: geçerli gönderim, istemci bağlantıyı kessin ya da yanıt hata olsun, her zaman sayılır.
+const SINIR_PENCERE_MS = 15 * 60 * 1000;
 const teklifSiniri = rateLimit({
-  windowMs: 15 * 60 * 1000, limit: 5, standardHeaders: true, legacyHeaders: false,
-  handler: (req, res) => res.status(429).render('teklif', {
-    baslik: 'Teklif iste', turler: ETKINLIK_TURLERI, deger: req.body || {},
-    hatalar: { genel: 'Çok fazla deneme yapıldı. Lütfen biraz sonra tekrar deneyin ya da bizi arayın.' },
-  }),
+  windowMs: SINIR_PENCERE_MS, limit: 5, standardHeaders: true, legacyHeaders: false, keyGenerator: istemciIp.anahtar,
+  handler: (req, res) => {
+    const reset = req.rateLimit && req.rateLimit.resetTime ? req.rateLimit.resetTime.getTime() : Date.now() + SINIR_PENCERE_MS;
+    const dakika = Math.max(1, Math.ceil((reset - Date.now()) / 60000));
+    res.status(429).render('teklif', {
+      baslik: 'Teklif iste', turler: ETKINLIK_TURLERI, deger: req.girdi || {}, telefonDeseni: TELEFON_HTML_DESENI,
+      hatalar: { genel: `Çok fazla teklif gönderildi. Yaklaşık ${dakika} dakika sonra tekrar deneyebilir ya da bizi hemen arayabilirsiniz:` },
+      aramaLinki: true,
+    });
+  },
 });
 
-// Form alanı tekrarlanırsa (a=1&a=2) ilk değer alınır; doğrulayıcılar düz metin bekler
+// Form alanı tekrarlanırsa (a=1&a=2) ilk değer alınır; doğrulayıcılar düz metin bekler.
+// Kullanıcının yazdığı değerler ayrıca req.girdi'ye kopyalanır: express-validator sadeleştiricileri (telefondan boşluk atma,
+// e-posta küçültme…) req.body'yi yerinde değiştirir; hata sayfasında alanlar kullanıcının yazdığı hâliyle (kırpılmış) geri basılır.
 function formuDuzlestir(req, res, next) {
   req.body = req.body || {}; // form dışı gövde (text/plain, JSON) ayrıştırılmaz; boş nesne say
   for (const k of Object.keys(req.body)) if (Array.isArray(req.body[k])) req.body[k] = tek(req.body[k]);
+  req.girdi = {};
+  for (const [k, v] of Object.entries(req.body)) req.girdi[k] = typeof v === 'string' ? v.trim() : v;
   next();
 }
 
-router.post('/teklif', teklifSiniri, formuDuzlestir, teklifKurallari, async (req, res) => {
-  // Bal küpü (honeypot): insanlar bu gizli alanı görmez; doluysa gönderen bir bottur.
+// Sıra: düzleştir → doğrula → (bal küpü / 422 burada döner) → hız sınırı → kaydet
+function teklifiDogrula(req, res, next) {
+  // Bal küpü (honeypot): insanlar bu gizli alanı görmez; doluysa gönderen bir bottur (veritabanına yazılmaz).
   if (req.body.web_sitesi) return res.redirect('/teklif/tesekkurler');
 
   const sonuc = validationResult(req);
   if (!sonuc.isEmpty()) {
     const hatalar = {};
     for (const h of sonuc.array()) if (!hatalar[h.path]) hatalar[h.path] = h.msg;
-    return res.status(422).render('teklif', { baslik: 'Teklif iste', turler: ETKINLIK_TURLERI, hatalar, deger: req.body });
+    return res.status(422).render('teklif', {
+      baslik: 'Teklif iste', turler: ETKINLIK_TURLERI, hatalar, deger: req.girdi, telefonDeseni: TELEFON_HTML_DESENI,
+    });
   }
+  next();
+}
+
+router.post('/teklif', formuDuzlestir, teklifKurallari, teklifiDogrula, teklifSiniri, async (req, res) => {
   const v = matchedData(req);
   const kayit = await pool.query(
     `INSERT INTO teklifler (ad_soyad, firma, telefon, eposta, etkinlik_turu, sehir, tarih, gun_sayisi, metretul, kurulum, mesaj, kvkk_onay)
@@ -309,12 +337,39 @@ router.post('/teklif', teklifSiniri, formuDuzlestir, teklifKurallari, async (req
     [v.ad_soyad, v.firma || null, v.telefon, v.eposta, v.etkinlik_turu, v.sehir, v.tarih,
      v.gun_sayisi || 1, v.metretul || null, req.body.kurulum === 'on', v.mesaj || null]
   );
+  const t = kayit.rows[0];
   // Yöneticiye e-posta: beklenmez (ziyaretçi hemen yönlenir); hata olursa yalnız loglanır
-  bildirim.yeniTeklif(kayit.rows[0]).catch((err) => console.error('Teklif bildirimi gönderilemedi:', err.message));
+  bildirim.yeniTeklif(t).catch((err) => console.error('Teklif bildirimi gönderilemedi:', err.message));
+  islemGunlugunaYaz(t);
+  // Teşekkür sayfası özeti: kişisel veri (ad, telefon, e-posta) yok; yalnız bu oturumda tutulur, adreste taşınmaz, bir kez gösterilir
+  req.session.teklifOzet = { tur: t.etkinlik_turu, tarih: v.tarih, sehir: t.sehir };
   res.redirect('/teklif/tesekkurler');
 });
 
-router.get('/teklif/tesekkurler', (req, res) => res.render('tesekkurler', { baslik: 'Talebiniz alındı' }));
+// İşlem günlüğü (lib/kayit.js, yönetim paneli): modül yoksa ya da hata verirse teklif akışı etkilenmez
+function islemGunlugunaYaz(t) {
+  let kayit;
+  try { kayit = require('../lib/kayit'); } catch (err) {
+    if (err.code !== 'MODULE_NOT_FOUND') console.error('İşlem günlüğü yüklenemedi:', err.message);
+    return;
+  }
+  Promise.resolve()
+    .then(() => kayit.kaydet({ tur: 'teklif_geldi', teklif_id: t.id, mesaj: `${t.ad_soyad} — ${t.etkinlik_turu}, ${t.sehir}` }))
+    .catch((err) => console.error('İşlem günlüğüne yazılamadı:', err.message));
+}
+
+// "15 Mart 2027" (ISO tarih dizgesinden; saat dilimi kaymasın diye UTC)
+function uzunTarih(iso) {
+  const d = new Date(iso + 'T00:00:00Z');
+  return isNaN(d) ? '' : d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+}
+
+router.get('/teklif/tesekkurler', (req, res) => {
+  const o = req.session.teklifOzet;
+  delete req.session.teklifOzet; // bir kez gösterilir
+  const ozet = o ? { tur: o.tur, tarih: uzunTarih(o.tarih), sehir: o.sehir } : null;
+  res.render('tesekkurler', { baslik: 'Talebiniz alındı', ozet });
+});
 
 // ---------- KVKK, arama motoru dosyaları ----------
 

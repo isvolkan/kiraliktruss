@@ -22,7 +22,14 @@ if (!oturumAnahtari) {
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.set('trust proxy', 1); // Render gibi sunucular HTTPS'i önden karşılar
+// Canlıda zincir: istemci → Cloudflare → Render yük dengeleyici → uygulama. "trust proxy 1" yalnız Render'a güvenir
+// (HTTPS'i önden o karşılar; req.protocol ve secure çerez için gerekir). Hız sınırı sayacı req.ip'ye bağlı DEĞİL: anahtar
+// Cloudflare'in yazdığı CF-Connecting-IP başlığından gelir (lib/istemci-ip.js); bu yüzden bu sayı kritik değildir, zincir
+// değişse ya da istemci sahte X-Forwarded-For yazsa da sayaç bölünmez. Başka bir barındırmada TRUST_PROXY ile ezilir.
+const proxyAyari = process.env.TRUST_PROXY;
+app.set('trust proxy', proxyAyari && /^\d+$/.test(proxyAyari) ? Number(proxyAyari) : (proxyAyari || 1));
+// Geçici canlı teşhis: IP_TESHIS=true iken ilk birkaç /teklif ve /saglik isteğinde adres zincirini loglar (varsayılan kapalı)
+app.use(require('./lib/istemci-ip').teshis);
 
 // Güvenlik başlıkları. Harita için OpenStreetMap iframe'ine, yazı tipi için Google Fonts'a izin veriyoruz.
 app.use(helmet({

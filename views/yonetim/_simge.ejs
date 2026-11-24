@@ -1,0 +1,15 @@
+<%# İşlem günlüğü türü simgesi (16×16 çizim, rengi yazıdan alır). Parametre: ad (lib/kayit.js TURLER[...].simge) -%>
+<%
+  const cizim = {
+    zarf: 'M2 4h12v8H2zM2 4.5l6 4.5 6-4.5',
+    goz: 'M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8zM8 6.2a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6z',
+    degisim: 'M2.5 5.5h10M10 3l2.5 2.5L10 8M13.5 10.5h-10M6 8l-2.5 2.5L6 13',
+    kalem: 'M2.5 13.5l.8-3.2 7-7 2.4 2.4-7 7zM9 4.6l2.4 2.4',
+    cop: 'M3 4.5h10M6 4.5V3h4v1.5M4.5 4.5l.7 8.5h5.6l.7-8.5',
+    arti: 'M8 3v10M3 8h10',
+    anahtar: 'M5.5 5a2.7 2.7 0 1 0 0 5.4 2.7 2.7 0 0 0 0-5.4zM8.2 7.7H14M12 7.7v2.3',
+    uyari: 'M8 2.5l6 10.5H2zM8 6.8v3M8 11.6v.1',
+    cikis: 'M6.5 3H3v10h3.5M10 5.5 12.5 8 10 10.5M12.5 8H6',
+  };
+-%>
+<svg class="y-simge" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="<%= cizim[ad] || cizim.arti %>"/></svg>

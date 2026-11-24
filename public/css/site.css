@@ -313,6 +313,8 @@ html[data-tema="koyu"] .alan input:focus, html[data-tema="koyu"] .alan select:fo
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 1 21h22L12 2Zm-1 7h2v6h-2V9Zm0 8h2v2h-2v-2Z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 .genel-hata { margin-bottom: 20px; }
+.genel-hata:focus-visible { outline: 2px solid var(--hata); outline-offset: 4px; }
+.genel-hata .satir-tel { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .alan.hatali input[type="checkbox"] { outline: 2px solid var(--hata); outline-offset: 2px; }
 .yardim { font-size: 15px; margin: 0; }
 .yardim a { color: var(--mavi-yazi); font-weight: 600; display: inline-flex; min-height: 44px; align-items: center; }
@@ -680,6 +682,14 @@ html.js .hesap-yok { display: none; }
 .tesekkur { min-height: 70vh; display: flex; align-items: center; }
 .tesekkur .ic { width: 100%; }
 .tesekkur .giris { font-size: 20px; }
+/* Başlık ilk boyamada tamamen görünür; animasyon yalnız süs (opaklık 0'dan başlamaz). Hareket azaltmada aşağıdaki genel kural kapatır. */
+@media (prefers-reduced-motion: no-preference) { .tesekkur-baslik { animation: tesekkur-giris 500ms var(--egri) both; } }
+@keyframes tesekkur-giris { from { transform: translateY(14px); } to { transform: none; } }
+.tesekkur-ozet { margin: 24px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 32px; }
+.tesekkur-ozet div { display: flex; flex-direction: column; gap: 2px; }
+.tesekkur-ozet dt { font-size: 14px; font-weight: 600; opacity: .8; }
+.tesekkur-ozet dd { margin: 0; font-size: 18px; font-weight: 600; }
+.tesekkur-acil { margin: 24px 0 0; font-size: 18px; }
 .satir-tel { font-weight: 600; white-space: nowrap; }
 .z-mavi .satir-tel { color: var(--beyaz); }
 .hata-sayfa .etiket { color: var(--gri); }

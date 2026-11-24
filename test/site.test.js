@@ -312,3 +312,127 @@ test('site: hero fotoğraf boyası beyaz yazıya WCAG AA kontrast bırakır, dü
   assert.ok(!/globalAlpha = 0\.45/.test(js), 'düz mavi katman yok');
   assert.ok(!/\.hero-zemin img\.aktif \{ opacity: \.55/.test(css));
 });
+
+// ---------- Kullanıcı testi düzeltmeleri (K1–K6) ----------
+
+function gecerliForm(ad, uzat = {}) {
+  return {
+    ad_soyad: ETIKET + ' ' + ad, telefon: '0532 123 45 67', eposta: 'test@example.com', etkinlik_turu: 'Fuar standı',
+    sehir: 'Ankara', tarih: yarin(), gun_sayisi: '2', kvkk: 'on', ...uzat,
+  };
+}
+const gonder = (xff, form) => request(app).post('/teklif').set('X-Forwarded-For', xff).type('form').send(form);
+
+test('K1 hız sınırı: doğrulama hataları (422) sayaca girmez; 6. başarılı gönderim 429 ve mesajda dakika + telefon var', async () => {
+  const ip = '203.0.113.11';
+  for (let i = 0; i < 5; i++) assert.strictEqual((await gonder(ip, { sehir: 'İzmir' })).status, 422, 'hatalı gönderim ' + i);
+  for (let i = 0; i < 5; i++) assert.strictEqual((await gonder(ip, gecerliForm('K1-' + i))).status, 302, 'başarılı gönderim ' + i);
+  const r = await gonder(ip, gecerliForm('K1-6', { telefon: '0500 000 00 05', sehir: 'Konya' }));
+  assert.strictEqual(r.status, 429);
+  assert.match(r.text, /Çok fazla teklif gönderildi\. Yaklaşık (\d+) dakika sonra tekrar deneyebilir ya da bizi hemen arayabilirsiniz:/);
+  const dk = Number(r.text.match(/Yaklaşık (\d+) dakika/)[1]);
+  assert.ok(dk >= 1 && dk <= 15, 'kalan süre 1–15 dk: ' + dk);
+  assert.match(r.text, /<p class="alan-hata genel-hata" id="genel-hata" tabindex="-1">[\s\S]*?<a class="satir-tel" href="tel:\+902122229695">/);
+  assert.match(r.text, /name="sehir" value="Konya"/, 'girdiler korunur');
+  assert.match(r.text, /name="telefon" value="0500 000 00 05"/);
+  assert.ok(r.headers['ratelimit'] || r.headers['ratelimit-policy'], 'standart hız sınırı başlıkları var');
+});
+
+const gonderCf = (cf, xff, form) => {
+  const r = request(app).post('/teklif').set('CF-Connecting-IP', cf);
+  return (xff ? r.set('X-Forwarded-For', xff) : r).type('form').send(form);
+};
+
+test('R1 sayaç anahtarı: farklı CF-Connecting-IP ayrı sayaçta; aynı CF-Connecting-IP sahte X-Forwarded-For ile bölünmez', async () => {
+  const a = '203.0.113.21', b = '203.0.113.22';
+  // Zincir: istemci → Cloudflare (CF-Connecting-IP'yi yazar) → Render (xff'ye Cloudflare uç adresini ekler; her istekte değişir)
+  for (let i = 0; i < 5; i++) assert.strictEqual((await gonderCf(a, `10.0.${i}.1, 172.69.${i}.9`, gecerliForm('R1a-' + i))).status, 302);
+  assert.strictEqual((await gonderCf(a, '198.51.100.7, 104.16.77.3', gecerliForm('R1a-6'))).status, 429, 'aynı CF adresi, başka sahte xff: yine sınırda');
+  assert.strictEqual((await gonderCf(a, null, gecerliForm('R1a-7'))).status, 429, 'xff hiç yok: yine aynı sayaç');
+  // Başka bir CF adresi (başka istemci) etkilenmez
+  assert.strictEqual((await gonderCf(b, '172.69.0.1', gecerliForm('R1b'))).status, 302);
+  // Geçersiz CF başlığı yok sayılır (req.ip'ye düşer); 429 alan istemciyi etkilemez
+  assert.strictEqual((await gonderCf('bu-bir-ip-degil', '203.0.113.23', gecerliForm('R1c'))).status, 302);
+});
+
+test('K3 doğrulama hatasında girdiler olduğu gibi geri basılır (telefon sadeleştirilmez)', async () => {
+  const r = await gonder('203.0.113.31', gecerliForm('K3', { telefon: '0500 000 00 05', eposta: 'Büyük@Örnek', ad_soyad: '  Ali Veli  ' }));
+  assert.strictEqual(r.status, 422);
+  assert.match(r.text, /id="telefon" type="tel" name="telefon" value="0500 000 00 05"/);
+  assert.match(r.text, /name="ad_soyad" value="Ali Veli"/);
+  assert.match(r.text, /id="eposta-hata"/);
+  // E-posta küçültülmeden yazıldığı gibi (geçerli ama başka alan hatalı)
+  const r2 = await gonder('203.0.113.31', gecerliForm('K3b', { eposta: 'Test@EXAMPLE.com', sehir: '' }));
+  assert.strictEqual(r2.status, 422);
+  assert.match(r2.text, /name="eposta" value="Test@EXAMPLE.com"/);
+  // Boşluktan ibaret telefon hata verir
+  const r3 = await gonder('203.0.113.31', gecerliForm('K3c', { telefon: '   ' }));
+  assert.strictEqual(r3.status, 422);
+  assert.match(r3.text, /id="telefon-hata"/);
+  // DB'ye yine sadeleşmiş değer yazılır
+  const ok = await gonder('203.0.113.32', gecerliForm('K3d', { telefon: '0500 000 00 05' }));
+  assert.strictEqual(ok.status, 302);
+  const { rows } = await pool.query('SELECT telefon FROM teklifler WHERE ad_soyad = $1', [ETIKET + ' K3d']);
+  assert.strictEqual(rows[0].telefon, '05000000005');
+});
+
+test('K4 telefon alanında pattern + title, sunucu kuralıyla aynı karar; Kaç gün? sayısal klavye; son alan "send"', async () => {
+  const r = await request(app).get('/teklif');
+  const tel = r.text.match(/<input id="telefon"[^>]*>/)[0];
+  assert.match(tel, /pattern="[^"]+"/);
+  assert.match(tel, /title="Geçerli bir telefon numarası girin/);
+  assert.match(tel, /inputmode="tel"/);
+  assert.match(r.text, /<input id="gun_sayisi"[^>]*inputmode="numeric"/);
+  assert.match(r.text, /<input id="eposta"[^>]*enterkeyhint="send"/);
+  assert.match(r.text, /<input id="ad_soyad"[^>]*enterkeyhint="next"/);
+  // HTML pattern'i (v bayrağı, tüm değere uygulanır) sunucudaki kuralla aynı sonucu vermeli
+  const { TELEFON_DESENI, TELEFON_HTML_DESENI } = require('../validators');
+  const html = new RegExp('^(?:' + TELEFON_HTML_DESENI + ')$', 'v');
+  const ayikla = (v) => v.trim().replace(/[\s()-]/g, '');
+  for (const v of ['0532 123 45 67', '05321234567', '5321234567', '+90 532 123 45 67', '+905321234567', '0 (532) 123-45-67',
+    '(0212) 222 96 95', '0212 222 96 95', '0500 000 00 05', '532-123-4567', ' 0532 123 45 67 ',
+    '0632 123 45 67', '053212345', '053212345678', 'abc', '0532 123 45 6a', '+91 532 123 45 67', '90 532 123 45 67', '', '++905321234567']) {
+    assert.strictEqual(html.test(v.trim()), TELEFON_DESENI.test(ayikla(v)), `"${v}"`);
+  }
+});
+
+test('K5 ?ref ile etkinlik türü ve şehir projeden ön seçilir; adreste verilen değer önceliklidir', async () => {
+  const p = (await pool.query(`SELECT id, sehir FROM projeler WHERE tur = 'fuar' AND sehir IS NOT NULL AND sehir <> '' ORDER BY id LIMIT 1`)).rows[0];
+  assert.ok(p, 'şehri olan fuar projesi var');
+  const r = await request(app).get('/teklif?ref=' + p.id);
+  assert.match(r.text, /<option selected>Fuar standı<\/option>/);
+  assert.ok(r.text.includes(`name="sehir" value="${p.sehir}"`), 'şehir projeden');
+  assert.match(r.text, /<textarea[^>]*>Örnek gösterdiğim iş: /);
+  const o = await request(app).get(`/teklif?ref=${p.id}&etkinlik_turu=${encodeURIComponent('Konser / sahne')}&sehir=Mersin`);
+  assert.match(o.text, /<option selected>Konser \/ sahne<\/option>/);
+  assert.match(o.text, /name="sehir" value="Mersin"/);
+  // Eşleşmeyen tür boş bırakılır
+  const e = (await pool.query(`SELECT id FROM projeler WHERE tur <> 'fuar' ORDER BY id LIMIT 1`)).rows[0];
+  if (e) assert.doesNotMatch((await request(app).get('/teklif?ref=' + e.id)).text, /<option selected>/);
+});
+
+test('K6 teşekkür sayfası: dönüş süresi, talep özeti (oturumdan, bir kez), acil telefon; başlık görünür; adreste kişisel veri yok', async () => {
+  const ajan = request.agent(app);
+  const form = gecerliForm('K6', { sehir: 'Eskişehir' });
+  const r = await ajan.post('/teklif').set('X-Forwarded-For', '203.0.113.61').type('form').send(form);
+  assert.strictEqual(r.status, 302);
+  assert.strictEqual(r.headers.location, '/teklif/tesekkurler', 'adreste hiçbir bilgi yok');
+  const t = await ajan.get('/teklif/tesekkurler');
+  assert.match(t.text, /En geç 1 iş günü içinde sizi arayacağız\./);
+  assert.match(t.text, /<dt>Etkinlik<\/dt><dd>Fuar standı<\/dd>/);
+  assert.match(t.text, /<dt>Şehir<\/dt><dd>Eskişehir<\/dd>/);
+  const gun = new Date(form.tarih + 'T00:00:00Z').toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  assert.ok(t.text.includes(`<dd>${gun}</dd>`), 'tarih: ' + gun);
+  assert.match(t.text, /Acil mi\? Hemen arayın: <a class="satir-tel" href="tel:\+902122229695">/);
+  assert.ok(!t.text.includes(ETIKET) && !t.text.includes('0532') && !t.text.includes('test@example.com'), 'kişisel veri yok');
+  assert.doesNotMatch(t.text, /<h1[^>]*class="[^"]*yukselen/, 'başlık maskeyle gizlenmez');
+  assert.match(t.text, /<h1 class="tesekkur-baslik">İsteğiniz bize ulaştı\.<\/h1>/);
+  // Özet bir kez gösterilir; doğrudan açılışta özet olmaz ama söz yine var
+  const yine = await ajan.get('/teklif/tesekkurler');
+  assert.doesNotMatch(yine.text, /tesekkur-ozet/);
+  assert.match(yine.text, /En geç 1 iş günü içinde/);
+  // Animasyon yalnız hareket tercihi yokken
+  const css = require('fs').readFileSync(require('path').join(__dirname, '..', 'public', 'css', 'site.css'), 'utf8');
+  assert.match(css, /prefers-reduced-motion: no-preference\) \{ \.tesekkur-baslik \{ animation/);
+  assert.ok(!/\.tesekkur-baslik[^{]*\{[^}]*opacity: 0/.test(css), 'başlık opaklıkla gizlenmez');
+});

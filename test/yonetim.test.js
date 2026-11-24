@@ -1,19 +1,24 @@
 // Yönetim paneli testleri: giriş koruması, CSRF, proje CRUD (fotoğraf işleme dahil), teklif takibi, CSV, şifre değiştirme.
 // Çalıştırma: npm test   (yerel veritabanı çalışıyor, npm run seed yapılmış ve göçler uygulanmış olmalı)
 require('dotenv').config();
-const { test, after } = require('node:test');
+const { test, before, after } = require('node:test');
 const assert = require('node:assert');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const request = require('supertest');
 const app = require('../app');
 const pool = require('../db/pool');
+const kayitIzle = require('./kayit-temizle'); // işlem günlüğüne yazılan test kayıtları sonunda silinir
+let kayitTemizle = async () => {};
 
 const ETIKET = 'TEST-yonetim-' + Date.now(); // testin oluşturduğu kayıtları bulup silmek için
 const GECICI_EPOSTA = `test-${Date.now()}@ornek.invalid`; // şifre testi için geçici hesap (asıl yönetici hesabına dokunulmaz)
 const FOTO = path.join(__dirname, '..', 'veri', 'eski-gorseller', '1543314354_ari-makina-foteg-2013.jpg');
 
+before(async () => { kayitTemizle = await kayitIzle(pool); });
+
 after(async () => {
+  await kayitTemizle();
   await pool.query('DELETE FROM teklifler WHERE ad_soyad LIKE $1', [ETIKET + '%']);
   await pool.query('DELETE FROM projeler WHERE musteri LIKE $1', [ETIKET + '%']);
   await pool.query('DELETE FROM kullanicilar WHERE eposta = $1', [GECICI_EPOSTA]);
@@ -53,7 +58,7 @@ async function teklifEkle(ek = '') {
 }
 
 test('yönetim: girişsiz erişim giriş sayfasına yönlenir, girişten sonra istenen sayfaya dönülür', async () => {
-  for (const yol of ['/yonetim', '/yonetim/projeler', '/yonetim/teklifler', '/yonetim/teklifler.csv', '/yonetim/hesap']) {
+  for (const yol of ['/yonetim', '/yonetim/projeler', '/yonetim/teklifler', '/yonetim/teklifler.csv', '/yonetim/islemler', '/yonetim/hesap']) {
     const r = await request(app).get(yol);
     assert.strictEqual(r.status, 302, yol);
     assert.strictEqual(r.headers.location, '/yonetim/giris', yol);
@@ -239,7 +244,7 @@ test('yönetim: tüm sayfalar açılıyor, tek h1, çıkış ana siteye döner',
   const { ajan, jeton } = await girisYap();
   const { rows } = await pool.query('SELECT id FROM projeler LIMIT 1');
   for (const yol of ['/yonetim', '/yonetim/projeler', '/yonetim/projeler?sayfa=2', '/yonetim/projeler/yeni',
-    `/yonetim/projeler/${rows[0].id}/duzenle`, '/yonetim/teklifler', '/yonetim/teklifler?durum=yeni', '/yonetim/hesap']) {
+    `/yonetim/projeler/${rows[0].id}/duzenle`, '/yonetim/teklifler', '/yonetim/teklifler?durum=yeni', '/yonetim/islemler', '/yonetim/hesap']) {
     const r = await ajan.get(yol);
     assert.strictEqual(r.status, 200, yol);
     assert.strictEqual((r.text.match(/<h1[\s>]/g) || []).length, 1, yol + ' tek h1');

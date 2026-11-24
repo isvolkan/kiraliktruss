@@ -1,5 +1,8 @@
 <%- include('_ust') %>
 <% const gun = (d) => d.toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul' }); %>
+<%# Geniş ekranda (≥1280 px) iki sütun: solda pano, sağda "Son işlemler" akışı; dar ekranda akış altta -%>
+<div class="y-pano">
+<div class="y-pano-ana">
 <div class="y-bas">
   <div>
     <p class="etiket">Yönetim</p>
@@ -83,5 +86,17 @@
       </ul>
     <% } %>
   </section>
+</div>
+</div>
+
+<aside class="y-pano-yan" aria-labelledby="islem-baslik">
+  <div class="y-bolum-bas">
+    <h2 id="islem-baslik">Son işlemler</h2>
+    <a class="bag-ok" href="/yonetim/islemler">Tümü <span class="ok" aria-hidden="true"><%- include('../parca/ok', { yon: 'sag' }) %></span></a>
+  </div>
+  <% if (!sonKayitlar.length) { %><p class="y-bos">Henüz işlem yok.</p><% } else { %>
+    <%- include('_akis', { satirlar: sonKayitlar, ayrintili: false }) %>
+  <% } %>
+</aside>
 </div>
 <%- include('_alt') %>

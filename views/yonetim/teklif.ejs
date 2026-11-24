@@ -55,6 +55,22 @@
       <% if (t.guncellendi) { %><p class="yardim y-not-zaman">Son güncelleme: <%= zaman(t.guncellendi) %></p><% } %>
     </form>
 
+    <%# Bu teklife ait işlem geçmişi (günlükten): geldi, okundu, durum değişimleri, not, en eski üstte %>
+    <% if (gecmis.length) { %>
+      <section class="y-gecmis" aria-labelledby="gecmis-baslik">
+        <h2 id="gecmis-baslik" class="h3">Geçmiş</h2>
+        <ol class="y-zaman">
+          <% for (const k of gecmis) { %>
+            <li>
+              <span class="y-zaman-ad"><%= kayit.TURLER[k.tur] ? kayit.TURLER[k.tur].etiket : k.tur %></span>
+              <time datetime="<%= k.olusturuldu.toISOString() %>"><%= zaman(k.olusturuldu) %></time>
+              <% if (k.tur === 'teklif_durum') { %><span class="y-zaman-not"><%= k.mesaj.split(': ').pop() %></span><% } %>
+            </li>
+          <% } %>
+        </ol>
+      </section>
+    <% } %>
+
     <div class="y-yan-islemler">
       <form method="post" action="/yonetim/teklifler/<%= t.id %>/okunmadi">
         <input type="hidden" name="_csrf" value="<%= csrf %>">

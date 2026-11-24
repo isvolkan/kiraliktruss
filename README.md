@@ -32,6 +32,7 @@ Müşteri: **Kiralık Truss** (Hakan Bey, Beylikdüzü / İstanbul). Eski site: 
 - **Pano:** özet sayılar, yan menüde okunmamış teklif rozeti
 - **Projeler:** ekle / düzenle / sil, fotoğraf yükleme (JPEG, PNG, WebP; dosya içeriği kontrol edilir), sayfalama
 - **Teklifler:** liste (okunmamış önce), ayrıntı, durum (yeni / arandı / teklif verildi / kapandı), yönetici notu, "okunmadı" işareti, silme, **CSV dışa aktarma**
+- **İşlem günlüğü:** panoda sağda "Son işlemler" akışı, `/yonetim/islemler`'de tür süzgeçli tam liste, teklif sayfasında o teklifin geçmişi (giriş, teklif durumu, proje ekleme / silme… `lib/kayit.js`; telefon, e-posta ve şifre kaydedilmez; teklif silinince ona ait kayıtlar da silinir)
 - **Hesap:** şifre değiştirme. Panelden değiştirilen şifre yeniden başlatmada korunur; `ADMIN_PASSWORD` yalnız hesap yokken ilk kurulumda kullanılır.
 - **CSRF:** her POST formunda gizli `_csrf` jetonu; eksik / yanlışsa 403
 - Yönetim sayfaları önbelleğe yazılmaz ve arama motorlarına kapalıdır.

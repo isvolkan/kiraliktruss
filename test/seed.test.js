@@ -1,7 +1,7 @@
 // Seed ve açılış testleri: yönetici şifresi korunur (D1), eski şemalı veritabanında seed + göç çalışır (D2).
 // Çalıştırma: npm test   (yerel PostgreSQL gerekir; D2 testi geçici bir veritabanı kurup sonunda siler)
 require('dotenv').config();
-const { test, after } = require('node:test');
+const { test, before, after } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
@@ -10,12 +10,17 @@ const bcrypt = require('bcryptjs');
 const { Client } = require('pg');
 const request = require('supertest');
 const pool = require('../db/pool');
+const kayitIzle = require('./kayit-temizle'); // işlem günlüğüne yazılan test kayıtları sonunda silinir
+let kayitTemizle = async () => {};
 const app = require('../app');
 
 const KOK = path.join(__dirname, '..');
 const EPOSTA = `test-seed-${Date.now()}@ornek.invalid`;
 
+before(async () => { kayitTemizle = await kayitIzle(pool); });
+
 after(async () => {
+  await kayitTemizle();
   await pool.query('DELETE FROM kullanicilar WHERE eposta = $1', [EPOSTA]);
   await pool.end();
 });

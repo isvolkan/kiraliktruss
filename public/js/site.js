@@ -524,10 +524,10 @@
     hepsi('select', form).forEach(s => s.addEventListener('change', () => form.submit()));
   })();
 
-  // 10) Teklif formu hatalıysa (422) ilk hatalı alana odaklan ve görünür alana kaydır
+  // 10) Teklif formu hatalıysa (422) ilk hatalı alana, hız sınırında (429) uyarı metnine odaklan ve görünür alana kaydır
   (function hataliAlan() {
     const form = document.querySelector('form[data-hatali]');
-    const ilk = form && form.querySelector('[aria-invalid="true"]');
+    const ilk = (form && form.querySelector('[aria-invalid="true"]')) || document.querySelector('.genel-hata[tabindex="-1"]');
     if (!ilk) return;
     try { ilk.focus({ preventScroll: true }); } catch (e) { ilk.focus(); }
     const kucult = matchMedia('(prefers-reduced-motion: reduce)').matches;

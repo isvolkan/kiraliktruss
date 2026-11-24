@@ -1,16 +1,21 @@
 // Duman testleri: yönergedeki zorunlu akışlar (sayfalar, form doğrulama, CRUD, giriş koruması).
 // Çalıştırma: npm test   (yerel veritabanı çalışıyor ve npm run seed yapılmış olmalı)
 require('dotenv').config();
-const { test, after } = require('node:test');
+const { test, before, after } = require('node:test');
 const assert = require('node:assert');
 const path = require('path');
 const request = require('supertest');
 const app = require('../app');
 const pool = require('../db/pool');
+const kayitIzle = require('./kayit-temizle'); // işlem günlüğüne yazılan test kayıtları sonunda silinir
+let kayitTemizle = async () => {};
 
 const ETIKET = 'TEST-' + Date.now(); // testin oluşturduğu kayıtları bulup silmek için
 
+before(async () => { kayitTemizle = await kayitIzle(pool); });
+
 after(async () => {
+  await kayitTemizle();
   await pool.query('DELETE FROM teklifler WHERE ad_soyad LIKE $1', [ETIKET + '%']);
   await pool.query('DELETE FROM projeler WHERE musteri LIKE $1', [ETIKET + '%']);
   await pool.end();

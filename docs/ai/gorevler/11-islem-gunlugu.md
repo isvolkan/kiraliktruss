@@ -1,0 +1,21 @@
+AMAÇ: Yönetim paneline "işlem günlüğü" (audit log) ekle: panonun sağında son olaylar akışı + süzgeçli tam liste sayfası.
+
+BAĞLAM:
+- Proje: C:\Users\Serkan\ProjeWEB (Express 5 + EJS + PostgreSQL). Yerel sunucu 3000'de node --watch (başlatma/durdurma). Ders projesi (BİLP2135 Web II), canlıda Render + Neon. Hoca kodu açıklatabilir: sade, kısa Türkçe yorum, kütüphane ekleme yok.
+- Yönetim: routes/yonetim.js, views/yonetim/* (pano.ejs, teklif.ejs, teklifler.ejs, projeler.ejs, proje-form.ejs, hesap.ejs, _ust.ejs yan menü…), public/css/yonetim.css, public/js/yonetim.js, lib/csrf.js. Göçler: db/goc/*.sql açılışta ad sırasıyla çalışır, idempotent olmalı (db/goc.js). Şema: db/schema.sql (sıfırdan kurulum; yeni sütun/tablo göçte de olmalı, schema.sql'de göçe bağımlı indeks koyma — eski şemada açılış çöker, test/seed.test.js bunu sınıyor).
+- Panonun (views/yonetim/pano.ejs) geniş ekranda sağ tarafı boş: içerik ~1460 px'te bitiyor. Kullanıcı burada "bildirim / log" gibi bir akış istiyor.
+- PARALEL İŞÇİ: başka bir işçi ziyaretçi tarafını (routes/site.js, views/teklif.ejs vb., app.js trust proxy) düzeltiyor ve POST /teklif sonrasında senin modülünü `require('../lib/kayit').kaydet({ tur: 'teklif_geldi', teklif_id, mesaj })` olarak (beklemeden, catch'li) çağıracak. Bu imzayı AYNEN sağla. routes/site.js, views/ (yonetim dışı), public/css/site.css, app.js'e DOKUNMA.
+
+YAPILACAKLAR:
+1. db/goc/003-islem-kaydi.sql (idempotent) + db/schema.sql'e aynı tablo (indeks göçte): `islem_kayitlari(id, tur TEXT NOT NULL, mesaj TEXT NOT NULL, kullanici_id NULL → yönetici tablosu, teklif_id NULL, proje_id NULL, olusturuldu TIMESTAMPTZ DEFAULT now())`. Teklif/proje silinince kayıt kalsın (FK ON DELETE SET NULL ya da FK yok + mesajda ad). İndeks: olusturuldu DESC, tur.
+2. lib/kayit.js: `async kaydet({ tur, mesaj, kullanici_id, teklif_id, proje_id })` — hata fırlatmaz, yalnız loglar (ana akışı asla bozmasın); `async son(n)`, `async liste({ tur, sayfa, sayfaBoyu })`. Türler sabit bir listede (Türkçe etiket + simge adı + renk sınıfı): teklif_geldi, teklif_okundu, teklif_durum (mesajda "Yeni → Arandı"), teklif_not, teklif_silindi, proje_eklendi, proje_guncellendi, proje_silindi, giris, giris_basarisiz (e-postayı maskele: k***@admin.com; şifreyi asla), sifre_degisti, cikis. Kişisel veri: ziyaretçi telefon/e-postasını mesaja KOYMA (ad soyad + etkinlik özeti yeter).
+3. routes/yonetim.js: ilgili tüm noktalarda kaydet çağrısı (durum değişiminde eski → yeni; aynı durum seçildiyse kayıt yok). Okundu: yalnız ilk açılışta.
+4. Pano: geniş ekranda (≥1280 px) iki sütun — solda mevcut içerik, sağda "Son işlemler" akışı (son 15; zaman "3 dk önce" gibi göreli + title'da tam tarih; teklife/projeye bağlantı; tür simgesi/renkli nokta; v6 tasarım dili ve mevcut yonetim.css değişkenleri; açık/koyu tema). Dar ekranda akış içeriğin altına iner. Ayrıca okunmamış teklif sayısı gibi mevcut kutular bozulmasın.
+5. Yeni sayfa /yonetim/islemler: tam liste, tür süzgeci, sayfalama (mevcut _sayfalama parçasını kullan), yan menüye "İşlem günlüğü" bağlantısı (aria-current çalışsın). Teklif detay sayfasında (views/yonetim/teklif.ejs) o teklife ait geçmiş küçük bir zaman çizelgesi olarak görünsün.
+6. Testler (test/yonetim.test.js ya da yeni test/islem-kaydi.test.js): durum değişimi kayıt üretir ve mesajı eski→yeni içerir; aynı durumda kayıt yok; giriş/başarısız giriş kaydı (e-posta maskeli, şifre yok); proje silinince kayıt kalır; kaydet DB hatasında fırlatmaz; pano ve /yonetim/islemler 200, girişsiz erişim yönlendirir; tür süzgeci çalışır. Test verisini temizle. `npm test` tamamen geçmeli (paralel işçinin testleri o an kırıksa hangisi olduğunu yaz).
+7. Chrome headless ile pano 1920×1080 ve 375×812 ekran görüntüsü al, kendin bak (sağ boşluk doldu mu, taşma yok mu); docs/karsilastirma/sonrasi/yonetim-pano-gunluk-1920.png ve -375.png.
+8. README'de yönetim paneli özellik listesine 1 satır.
+
+KAPSAM: db/goc/003-islem-kaydi.sql, db/schema.sql (yalnız yeni tablo), lib/kayit.js, routes/yonetim.js, views/yonetim/*, public/css/yonetim.css, public/js/yonetim.js, test/ (yönetim testleri), README.md, docs/karsilastirma/sonrasi/. git commit/push yapma, paket kurma.
+
+DÖNÜŞ: En fazla 10 satır: tablo/göç, kaydedilen olaylar, pano yerleşimi, yeni sayfa, test sonucu (geçen/kalan), görüntü yolları, açık kalan.

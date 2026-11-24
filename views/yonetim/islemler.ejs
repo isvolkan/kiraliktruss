@@ -1,0 +1,32 @@
+<%- include('_ust') %>
+<%# İşlem günlüğü: tam liste, tür süzgeci, sayfalama. Kayıtlar lib/kayit.js ile yazılır. -%>
+<div class="y-bas">
+  <div>
+    <p class="etiket">Kim, ne zaman, ne yaptı</p>
+    <h1>İşlem günlüğü</h1>
+  </div>
+</div>
+
+<form class="y-suzgec y-suzgec-tek y-suzgec-sol" method="get" action="/yonetim/islemler" role="search" aria-label="İşlem günlüğünü süz">
+  <div class="alan">
+    <label for="tur">Olay türü</label>
+    <select id="tur" name="tur">
+      <option value="">Tümü</option>
+      <% for (const [k, t] of Object.entries(kayit.TURLER)) { %><option value="<%= k %>"<%= suzgec.tur === k ? ' selected' : '' %>><%= t.etiket %></option><% } %>
+    </select>
+  </div>
+  <div class="y-suzgec-dugmeler">
+    <button class="btn btn-1" type="submit">Süz</button>
+    <% if (suzgec.tur) { %><a class="btn btn-2" href="/yonetim/islemler">Temizle</a><% } %>
+  </div>
+</form>
+
+<p class="y-sonuc"><b><%= toplam %></b> kayıt<%= suzgec.tur ? ' bulundu' : '' %></p>
+
+<% if (!satirlar.length) { %>
+  <p class="y-bos"><%= suzgec.tur ? 'Bu türde kayıt yok.' : 'Henüz işlem kaydı yok.' %></p>
+<% } else { %>
+  <div class="y-liste-dar"><%- include('_akis', { satirlar, ayrintili: true }) %></div>
+<% } %>
+<%- include('_sayfalama', { taban: '/yonetim/islemler', suzgec, sayfa, sayfaSayisi }) %>
+<%- include('_alt') %>

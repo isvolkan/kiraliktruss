@@ -72,4 +72,21 @@
       okuyucu.readAsDataURL(f);
     });
   }
+
+  // 6) Panodaki "3 dk önce" yazıları sayfa açıkken de güncel kalsın (dakikada bir; tam tarih title'da duruyor)
+  var zamanlar = document.querySelectorAll('.y-pano-yan time[datetime]');
+  if (zamanlar.length) {
+    var goreli = function (iso) {
+      var sn = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+      if (sn < 60) return 'az önce';
+      if (sn < 3600) return Math.floor(sn / 60) + ' dk önce';
+      if (sn < 86400) return Math.floor(sn / 3600) + ' sa önce';
+      var gun = Math.floor(sn / 86400);
+      if (gun === 1) return 'dün';
+      return gun <= 30 ? gun + ' gün önce' : null; // eski kayıtta sunucunun yazdığı tarih kalır
+    };
+    setInterval(function () {
+      zamanlar.forEach(function (t) { var y = goreli(t.getAttribute('datetime')); if (y) t.textContent = y; });
+    }, 60000);
+  }
 })();

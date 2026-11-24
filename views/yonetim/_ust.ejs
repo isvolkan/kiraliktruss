@@ -5,6 +5,7 @@
     ['Pano', '/yonetim', yol === '/yonetim' || yol === '/yonetim/'],
     ['Projeler', '/yonetim/projeler', yol.startsWith('/yonetim/projeler')],
     ['Teklifler', '/yonetim/teklifler', yol.startsWith('/yonetim/teklifler')],
+    ['İşlem günlüğü', '/yonetim/islemler', yol.startsWith('/yonetim/islemler')],
     ['Hesap', '/yonetim/hesap', yol.startsWith('/yonetim/hesap')],
   ];
 %>
@@ -39,5 +40,5 @@
       <p class="y-kim"><span class="gizli">Giriş yapan: </span><%= yonetici.eposta %></p>
     </nav>
   </header>
-  <main id="icerik" class="y-icerik" tabindex="-1">
+  <main id="icerik" class="y-icerik<%= locals.genis ? ' y-icerik-genis' : '' %>" tabindex="-1">
     <% if (bildirim) { %><div class="y-bildirim" role="status"><%= bildirim %></div><% } %>

@@ -1,4 +1,4 @@
-// Yönetim paneli: giriş, pano, projeler (CRUD), teklif talepleri (listele, gör, güncelle, sil, CSV), hesap (şifre).
+// Yönetim paneli: giriş, pano, projeler (CRUD), teklif talepleri (listele, gör, güncelle, sil, CSV), işlem günlüğü, hesap (şifre).
 // Giriş yapmayan kullanıcı /yonetim/giris'e yönlenir. Her POST formu CSRF jetonu taşır (lib/csrf.js).
 const express = require('express');
 const bcrypt = require('bcryptjs');
@@ -9,6 +9,8 @@ const pool = require('../db/pool');
 const csrf = require('../lib/csrf');
 const { imzaKontrol, hazirla } = require('../lib/gorsel');
 const onbellek = require('../lib/gorsel-onbellek');
+const kayit = require('../lib/kayit'); // işlem günlüğü
+const istemciIp = require('../lib/istemci-ip');
 const { projeKurallari, TEKLIF_DURUMLARI: DURUMLAR, teklifGuncelleKurallari, sifreKurallari } = require('../validators');
 
 const router = express.Router();
@@ -77,12 +79,13 @@ router.use((req, res, next) => {
 });
 // Menüde etkin sayfa: alt router'da req.path öneksizdir; tam yol baseUrl ile birleşir (/yonetim/projeler)
 router.use((req, res, next) => { res.locals.yol = req.baseUrl + req.path; next(); });
+router.use((req, res, next) => { res.locals.kayit = kayit; next(); });
 router.use(csrf.hazirla);      // res.locals.csrf: formlardaki gizli alan
 router.use(cokParcaliyiCoz);   // multipart gövdeyi çöz (yalnız girişliyken)
 router.use(csrf.dogrula);      // her POST: gövdedeki _csrf oturumdakiyle aynı mı? değilse 403
 
 // ---- Giriş ----
-const girisSiniri = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false });
+const girisSiniri = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false, keyGenerator: istemciIp.anahtar });
 // Kullanıcı yoksa da bcrypt çalışsın diye sahte özet: yanıt süresinden "bu e-posta kayıtlı mı" anlaşılmasın
 const SAHTE_OZET = '$2b$12$.Y2GGOtG4FjMxXZv2JwjSeYCOB2wj6gN/MtVLjAnK06kjeN9pNTxK';
 
@@ -97,14 +100,17 @@ router.post('/giris', girisSiniri, async (req, res, next) => {
   const { rows } = await pool.query('SELECT id, eposta, sifre_hash FROM kullanicilar WHERE eposta = $1', [eposta]);
   const dogru = await bcrypt.compare(sifre, rows[0] ? rows[0].sifre_hash : SAHTE_OZET);
   if (!rows[0] || !dogru) {
+    // Günlüğe yalnız maskeli e-posta yazılır (k***@admin.com); şifre asla
+    await kayit.kaydet({ tur: 'giris_basarisiz', mesaj: `${kayit.epostaMaskele(eposta)} ile giriş denendi` });
     return res.status(401).render('yonetim/giris', { baslik: 'Yönetim girişi', hata: 'E-posta ya da şifre hatalı.', eposta });
   }
   // Giriş öncesi istenen yönetim sayfasına dön (yalnız /yonetim altı: başka siteye yönlendirme olmasın)
   const donus = /^\/yonetim(\/[\w\-/.?=&%]*)?$/.test(req.session.donus || '') ? req.session.donus : '/yonetim';
   // Oturum sabitleme saldırısına karşı oturum kimliği yenilenir (H7: hata süreci çökertmesin, hata sayfasına gitsin)
-  req.session.regenerate((err) => {
+  req.session.regenerate(async (err) => {
     if (err) return next(err);
     req.session.kullanici = { id: rows[0].id, eposta: rows[0].eposta };
+    await kayit.kaydet({ tur: 'giris', mesaj: 'Yönetim paneline giriş yapıldı', kullanici_id: rows[0].id });
     res.redirect(donus);
   });
 });
@@ -123,11 +129,14 @@ router.use(async (req, res, next) => {
   next();
 });
 
-router.post('/cikis', (req, res, next) => req.session.destroy((err) => (err ? next(err) : res.redirect('/'))));
+router.post('/cikis', async (req, res, next) => {
+  await kayit.kaydet({ tur: 'cikis', mesaj: 'Çıkış yapıldı', kullanici_id: req.session.kullanici.id });
+  req.session.destroy((err) => (err ? next(err) : res.redirect('/')));
+});
 
 // ---- Pano ----
 router.get('/', async (req, res) => {
-  const [sayilar, durumlar, teklifler, projeler] = await Promise.all([
+  const [sayilar, durumlar, teklifler, projeler, sonKayitlar] = await Promise.all([
     pool.query(`SELECT
         (SELECT count(*)::int FROM projeler) AS proje,
         (SELECT count(*)::int FROM projeler WHERE one_cikan) AS one_cikan,
@@ -138,15 +147,20 @@ router.get('/', async (req, res) => {
                 FROM teklifler ORDER BY olusturma DESC LIMIT 5`),
     pool.query(`SELECT id, musteri, etkinlik, sehir, yil, guncelleme, gorsel IS NOT NULL AS foto
                 FROM projeler ORDER BY olusturma DESC, id DESC LIMIT 5`),
+    kayit.son(15), // sağdaki "Son işlemler" akışı
   ]);
   const durumSayisi = Object.fromEntries(Object.keys(DURUMLAR).map((k) => [k, 0]));
   for (const r of durumlar.rows) durumSayisi[r.durum] = r.n;
   res.render('yonetim/pano', {
-    baslik: 'Pano', s: sayilar.rows[0], durumSayisi, teklifler: teklifler.rows, projeler: projeler.rows, DURUMLAR,
+    genis: true, // iki sütunlu geniş yerleşim (yonetim.css: y-icerik-genis)
+    baslik: 'Pano', s: sayilar.rows[0], durumSayisi, teklifler: teklifler.rows, projeler: projeler.rows, DURUMLAR, sonKayitlar,
   });
 });
 
 // ---- Projeler (CRUD) ----
+
+// Günlük mesajı için proje özeti: "No. 5 · Müşteri · Etkinlik"
+const projeOzeti = (id, p) => ['No. ' + id, p.musteri, p.etkinlik].filter(Boolean).join(' · ');
 router.get('/projeler', async (req, res) => {
   const q = metin(req.query.q);
   const yil = sayi(req.query.yil);
@@ -194,6 +208,7 @@ router.post('/projeler', projeKurallari, async (req, res) => {
     [v.musteri, v.etkinlik || '', v.sehir || null, v.yil || null, v.tur, v.aciklama || null,
       req.body.one_cikan === 'on', foto.tam, foto.kucuk, foto.tur]
   );
+  await kayit.kaydet({ tur: 'proje_eklendi', mesaj: projeOzeti(rows[0].id, v), kullanici_id: req.session.kullanici.id, proje_id: rows[0].id });
   bildir(req, `Proje eklendi (No. ${rows[0].id}).`);
   res.redirect('/yonetim/projeler');
 });
@@ -231,14 +246,17 @@ router.post('/projeler/:id', projeKurallari, async (req, res, next) => {
       foto ? foto.tam : null, foto ? foto.kucuk : null, foto ? foto.tur : null, id]
   );
   onbellek.sil(id);
+  await kayit.kaydet({ tur: 'proje_guncellendi', mesaj: projeOzeti(id, v), kullanici_id: req.session.kullanici.id, proje_id: id });
   bildir(req, 'Proje güncellendi.');
   res.redirect('/yonetim/projeler');
 });
 
 router.post('/projeler/:id/sil', async (req, res) => {
   const silId = sayi(req.params.id);
-  const { rowCount } = await pool.query('DELETE FROM projeler WHERE id = $1', [silId]);
+  const { rowCount, rows } = await pool.query('DELETE FROM projeler WHERE id = $1 RETURNING musteri, etkinlik', [silId]);
   onbellek.sil(silId);
+  // Satır silindiği için proje_id yazılmaz; ad mesajda kalır
+  if (rowCount) await kayit.kaydet({ tur: 'proje_silindi', mesaj: projeOzeti(silId, rows[0]), kullanici_id: req.session.kullanici.id });
   bildir(req, rowCount ? 'Proje silindi.' : 'Proje bulunamadı (zaten silinmiş olabilir).');
   res.redirect('/yonetim/projeler');
 });
@@ -304,6 +322,9 @@ router.get('/teklifler.csv', async (req, res) => {
   res.send(csv);
 });
 
+// Günlük mesajı için teklif özeti: "No. 12 · Ad Soyad · Fuar standı, İzmir" (telefon / e-posta yazılmaz)
+const teklifOzeti = (t) => `No. ${t.id} · ${t.ad_soyad} · ${t.etkinlik_turu}, ${t.sehir}`;
+
 // Ayrıntı: açılınca teklif "okundu" olur
 router.get('/teklifler/:id', async (req, res, next) => {
   const id = sayi(req.params.id);
@@ -311,10 +332,15 @@ router.get('/teklifler/:id', async (req, res, next) => {
   const t = rows[0];
   if (!t) return next();
   if (!t.okundu) {
-    await pool.query('UPDATE teklifler SET okundu = true WHERE id = $1', [id]);
+    // AND NOT okundu: iki sekme aynı anda açsa bile "okundu" kaydı bir kez yazılır
+    const { rowCount } = await pool.query('UPDATE teklifler SET okundu = true WHERE id = $1 AND NOT okundu', [id]);
     res.locals.okunmamis = Math.max(0, res.locals.okunmamis - 1); // rozet bu sayfada da doğru görünsün
+    if (rowCount) {
+      await kayit.kaydet({ tur: 'teklif_okundu', mesaj: teklifOzeti(t), kullanici_id: req.session.kullanici.id, teklif_id: id });
+    }
   }
-  res.render('yonetim/teklif', { baslik: `Teklif No. ${t.id}`, t, DURUMLAR, hatalar: {}, form: t });
+  const gecmis = await kayit.teklifGecmisi(id); // sayfadaki küçük zaman çizelgesi
+  res.render('yonetim/teklif', { baslik: `Teklif No. ${t.id}`, t, DURUMLAR, hatalar: {}, form: t, gecmis });
 });
 
 // Durum ve yönetici notu
@@ -324,13 +350,24 @@ router.post('/teklifler/:id', teklifGuncelleKurallari, async (req, res, next) =>
   if (Object.keys(hatalar).length) {
     const { rows } = await pool.query('SELECT * FROM teklifler WHERE id = $1', [id]);
     if (!rows[0]) return next();
-    return res.status(422).render('yonetim/teklif', { baslik: `Teklif No. ${id}`, t: rows[0], DURUMLAR, hatalar, form: req.body });
+    const gecmis = await kayit.teklifGecmisi(id);
+    return res.status(422).render('yonetim/teklif', { baslik: `Teklif No. ${id}`, t: rows[0], DURUMLAR, hatalar, form: req.body, gecmis });
   }
   const v = matchedData(req);
-  const { rowCount } = await pool.query(
+  // Değişimi günlüğe yazabilmek için eski durum ve not önce okunur
+  const eski = (await pool.query('SELECT * FROM teklifler WHERE id = $1', [id])).rows[0];
+  if (!eski) return next();
+  const yeniNot = v.yonetici_notu || null;
+  await pool.query(
     'UPDATE teklifler SET durum = $1, yonetici_notu = $2, okundu = true, guncellendi = now() WHERE id = $3',
-    [v.durum, v.yonetici_notu || null, id]);
-  if (!rowCount) return next();
+    [v.durum, yeniNot, id]);
+  const kim = { kullanici_id: req.session.kullanici.id, teklif_id: id };
+  if (eski.durum !== v.durum) { // aynı durum seçildiyse kayıt yok
+    await kayit.kaydet({ tur: 'teklif_durum', mesaj: `${teklifOzeti(eski)}: ${DURUMLAR[eski.durum]} → ${DURUMLAR[v.durum]}`, ...kim });
+  }
+  if ((eski.yonetici_notu || null) !== yeniNot) { // not içeriği günlüğe yazılmaz (kişisel bilgi olabilir)
+    await kayit.kaydet({ tur: 'teklif_not', mesaj: `${teklifOzeti(eski)}: yönetici notu ${yeniNot ? 'güncellendi' : 'silindi'}`, ...kim });
+  }
   bildir(req, 'Teklif güncellendi.');
   res.redirect(`/yonetim/teklifler/${id}`);
 });
@@ -343,13 +380,27 @@ router.post('/teklifler/:id/okunmadi', async (req, res) => {
 });
 
 router.post('/teklifler/:id/sil', async (req, res) => {
-  const { rowCount } = await pool.query('DELETE FROM teklifler WHERE id = $1', [sayi(req.params.id)]);
+  const silId = sayi(req.params.id);
+  // KVKK: teklifin kişisel verisi (ad vb.) günlükte de kalmasın. Günlük satırları teklifi silmeden ÖNCE silinir
+  // (teklif silinince teklif_id ON DELETE SET NULL ile boşalır, sonradan bulunamazdı). Silme olayı adsız yazılır, teklif_id taşımaz.
+  await pool.query('DELETE FROM islem_kayitlari WHERE teklif_id = $1', [silId]);
+  const { rowCount } = await pool.query('DELETE FROM teklifler WHERE id = $1', [silId]);
+  if (rowCount) {
+    await kayit.kaydet({ tur: 'teklif_silindi', mesaj: `Teklif No. ${silId} silindi`, kullanici_id: req.session.kullanici.id });
+  }
   bildir(req, rowCount ? 'Teklif silindi.' : 'Teklif bulunamadı (zaten silinmiş olabilir).');
   res.redirect('/yonetim/teklifler');
 });
 
+// ---- İşlem günlüğü ----
+router.get('/islemler', async (req, res) => {
+  const tur = kayit.TURLER[req.query.tur] ? req.query.tur : '';
+  const { satirlar, toplam, sayfa, sayfaSayisi } = await kayit.liste({ tur, sayfa: sayi(req.query.sayfa) || 1, sayfaBoyu: 30 });
+  res.render('yonetim/islemler', { baslik: 'İşlem günlüğü', satirlar, toplam, sayfa, sayfaSayisi, suzgec: { tur } });
+});
+
 // ---- Hesap: şifre değiştir ----
-const sifreSiniri = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false });
+const sifreSiniri = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false, keyGenerator: istemciIp.anahtar });
 
 router.get('/hesap', (req, res) => res.render('yonetim/hesap', { baslik: 'Hesap', hatalar: {} }));
 
@@ -364,6 +415,7 @@ router.post('/hesap/sifre', sifreSiniri, sifreKurallari, async (req, res, next) 
 
   const ozet = await bcrypt.hash(req.body.yeni, 12);
   await pool.query('UPDATE kullanicilar SET sifre_hash = $1 WHERE id = $2', [ozet, kullanici.id]);
+  await kayit.kaydet({ tur: 'sifre_degisti', mesaj: 'Yönetici şifresi değiştirildi', kullanici_id: kullanici.id });
   // Bu kullanıcının başka cihazlardaki oturumları kapanır (şifre çalındıysa eski oturum da düşsün)
   await pool.query(`DELETE FROM oturumlar WHERE sid <> $1 AND sess->'kullanici'->>'id' = $2`, [req.sessionID, String(kullanici.id)]);
   // Bu oturumun kimliği de yenilenir

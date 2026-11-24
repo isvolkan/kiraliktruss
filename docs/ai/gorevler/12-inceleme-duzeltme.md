@@ -1,0 +1,15 @@
+AMAÇ: Bağımsız Opus incelemesinin 5 bulgusunu düzelt (R1-R5). Commit edilmemiş değişiklikler üzerinde çalışıyorsun (git diff: ziyaretçi düzeltmeleri + işlem günlüğü).
+
+BAĞLAM: Proje C:\Users\Serkan\ProjeWEB (Express 5, express-rate-limit 8, PostgreSQL). Yerel sunucu 3000'de node --watch (başlatma/durdurma). Canlı: Render ücretsiz (Frankfurt); istekler istemci → Cloudflare → Render LB → uygulama. Cloudflare her isteğe CF-Connecting-IP başlığını KENDİSİ yazar (istemcinin gönderdiğini ezer). Teklif formu POST /teklif (routes/site.js), sınır 15 dk'da 5 geçerli teklif. İşlem günlüğü lib/kayit.js + routes/yonetim.js. Görev metinleri: docs/ai/gorevler/10-*.md ve 11-*.md.
+
+DÜZELTİLECEKLER:
+- R1+R2 (sayaç anahtarı): app.js'teki Cloudflare IP aralığı listesine dayalı trust proxy yaklaşımını sadeleştir. Teklif ve giriş limiter'larına ortak bir keyGenerator ver (lib/istemci-ip.js gibi küçük modül): `CF-Connecting-IP` varsa ve geçerli bir IP ise onu kullan; yoksa req.ip (express-rate-limit'in ipKeyGenerator yardımcısıyla IPv6 /56 alt ağ). `trust proxy`yi Render için makul bir sayıya (ör. 1) geri al ve yorumla neden artık kritik olmadığını yaz (anahtar CF başlığından geliyor). express-rate-limit 8 keyGenerator doğrulama uyarısı (ERR_ERL_KEY_GEN_IPV6 vb.) çıkmasın. Ayrıca canlı doğrulama için geçici teşhis: ortam değişkeni `IP_TESHIS=true` iken yalnız ilk 5 POST /teklif ve /saglik isteğinde tek satır log: socket.remoteAddress, x-forwarded-for, cf-connecting-ip, req.ip, seçilen anahtar (son okteti maskele: 1.2.3.x). Varsayılan kapalı.
+- R3 (skipFailedRequests güvenli değil): POST /teklif'te önce doğrulama + honeypot; 422 yanıtı limiter'dan ÖNCE dönsün; limiter yalnız geçerli gönderime uygulanır ve skipFailedRequests KULLANILMAZ (bağlantı kesilse de sayılır). 429 mesajı (yaklaşık N dakika + telefon) ve girdi koruması aynen kalsın.
+- R4 (KVKK): teklif silinince o teklife ait tüm islem_kayitlari satırlarını sil (DELETE ... WHERE teklif_id = $1, silmeden önce) ve silme olayını adsız yaz ("Teklif No. 12 silindi"). Teklif silme dışında günlükteki adlar kalabilir. README'de işlem günlüğü satırına "teklif silinince ona ait kayıtlar da silinir" notu.
+- R5 (test temizliği canlıyı silmesin): scripts/test.js başında koruma: kullanılacak bağlantı adresinin hostu localhost / 127.0.0.1 / ::1 değilse ve TEST_DATABASE_URL de değilse testleri ÇALIŞTIRMA, açık bir hata mesajıyla çık. test/kayit-temizle.js de aynı korumayı kullansın.
+
+TESTLER: CF-Connecting-IP farklı iki istemci ayrı sayaca düşüyor, aynı CF-Connecting-IP ama farklı sahte X-Forwarded-For aynı sayaca düşüyor; 422'ler sayılmıyor (5 hatalı + 5 geçerli → 6. geçerli 429); teklif silinince günlükte o teklif_id ile kayıt kalmıyor ve silme kaydında ad yok; scripts/test.js koruması (uzak host adresinde çıkış kodu ≠ 0 — saf fonksiyon olarak test et, gerçek bağlantı açma). `npm test` tamamen geçmeli.
+
+KAPSAM: app.js, lib/ (yeni istemci-ip modülü, kayit.js), routes/site.js, routes/yonetim.js, scripts/test.js, test/, README.md. git commit/push yapma, paket kurma.
+
+DÖNÜŞ: En fazla 8 satır: R1-R5 tek ifade, test sonucu (geçen/kalan), açık kalan.
