@@ -6,7 +6,7 @@ const { validationResult, matchedData } = require('express-validator');
 const pool = require('../db/pool');
 const { teklifKurallari, ETKINLIK_TURLERI } = require('../validators');
 const bildirim = require('../lib/bildirim');
-const { hazirla } = require('../lib/gorsel');
+const { kucukUret } = require('../lib/gorsel-uret');
 const onbellek = require('../lib/gorsel-onbellek');
 
 const router = express.Router();
@@ -240,8 +240,7 @@ async function gorselYukle(id, kucuk) {
   if (r.gorsel_kucuk) return { tur: 'image/webp', veri: r.gorsel_kucuk };
   // Eski kayıt: küçük boy henüz yok. Şimdi üretip kaydederiz; sonraki istekler hazırını alır.
   try {
-    const uretilen = (await hazirla(r.gorsel)).kucuk;
-    await pool.query('UPDATE projeler SET gorsel_kucuk = $1 WHERE id = $2 AND gorsel_kucuk IS NULL', [uretilen, id]);
+    const uretilen = await kucukUret(id, r.gorsel);
     return { tur: 'image/webp', veri: uretilen };
   } catch (err) {
     console.error(`Küçük boy üretilemedi (proje ${id}):`, err.message);

@@ -369,6 +369,31 @@ test('/saglik: 200 ok, no-store, veritabanı sorgusu yok', async () => {
   assert.strictEqual(n, 0);
 });
 
+test('görsel: arka plan işi eksik küçük boyu üretir, güncelleme zamanı değişmez; eşzamanlı üretim tek iş', async () => {
+  const p = await fotografliProje();
+  const { kucukUret } = require('../lib/gorsel-uret');
+  const once = (await pool.query('SELECT gorsel_kucuk, guncelleme FROM projeler WHERE id = $1', [p.id])).rows[0];
+  await pool.query('UPDATE projeler SET gorsel_kucuk = NULL WHERE id = $1', [p.id]);
+  onbellek.sil(p.id);
+  try {
+    const [a, b] = await Promise.all([kucukUret(p.id), kucukUret(p.id)]);
+    assert.strictEqual(a, b, 'aynı id için tek üretim (paylaşılan Promise)');
+    await pool.query('UPDATE projeler SET gorsel_kucuk = NULL WHERE id = $1', [p.id]);
+    onbellek.sil(p.id);
+    const s = await onbellek.eksikleriUret({ nefesMs: 0, log: false });
+    assert.ok(s.adet >= 1);
+    const sonra = (await pool.query('SELECT gorsel_kucuk, guncelleme FROM projeler WHERE id = $1', [p.id])).rows[0];
+    assert.ok(sonra.gorsel_kucuk && sonra.gorsel_kucuk.length > 0, 'gorsel_kucuk dolu');
+    assert.strictEqual(sonra.guncelleme.getTime(), once.guncelleme.getTime(), 'güncelleme zamanı değişmedi');
+    assert.ok(onbellek.al(p.id, true, ''), 'önbelleğe de yazıldı');
+    process.env.ISIT_GORSEL = 'false';
+    try { assert.strictEqual(await onbellek.eksikleriUret({ log: false }), null); } finally { delete process.env.ISIT_GORSEL; }
+  } finally {
+    await pool.query('UPDATE projeler SET gorsel_kucuk = $2 WHERE id = $1', [p.id, once.gorsel_kucuk]);
+    onbellek.sil(p.id);
+  }
+});
+
 test('görsel ısıtma: küçük ve tam boylar önbelleğe girer, etag/tür rotayla aynı; ISIT_GORSEL=false iken çalışmaz', async () => {
   const p = await fotografliProje();
   onbellek.temizle();

@@ -54,7 +54,7 @@ sürümsüz adreslerde en fazla 60 sn yaşlı olabilir. Veritabanı havuzu 10 ba
 
 ## Hız
 
-Sunucu açılınca (dinlemeye başladıktan sonra, arka planda) görsel bellek önbelleği doldurulur: önce küçük boylar, sonra tam boylar, 10'arlı gruplarla; sınır aşılmaz, küçük boyu DB'de olmayan kayıtlar atlanır (rota ilk istekte üretir). Bitince tek satır log yazılır (`Görsel ısıtma: N görsel, X MB, Y ms`); `ISIT_GORSEL=false` kapatır, `NODE_ENV=test`'te çalışmaz.
+Sunucu açılınca (dinlemeye başladıktan sonra, arka planda) görsel bellek önbelleği doldurulur: önce küçük boylar, sonra tam boylar, 10'arlı gruplarla; sınır aşılmaz, küçük boyu DB'de olmayan kayıtlar atlanır (rota ilk istekte üretir). Bitince tek satır log yazılır (`Görsel ısıtma: N görsel, X MB, Y ms`); `ISIT_GORSEL=false` kapatır, `NODE_ENV=test`'te çalışmaz. Isıtmadan sonra küçük boyu DB'de eksik kayıtlar arka planda tek tek (aralarda 50 ms nefesle) üretilip DB'ye ve önbelleğe yazılır, böylece hiçbir ziyaretçi anında üretimi beklemez.
 Render ücretsiz servis 15 dk trafik yoksa uyur (uyanış ~50 sn). `.github/workflows/uyandir.yml` her 10 dakikada `/saglik` (DB'ye dokunmaz, `ok` döner) adresini çağırır; site adresi repo değişkeni `SITE_URL`, yoksa `https://kiraliktruss.onrender.com`. GitHub cron gecikebilir; daha güvenilir olsun istenirse cron-job.org ya da UptimeRobot ile `/saglik`'e 10 dk'da bir istek atılır.
 Not: sürekli açık tutmak ücretsiz planın aylık 750 saatini tüketir (tek servis için ayı karşılar; ikinci bir servis açılırsa yetmez).
 

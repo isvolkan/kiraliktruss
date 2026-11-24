@@ -9,6 +9,6 @@ gocCalistir()
   .then(() => app.listen(port, () => {
     console.log(`Kiralık Truss http://localhost:${port} adresinde çalışıyor`);
     // Görsel önbelleğini arka planda doldur (beklenmez; hata yalnız loglanır)
-    if (process.env.NODE_ENV !== 'test') require('./lib/gorsel-onbellek').isit().catch((e) => console.error('Görsel ısıtma hatası:', e.message));
+    if (process.env.NODE_ENV !== 'test') require('./lib/gorsel-onbellek').aciliset().catch((e) => console.error('Görsel ısıtma hatası:', e.message));
   }))
   .catch((err) => { console.error('Göç hatası, sunucu başlatılmadı:', err); process.exit(1); });
