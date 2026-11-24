@@ -28,7 +28,7 @@ app.set('views', path.join(__dirname, 'views'));
 // değişse ya da istemci sahte X-Forwarded-For yazsa da sayaç bölünmez. Başka bir barındırmada TRUST_PROXY ile ezilir.
 const proxyAyari = process.env.TRUST_PROXY;
 app.set('trust proxy', proxyAyari && /^\d+$/.test(proxyAyari) ? Number(proxyAyari) : (proxyAyari || 1));
-// Geçici canlı teşhis: IP_TESHIS=true iken ilk birkaç /teklif ve /saglik isteğinde adres zincirini loglar (varsayılan kapalı)
+// Geçici canlı teşhis: IP_TESHIS=true iken ilk 20 istekte (POST /teklif, /saglik, GET /; iç sağlık kontrolü hariç) adres zincirini loglar (varsayılan kapalı)
 app.use(require('./lib/istemci-ip').teshis);
 
 // Güvenlik başlıkları. Harita için OpenStreetMap iframe'ine, yazı tipi için Google Fonts'a izin veriyoruz.

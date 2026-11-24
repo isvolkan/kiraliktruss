@@ -4,7 +4,7 @@ const assert = require('node:assert');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const { kontrol, zorunlu } = require('../lib/test-koruma');
-const { anahtar, maskele } = require('../lib/istemci-ip');
+const { anahtar, maskele, icIstek, maskeliListe } = require('../lib/istemci-ip');
 
 test('R5 koruma: yerel hostlar geçer, uzak host reddedilir, TEST_DATABASE_URL uzak olsa da kabul edilir', () => {
   for (const u of ['postgres://u:p@localhost:5432/d', 'postgres://u:p@127.0.0.1/d', 'postgres://u:p@[::1]:5432/d']) {
@@ -38,6 +38,24 @@ test('R1 istemci-ip: anahtar CF başlığından; geçersizse req.ip; IPv6 /56 al
   assert.strictEqual(anahtar(istek('2001:db8:1:2:aaaa::1', '1.1.1.1')), anahtar(istek('2001:db8:1:2:bbbb::9', '2.2.2.2')), 'aynı /56');
   assert.notStrictEqual(anahtar(istek('2001:db8:1:2::1', 'x')), anahtar(istek('2001:db8:1:3000::1', 'x')), 'farklı /56');
   assert.strictEqual(maskele('1.2.3.4'), '1.2.3.x');
-  assert.strictEqual(maskele('2001:db8::1'), '2001:db8::x');
+  assert.strictEqual(maskele('2001:db8::1'), '2001:db8:0:0:x:x:x:x');
   assert.strictEqual(maskele(undefined), '-');
+});
+
+test('R1 teşhis: IPv6/eşlemeli maskeleme, XFF girdileri tek tek maskelenir, iç sağlık kontrolü ayıklanır', () => {
+  assert.strictEqual(maskele('2001:db8:1:2:3:4:5:6'), '2001:db8:1:2:x:x:x:x');
+  assert.strictEqual(maskele('::ffff:1.2.3.4'), '::ffff:1.2.3.x');
+  assert.strictEqual(maskele('bozuk'), 'gecersiz');
+  assert.strictEqual(maskele(''), '-');
+  assert.strictEqual(maskeliListe('203.0.113.5, 10.1.2.3'), '203.0.113.x,10.1.2.x (n=2)');
+  assert.strictEqual(maskeliListe(undefined), '-');
+  const istek = (soket, headers = {}) => ({ socket: { remoteAddress: soket }, headers });
+  for (const s of ['10.20.30.40', '172.16.0.1', '172.31.9.9', '192.168.1.1', '100.64.0.7', '127.0.0.1', '::1', '::ffff:10.0.0.5']) {
+    assert.strictEqual(icIstek(istek(s)), true, s);
+  }
+  assert.strictEqual(icIstek(istek('10.0.0.5', { 'x-forwarded-for': '203.0.113.5' })), false, 'XFF varsa iç değil');
+  assert.strictEqual(icIstek(istek('10.0.0.5', { 'cf-connecting-ip': '203.0.113.5' })), false);
+  assert.strictEqual(icIstek(istek('10.0.0.5', { 'true-client-ip': '203.0.113.5' })), false);
+  assert.strictEqual(icIstek(istek('172.32.0.1')), false, '172.32 özel değil');
+  assert.strictEqual(icIstek(istek('203.0.113.9')), false);
 });
