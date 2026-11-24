@@ -8,7 +8,9 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const bcrypt = require('bcryptjs');
 const { Client } = require('pg');
+const request = require('supertest');
 const pool = require('../db/pool');
+const app = require('../app');
 
 const KOK = path.join(__dirname, '..');
 const EPOSTA = `test-seed-${Date.now()}@ornek.invalid`;
@@ -38,6 +40,46 @@ test('D1 seed: panelden değiştirilen yönetici şifresi ikinci seed çalışma
   seedCalistir(env); // yeniden başlatma
   const son = (await pool.query('SELECT sifre_hash FROM kullanicilar WHERE eposta = $1', [EPOSTA])).rows[0];
   assert.strictEqual(son.sifre_hash, yeni, 'seed şifreyi .env değerine geri yazmamalı');
+});
+
+test('D3 seed: ADMIN_SIFRE_SIFIRLA=true şifreyi günceller, oturumları siler; kısa şifrede ve bayraksız sıfırlamaz', async () => {
+  const eposta = `test-sifirla-${Date.now()}@ornek.invalid`;
+  try {
+    seedCalistir({ ADMIN_EMAIL: eposta, ADMIN_PASSWORD: 'eski-sifre-1234' });
+    const id = String((await pool.query('SELECT id FROM kullanicilar WHERE eposta = $1', [eposta])).rows[0].id);
+    const hashAl = async () => (await pool.query('SELECT sifre_hash FROM kullanicilar WHERE eposta = $1', [eposta])).rows[0].sifre_hash;
+    const sid = 'test-sifirla-' + Date.now();
+    await pool.query(`INSERT INTO oturumlar (sid, sess, expire) VALUES ($1, $2, now() + interval '1 hour')`,
+      [sid, JSON.stringify({ cookie: {}, kullanici: { id: Number(id), eposta } })]);
+
+    // Kısa şifre: sıfırlama yapılmaz
+    const kisa = seedCalistir({ ADMIN_EMAIL: eposta, ADMIN_PASSWORD: 'kisa', ADMIN_SIFRE_SIFIRLA: 'true' });
+    assert.ok(await bcrypt.compare('eski-sifre-1234', await hashAl()), 'kısa şifrede değişmemeli');
+    assert.ok(!kisa.includes('sıfırlandı'));
+    // "TRUE" ya da "1": tam olarak "true" değil, sıfırlama yok
+    seedCalistir({ ADMIN_EMAIL: eposta, ADMIN_PASSWORD: 'baska-sifre-9999', ADMIN_SIFRE_SIFIRLA: 'TRUE' });
+    assert.ok(await bcrypt.compare('eski-sifre-1234', await hashAl()));
+    assert.strictEqual((await pool.query('SELECT 1 FROM oturumlar WHERE sid = $1', [sid])).rowCount, 1);
+
+    // Bayraklı: şifre güncellenir (e-posta büyük harf/boşluklu da olsa), eski şifre geçmez, oturum silinir
+    const cikti = seedCalistir({ ADMIN_EMAIL: '  ' + eposta.toUpperCase() + ' ', ADMIN_PASSWORD: 'yeni-sifre-5678', ADMIN_SIFRE_SIFIRLA: 'true' });
+    assert.ok(cikti.includes('Yönetici şifresi ADMIN_SIFRE_SIFIRLA ile sıfırlandı — bu değişkeni şimdi kaldırın.'));
+    assert.ok(!cikti.includes('yeni-sifre-5678'));
+    const h = await hashAl();
+    assert.ok(await bcrypt.compare('yeni-sifre-5678', h));
+    assert.ok(!(await bcrypt.compare('eski-sifre-1234', h)), 'eski şifre geçmemeli');
+    assert.strictEqual((await pool.query('SELECT 1 FROM oturumlar WHERE sid = $1', [sid])).rowCount, 0, 'oturumlar silinmeli');
+    assert.strictEqual((await pool.query('SELECT 1 FROM kullanicilar WHERE lower(eposta) = $1', [eposta])).rowCount, 1, 'çift hesap oluşmamalı');
+
+    // Giriş: büyük harf + baş/son boşluklu e-posta çalışır
+    const ajan = request.agent(app);
+    const sayfa = await ajan.get('/yonetim/giris');
+    const jeton = sayfa.text.match(/name="_csrf" value="([0-9a-f]{64})"/)[1];
+    const r = await ajan.post('/yonetim/giris').type('form').send({ _csrf: jeton, eposta: '  ' + eposta.toUpperCase() + '  ', sifre: 'yeni-sifre-5678' });
+    assert.strictEqual(r.status, 302, 'büyük harf/boşluklu e-posta ile giriş çalışmalı');
+  } finally {
+    await pool.query('DELETE FROM kullanicilar WHERE eposta = $1', [eposta]);
+  }
 });
 
 test('D2 açılış: eski şemalı veritabanında seed + göç + yeniden seed başarılı (indeks/sütun çökmesi yok)', async () => {

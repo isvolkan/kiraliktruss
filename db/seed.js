@@ -17,14 +17,32 @@ async function main() {
 
   // Yönetici hesabı: e-posta ve parola .env'den okunur, parola bcrypt ile saklanır.
   // Yalnız hesap yoksa oluşturulur; varsa dokunulmaz (panelden değiştirilen şifre yeniden başlatmada geri yazılmasın).
-  const { ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
+  // E-posta giriş rotasıyla aynı biçimde normalize edilir (trim + küçük harf).
+  // ADMIN_SIFRE_SIFIRLA=true (tam olarak "true") ise şifre bilinçli olarak ADMIN_PASSWORD'e sıfırlanır.
+  const { ADMIN_PASSWORD, ADMIN_SIFRE_SIFIRLA } = process.env;
+  const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
   if (ADMIN_EMAIL && ADMIN_PASSWORD) {
+    const sifirla = ADMIN_SIFRE_SIFIRLA === 'true';
+    if (sifirla && ADMIN_PASSWORD.length < 10) {
+      console.warn('ADMIN_SIFRE_SIFIRLA atlandı: ADMIN_PASSWORD en az 10 karakter olmalı.');
+    }
     const hash = await bcrypt.hash(ADMIN_PASSWORD, 12);
-    const eklendi = await pool.query(
-      `INSERT INTO kullanicilar (eposta, sifre_hash) VALUES ($1, $2) ON CONFLICT (eposta) DO NOTHING`,
-      [ADMIN_EMAIL.toLowerCase(), hash]
-    );
-    console.log(eklendi.rowCount ? 'Yönetici hesabı oluşturuldu:' : 'Yönetici hesabı zaten var, şifre değiştirilmedi:', ADMIN_EMAIL);
+    if (sifirla && ADMIN_PASSWORD.length >= 10) {
+      const var_ = await pool.query('SELECT id FROM kullanicilar WHERE lower(eposta) = $1', [ADMIN_EMAIL]);
+      if (var_.rowCount) {
+        await pool.query('UPDATE kullanicilar SET sifre_hash = $2 WHERE id = $1', [var_.rows[0].id, hash]);
+        await pool.query(`DELETE FROM oturumlar WHERE sess->'kullanici'->>'id' = $1`, [String(var_.rows[0].id)]);
+      } else {
+        await pool.query('INSERT INTO kullanicilar (eposta, sifre_hash) VALUES ($1, $2)', [ADMIN_EMAIL, hash]);
+      }
+      console.log('Yönetici şifresi ADMIN_SIFRE_SIFIRLA ile sıfırlandı — bu değişkeni şimdi kaldırın.');
+    } else {
+      const eklendi = await pool.query(
+        `INSERT INTO kullanicilar (eposta, sifre_hash) VALUES ($1, $2) ON CONFLICT (eposta) DO NOTHING`,
+        [ADMIN_EMAIL, hash]
+      );
+      console.log(eklendi.rowCount ? 'Yönetici hesabı oluşturuldu:' : 'Yönetici hesabı zaten var, şifre değiştirilmedi:', ADMIN_EMAIL);
+    }
   }
 
   const { rows } = await pool.query('SELECT count(*)::int AS n FROM projeler');

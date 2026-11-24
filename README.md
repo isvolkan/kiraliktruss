@@ -121,6 +121,7 @@ Bu bilgisayarda geliştirme veritabanı proje klasöründeki `.pgdata` kümesidi
    - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `BILDIRIM_EPOSTA` (e-posta bildirimi; isteğe bağlı)
    - `SITE_DEMO` (`true` = önizleme, arama motorlarına kapalı; gerçek yayında `false`)
    - İsteğe bağlı: `DATABASE_SSL_GEVSEK=true` (yalnız `DATABASE_SSL=true` iken sertifika doğrulamasını kapatır; adresteki `sslmode` bu durumda yok sayılır)
+   - **Şifre unutulursa:** Render Environment'a `ADMIN_SIFRE_SIFIRLA=true` ekleyin, `ADMIN_PASSWORD`'ü yeni şifre (en az 10 karakter) yapın, kaydedin (servis yeniden başlar ve şifre sıfırlanır, eski oturumlar kapanır), yeni şifreyle girin; sonra `ADMIN_SIFRE_SIFIRLA`'yı silin.
 6. Ücretsiz Render 15 dk hareketsizlikte uyur; sunumdan önce siteyi bir kez açın.
 
 ## Güvenlik notları
