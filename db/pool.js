@@ -20,7 +20,7 @@ if (gevsek && adres) {
 const pool = new Pool({
   connectionString: adres,
   ssl: sslAcik ? { rejectUnauthorized: !gevsek } : false,
-  max: 5,
+  max: Number(process.env.DB_HAVUZ_MAX) || 10, // sayfada ~24 görsel aynı anda istenir; Neon sınırı bunun çok üstünde
 });
 
 module.exports = pool;

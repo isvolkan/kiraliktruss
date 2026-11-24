@@ -10,6 +10,7 @@ const bildirim = require('../lib/bildirim');
 const { hazirla, imzaKontrol } = require('../lib/gorsel');
 const app = require('../app');
 const pool = require('../db/pool');
+const onbellek = require('../lib/gorsel-onbellek');
 
 const ETIKET = 'TEST-backend-' + Date.now();
 
@@ -72,6 +73,7 @@ test('görsel: küçük boyu olmayan eski kayıt için anında üretilir ve kayd
   const p = await fotografliProje();
   const eski = (await pool.query('SELECT gorsel_kucuk FROM projeler WHERE id = $1', [p.id])).rows[0].gorsel_kucuk;
   await pool.query('UPDATE projeler SET gorsel_kucuk = NULL WHERE id = $1', [p.id]);
+  onbellek.sil(p.id); // önceki testlerden kalan bellek kaydı yok sayılsın
   try {
     const r = await request(app).get('/gorsel/' + p.id + '?boy=kucuk');
     assert.strictEqual(r.status, 200);
@@ -81,6 +83,67 @@ test('görsel: küçük boyu olmayan eski kayıt için anında üretilir ve kayd
   } finally {
     await pool.query('UPDATE projeler SET gorsel_kucuk = $2 WHERE id = $1', [p.id, eski]);
   }
+});
+
+// pool.query çağrılarını sayar
+async function sorguSay(fn) {
+  const orijinal = pool.query;
+  let n = 0;
+  pool.query = function (...a) { n++; return orijinal.apply(this, a); };
+  try { await fn(); } finally { pool.query = orijinal; }
+  return n;
+}
+
+test('görsel önbelleği: ikinci istek DB olmadan gelir, içerik ve başlıklar aynı, 304 çalışır', async () => {
+  const p = await fotografliProje();
+  const yol = '/gorsel/' + p.id + '?boy=kucuk';
+  onbellek.sil(p.id);
+  const ilk = await request(app).get(yol);
+  assert.strictEqual(ilk.status, 200);
+  let ikinci, uc;
+  const n = await sorguSay(async () => {
+    ikinci = await request(app).get(yol);
+    uc = await request(app).get(yol).set('If-None-Match', ilk.headers.etag);
+  });
+  assert.strictEqual(n, 0, 'önbellekten yanıt: veritabanı sorgusu yok');
+  assert.strictEqual(uc.status, 304);
+  assert.strictEqual(ikinci.status, 200);
+  assert.deepStrictEqual(ikinci.body, ilk.body);
+  for (const b of ['etag', 'cache-control', 'content-type']) assert.strictEqual(ikinci.headers[b], ilk.headers[b]);
+});
+
+test('görsel önbelleği: v uyuşmazsa taze okunur, v eşleşirse immutable ve DB olmadan', async () => {
+  const p = await fotografliProje();
+  const g = (await pool.query('SELECT floor(extract(epoch FROM guncelleme) * 1000)::bigint AS v FROM projeler WHERE id = $1', [p.id])).rows[0].v;
+  const yol = '/gorsel/' + p.id + '?boy=kucuk&v=';
+  onbellek.sil(p.id);
+  await request(app).get(yol + g);
+  let r;
+  assert.strictEqual(await sorguSay(async () => { r = await request(app).get(yol + g); }), 0);
+  assert.match(r.headers['cache-control'], /immutable/);
+  assert.ok(await sorguSay(async () => { await request(app).get(yol + (Number(g) + 1)); }) > 0, 'farklı v taze okuma yapar');
+});
+
+test('görsel önbelleği: sil(id) sonrası taze okuma', async () => {
+  const p = await fotografliProje();
+  const yol = '/gorsel/' + p.id;
+  await request(app).get(yol);
+  assert.strictEqual(await sorguSay(() => request(app).get(yol)), 0);
+  onbellek.sil(p.id);
+  assert.ok(await sorguSay(() => request(app).get(yol)) > 0);
+});
+
+test('görsel önbelleği: bayt sınırı aşılınca en eski kayıt çıkar', () => {
+  const sinir = onbellek.SINIR_BAYT;
+  onbellek.temizle();
+  const parca = Buffer.alloc(Math.floor(sinir / 2) + 1);
+  const kayit = { guncelleme: 1, etag: '"x"', tur: 'image/webp', veri: parca };
+  onbellek.yaz(900001, false, kayit, 0);
+  onbellek.yaz(900002, false, kayit, 0);
+  assert.strictEqual(onbellek.al(900001, false, ''), null, 'en eski çıktı');
+  assert.ok(onbellek.al(900002, false, ''));
+  assert.ok(onbellek.bilgi().bayt <= sinir);
+  onbellek.temizle();
 });
 
 test('görsel: olmayan proje yer tutucuya yönlenir', async () => {
@@ -295,4 +358,42 @@ test('D11 hakkımızda gösterisi: küçük boy + srcset (sürümlü), gosteri.j
     assert.match(im, /sizes="[^"]+"/);
   }
   assert.match(fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'gosteri.js'), 'utf8'), /dataset\.srcset/);
+});
+
+test('/saglik: 200 ok, no-store, veritabanı sorgusu yok', async () => {
+  let r;
+  const n = await sorguSay(async () => { r = await request(app).get('/saglik'); });
+  assert.strictEqual(r.status, 200);
+  assert.strictEqual(r.text, 'ok');
+  assert.match(r.headers['cache-control'], /no-store/);
+  assert.strictEqual(n, 0);
+});
+
+test('görsel ısıtma: küçük ve tam boylar önbelleğe girer, etag/tür rotayla aynı; ISIT_GORSEL=false iken çalışmaz', async () => {
+  const p = await fotografliProje();
+  onbellek.temizle();
+  process.env.ISIT_GORSEL = 'false';
+  try { assert.strictEqual(await onbellek.isit({ log: false }), null); } finally { delete process.env.ISIT_GORSEL; }
+  assert.strictEqual(onbellek.bilgi().kayit, 0, 'kapalıyken önbellek boş');
+
+  const s = await onbellek.isit({ log: false });
+  assert.ok(s.adet > 0 && s.bayt > 0);
+  assert.ok(onbellek.bilgi().bayt <= onbellek.SINIR_BAYT);
+  const kucukVar = (await pool.query('SELECT gorsel_kucuk IS NOT NULL AS v FROM projeler WHERE id = $1', [p.id])).rows[0].v;
+  const isitilan = new Map();
+  for (const k of kucukVar ? [true, false] : [false]) {
+    const e = onbellek.al(p.id, k, '');
+    assert.ok(e, (k ? 'küçük' : 'tam') + ' boy önbellekte');
+    isitilan.set(k, e);
+  }
+  // Rota aynı kaydı üretsin: önbelleği boşaltıp rotadan al, etag/tür/veri karşılaştır
+  for (const [kucuk, e] of isitilan) {
+    onbellek.sil(p.id);
+    const r = await request(app).get('/gorsel/' + p.id + (kucuk ? '?boy=kucuk' : ''));
+    assert.strictEqual(r.status, 200);
+    assert.strictEqual(r.headers.etag, e.etag);
+    assert.strictEqual(r.headers['content-type'].split(';')[0], e.tur);
+    assert.ok(Buffer.compare(r.body, e.veri) === 0);
+  }
+  onbellek.temizle();
 });

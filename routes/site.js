@@ -7,6 +7,7 @@ const pool = require('../db/pool');
 const { teklifKurallari, ETKINLIK_TURLERI } = require('../validators');
 const bildirim = require('../lib/bildirim');
 const { hazirla } = require('../lib/gorsel');
+const onbellek = require('../lib/gorsel-onbellek');
 
 const router = express.Router();
 const SAYFA_BOYU = 24;
@@ -181,6 +182,19 @@ router.get('/gorsel/:id', async (req, res, next) => {
   const id = sayi(req.params.id);
   if (!id) return next();
   const kucuk = tek(req.query.boy) === 'kucuk';
+  const surum = tek(req.query.v);
+  const surumlu = /^\d{1,16}$/.test(surum);
+  const cc = surumlu ? 'public, max-age=31536000, immutable' : 'no-cache';
+
+  // Bellek önbelleği: veritabanına hiç gitmeden aynı başlıklarla (ETag, 304, Cache-Control) yanıt verir
+  const onceki = onbellek.al(id, kucuk, surumlu ? surum : '');
+  if (onceki) {
+    res.set('ETag', onceki.etag);
+    res.set('Cache-Control', cc);
+    if (req.fresh) return res.status(304).end();
+    res.type(onceki.tur);
+    return res.send(onceki.veri);
+  }
 
   // Önce yalnız üst bilgi (baytlar değil): fotoğraf var mı, ne zaman / ne kadar değişti
   const bilgi = await pool.query(
@@ -189,37 +203,51 @@ router.get('/gorsel/:id', async (req, res, next) => {
   if (!b || !b.var) return res.redirect('/img/gorsel-yok.svg');
 
   // Küçük boy tam boydan türediği için ikisinin ETag'i de tam boyun boyutundan ve güncelleme anından oluşur
-  res.set('ETag', `"${id}-${kucuk ? 'k' : 't'}-${b.guncelleme.getTime()}-${b.boyut}"`);
-  const surumlu = /^\d{1,16}$/.test(tek(req.query.v));
-  res.set('Cache-Control', surumlu ? 'public, max-age=31536000, immutable' : 'no-cache');
+  const etag = onbellek.etagUret(id, kucuk, b.guncelleme.getTime(), b.boyut);
+  res.set('ETag', etag);
+  res.set('Cache-Control', cc);
   if (req.fresh) return res.status(304).end();
 
+  // Aynı anda gelen aynı görsel istekleri tek okumayı (ve tek sharp işlemini) paylaşır
+  const ak = `${id}:${kucuk}:${b.guncelleme.getTime()}`;
+  let is = yuklemeler.get(ak);
+  if (!is) {
+    const nesil = onbellek.mevcutNesil(id);
+    is = gorselYukle(id, kucuk).then((s) => {
+      if (s && !s.gecici) onbellek.yaz(id, kucuk, { guncelleme: b.guncelleme.getTime(), etag, tur: s.tur, veri: s.veri }, nesil);
+      return s;
+    }).finally(() => yuklemeler.delete(ak));
+    yuklemeler.set(ak, is);
+  }
+  const s = await is;
+  if (!s) return res.redirect('/img/gorsel-yok.svg');
+  if (s.gecici) { // geçici çözüm: tam boyu ver, kalıcı önbelleğe yazdırma
+    res.removeHeader('ETag');
+    res.set('Cache-Control', 'no-cache');
+  }
+  res.type(s.tur);
+  return res.send(s.veri);
+});
+
+const yuklemeler = new Map(); // devam eden görsel okumaları
+
+// Baytları okur; küçük boy yoksa üretip kaydeder. Dönüş: { tur, veri, gecici? } ya da null (fotoğraf yok)
+async function gorselYukle(id, kucuk) {
   const { rows } = await pool.query('SELECT gorsel, gorsel_tip, gorsel_kucuk FROM projeler WHERE id = $1', [id]);
   const r = rows[0];
-  if (!r || !r.gorsel) return res.redirect('/img/gorsel-yok.svg');
-
-  if (!kucuk) {
-    res.type(r.gorsel_tip || 'image/jpeg');
-    return res.send(r.gorsel);
-  }
-  if (r.gorsel_kucuk) {
-    res.type('image/webp');
-    return res.send(r.gorsel_kucuk);
-  }
+  if (!r || !r.gorsel) return null;
+  if (!kucuk) return { tur: r.gorsel_tip || 'image/jpeg', veri: r.gorsel };
+  if (r.gorsel_kucuk) return { tur: 'image/webp', veri: r.gorsel_kucuk };
   // Eski kayıt: küçük boy henüz yok. Şimdi üretip kaydederiz; sonraki istekler hazırını alır.
   try {
     const uretilen = (await hazirla(r.gorsel)).kucuk;
     await pool.query('UPDATE projeler SET gorsel_kucuk = $1 WHERE id = $2 AND gorsel_kucuk IS NULL', [uretilen, id]);
-    res.type('image/webp');
-    return res.send(uretilen);
+    return { tur: 'image/webp', veri: uretilen };
   } catch (err) {
     console.error(`Küçük boy üretilemedi (proje ${id}):`, err.message);
-    res.removeHeader('ETag'); // geçici çözüm: tam boyu ver, kalıcı önbelleğe yazdırma
-    res.set('Cache-Control', 'no-cache');
-    res.type(r.gorsel_tip || 'image/jpeg');
-    return res.send(r.gorsel);
+    return { tur: r.gorsel_tip || 'image/jpeg', veri: r.gorsel, gecici: true };
   }
-});
+}
 
 // ---------- Teklif formu ----------
 
@@ -294,6 +322,12 @@ router.get('/teklif/tesekkurler', (req, res) => res.render('tesekkurler', { basl
 router.get('/kvkk', (req, res) => res.render('kvkk', { baslik: 'KVKK Aydınlatma Metni' }));
 
 // Önizleme (SITE_DEMO=true) arama motorlarına kapalı; gerçek yayında her şey açık, yönetim hariç
+// Uyandırma / sağlık denetimi: veritabanına dokunmaz, önbelleğe alınmaz
+router.get('/saglik', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.type('text/plain').send('ok');
+});
+
 router.get('/robots.txt', (req, res) => {
   const satirlar = process.env.SITE_DEMO === 'true'
     ? ['User-agent: *', 'Disallow: /']

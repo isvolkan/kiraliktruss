@@ -1,0 +1,16 @@
+# Render ücretsiz servisi uyumasın diye 10 dakikada bir /saglik çağırır (GitHub cron gecikebilir).
+name: uyandir
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+jobs:
+  uyandir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Siteyi uyandır
+        env:
+          SITE: ${{ vars.SITE_URL || 'https://kiraliktruss.onrender.com' }}
+        run: |
+          curl -fsS --max-time 90 --retry 1 --retry-all-errors --retry-delay 10 -o /dev/null -w "%{http_code} %{time_total}s\n" "$SITE/saglik"

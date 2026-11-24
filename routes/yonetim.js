@@ -8,6 +8,7 @@ const { validationResult, matchedData } = require('express-validator');
 const pool = require('../db/pool');
 const csrf = require('../lib/csrf');
 const { imzaKontrol, hazirla } = require('../lib/gorsel');
+const onbellek = require('../lib/gorsel-onbellek');
 const { projeKurallari, TEKLIF_DURUMLARI: DURUMLAR, teklifGuncelleKurallari, sifreKurallari } = require('../validators');
 
 const router = express.Router();
@@ -229,12 +230,15 @@ router.post('/projeler/:id', projeKurallari, async (req, res, next) => {
     [v.musteri, v.etkinlik || '', v.sehir || null, v.yil || null, v.tur, v.aciklama || null, req.body.one_cikan === 'on',
       foto ? foto.tam : null, foto ? foto.kucuk : null, foto ? foto.tur : null, id]
   );
+  onbellek.sil(id);
   bildir(req, 'Proje güncellendi.');
   res.redirect('/yonetim/projeler');
 });
 
 router.post('/projeler/:id/sil', async (req, res) => {
-  const { rowCount } = await pool.query('DELETE FROM projeler WHERE id = $1', [sayi(req.params.id)]);
+  const silId = sayi(req.params.id);
+  const { rowCount } = await pool.query('DELETE FROM projeler WHERE id = $1', [silId]);
+  onbellek.sil(silId);
   bildir(req, rowCount ? 'Proje silindi.' : 'Proje bulunamadı (zaten silinmiş olabilir).');
   res.redirect('/yonetim/projeler');
 });

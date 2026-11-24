@@ -4,10 +4,11 @@ services:
     name: kiraliktruss
     runtime: node
     plan: free
+    region: frankfurt # Neon veritabanıyla aynı bölge (AWS Europe Central 1)
     buildCommand: npm ci
     # Her açılışta: tablolar + göçler (eski şemalı veritabanında da çalışır), yönetici yalnız yoksa açılır, projeler yalnız tablo boşken yüklenir; sonra sunucu başlar.
     startCommand: npm run seed && npm start
-    healthCheckPath: /
+    healthCheckPath: /saglik
     envVars:
       - key: NODE_ENV
         value: production

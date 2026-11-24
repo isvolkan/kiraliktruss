@@ -49,6 +49,14 @@ Fotoğraflar veritabanında tutulur (ücretsiz sunucunun diski kalıcı değil).
 `/gorsel/:id` tam boyu, `/gorsel/:id?boy=kucuk` küçük boyu verir; ETag ile 304 döner. Ziyaretçi sayfaları adrese `v=<güncelleme zamanı>` ekler:
 sürümlü adres bir yıl önbellekte kalır, fotoğraf değişince adres de değişir. Sürümsüz adres her seferinde ETag ile sorulur (`no-cache`).
 Eski kayıtların küçük boyu ilk istekte üretilip kaydedilir; toplu işlem için `npm run gorseller`.
+Yanıtlar ayrıca sunucu belleğinde önbelleğe alınır (`lib/gorsel-onbellek.js`, LRU, varsayılan 64 MB, `GORSEL_ONBELLEK_MB`); sürüm değişince ya da panelde fotoğraf güncellenip silinince kayıt geçersiz olur,
+sürümsüz adreslerde en fazla 60 sn yaşlı olabilir. Veritabanı havuzu 10 bağlantıdır (`DB_HAVUZ_MAX`).
+
+## Hız
+
+Sunucu açılınca (dinlemeye başladıktan sonra, arka planda) görsel bellek önbelleği doldurulur: önce küçük boylar, sonra tam boylar, 10'arlı gruplarla; sınır aşılmaz, küçük boyu DB'de olmayan kayıtlar atlanır (rota ilk istekte üretir). Bitince tek satır log yazılır (`Görsel ısıtma: N görsel, X MB, Y ms`); `ISIT_GORSEL=false` kapatır, `NODE_ENV=test`'te çalışmaz.
+Render ücretsiz servis 15 dk trafik yoksa uyur (uyanış ~50 sn). `.github/workflows/uyandir.yml` her 10 dakikada `/saglik` (DB'ye dokunmaz, `ok` döner) adresini çağırır; site adresi repo değişkeni `SITE_URL`, yoksa `https://kiraliktruss.onrender.com`. GitHub cron gecikebilir; daha güvenilir olsun istenirse cron-job.org ya da UptimeRobot ile `/saglik`'e 10 dk'da bir istek atılır.
+Not: sürekli açık tutmak ücretsiz planın aylık 750 saatini tüketir (tek servis için ayı karşılar; ikinci bir servis açılırsa yetmez).
 
 ## KVKK, SEO
 
